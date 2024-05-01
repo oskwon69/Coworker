@@ -1,0 +1,115 @@
+import 'dart:io';
+
+import 'package:coworker/UI/update_model.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:coworker/model/defect.dart';
+import 'package:coworker/database/defect_database.dart';
+
+class CardDefectListWidget extends StatefulWidget {
+  const CardDefectListWidget({Key? key, required this.defect, required this.function}) : super(key: key);
+
+  final Defect defect;
+  final Function function;
+
+  @override
+  State<CardDefectListWidget> createState() => _CardDefectListWidgetState();
+}
+
+class _CardDefectListWidgetState extends State<CardDefectListWidget> {
+  late Defect _defect;
+  String _image_path = '';
+
+  final DefectDatabase _databaseService = DefectDatabase();
+
+  returnUpdate() {
+    setState(() {
+      widget.function();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    if( widget.defect.pic1 != '' )  {
+      _image_path = widget.defect.pic1;
+    } else if( widget.defect.pic2 != '' ) {
+      _image_path = widget.defect.pic2;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _defect = widget.defect;
+    String _title = '${widget.defect.space} ${widget.defect.area} ${widget.defect.work} ${widget.defect.sort}';
+
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 5),
+      width: double.infinity,
+      height: 100,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+                color: _defect.synced != 1 ? Colors.red : Colors.green,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(7),
+                  bottomLeft: Radius.circular(7),
+                )
+            ),
+            width: 10,
+          ),
+          Gap(10),
+          InkWell(
+            onTap: () {
+              showModalBottomSheet(
+                  isScrollControlled: true,
+                  context: context,
+                  builder: (context) => UpdateDefectModel(defect: _defect, function: returnUpdate),
+              );
+            },
+            child: Container(
+              width: MediaQuery.of(context).size.width/2*0.40,
+              height: MediaQuery.of(context).size.width/2*0.40*3/4,
+              decoration: BoxDecoration( color: Colors.grey.shade200),
+              child: _image_path != '' ? Image.file(File(_image_path)) : Center(child: Icon(CupertinoIcons.photo_fill_on_rectangle_fill)),
+            ),
+          ),
+          Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      isThreeLine: true,
+                      title: Text(_title,
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(widget.defect.claim,
+                        style: TextStyle(fontSize: 12),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      //visualDensity: VisualDensity(horizontal: -4),
+                      dense: true,
+                    ),
+                    Divider(thickness: 1.5, color: Colors.grey.shade200, indent: 15, endIndent: 15,),
+                    Text('     전송 날짜 : ${widget.defect.sent!}', style: TextStyle(fontSize: 13)),
+                  ]
+                ),
+              ),
+          ),
+        ],
+      ),
+    );
+  }
+}
