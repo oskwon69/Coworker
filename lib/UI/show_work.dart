@@ -84,6 +84,8 @@ class _WorkSelectState extends State<WorkSelect> {
                                   setState(() {
                                     _selectedItem = index;
                                   });
+                                  widget.function(workList[_selectedItem].work_name);
+                                  Navigator.pop(context);
                                 },
                                 child: Text(workList[index].work_name),
                               );
@@ -96,18 +98,19 @@ class _WorkSelectState extends State<WorkSelect> {
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue.shade800,
-                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.blue.shade800,
+                              side: BorderSide(color: Colors.blue.shade800),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8)),
                               padding: EdgeInsets.symmetric(vertical: 3),
                             ),
                             onPressed: () {
-                              widget.function(workList[_selectedItem].work_name);
+                              //widget.function(workList[_selectedItem].work_name);
                               Navigator.pop(context);
                             },
-                            child: Text('선택'),
+                            child: Text('닫기'),
                           ),
                         )
                       ],

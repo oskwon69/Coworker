@@ -313,6 +313,8 @@ class _SendDataState extends State<SendData> {
                           Fluttertoast.showToast(msg: '전송할 하자가 없습니다.', gravity: ToastGravity.CENTER);
                           return;
                         }
+
+                        Fluttertoast.showToast(msg: '전송이 시작되었습니다.', gravity: ToastGravity.CENTER);
                         _sent = 0;
                         _sending = true;
                         _done = false;

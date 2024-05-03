@@ -81,6 +81,8 @@ class _AreaSelectState extends State<AreaSelect> {
                                 setState(() {
                                   _selectedItem = index;
                                 });
+                                widget.function(areaList[_selectedItem].area_name);
+                                Navigator.pop(context);
                               },
                               child: Text(areaList[index].area_name),
                             );
@@ -94,17 +96,18 @@ class _AreaSelectState extends State<AreaSelect> {
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue.shade800,
-                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.blue.shade800,
+                            side: BorderSide(color: Colors.blue.shade800),
                             elevation: 0,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             padding: EdgeInsets.symmetric(vertical: 3),
                           ),
                           onPressed: () {
-                            widget.function(areaList[_selectedItem].area_name);
+                            //widget.function(areaList[_selectedItem].area_name);
                             Navigator.pop(context);
                           },
-                          child: Text('선택'),
+                          child: Text('닫기'),
                         ),
                       )
                     ],

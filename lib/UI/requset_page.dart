@@ -71,7 +71,6 @@ class _RequestPageState extends State<RequestPage> {
 
   @override
   Widget build(BuildContext context)  {
-    final user = Supabase.instance.client.auth.currentUser;
     String _houseName = '';
     if( _user.site_name!.length>20)  {
       _houseName = '${_user.site_name!.substring(0,20)} ${_user.building_no}동 ${_user.house_no}호';

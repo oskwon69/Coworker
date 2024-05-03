@@ -15,6 +15,13 @@ void main() async {
       title: 'Defect A/S System',
       theme: ThemeData(),
       home: const LoginPage(),
+      builder: (context, child)  {
+        final MediaQueryData data = MediaQuery.of(context);
+        return MediaQuery(
+          child: child!,
+          data: data.copyWith(textScaleFactor: 1.0),
+        );
+      },
     )
   );
 }

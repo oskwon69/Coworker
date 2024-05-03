@@ -223,7 +223,7 @@ class _LoginPageState extends State<LoginPage> {
       super.initState();
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        defaultSite();
+        //defaultSite();
         checkInitCommState();
       });
     }
@@ -280,15 +280,15 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: TextFormField(
-                          keyboardType: TextInputType.text,
-                          controller: nameController,
-                          decoration: InputDecoration(
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            hintText: '이름을 입력해 주세요.',
+                            keyboardType: TextInputType.text,
+                            controller: nameController,
+                            decoration: InputDecoration(
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              hintText: '이름을 입력해 주세요.',
 
-                          ),
-                          textInputAction: TextInputAction.next
+                            ),
+                            textInputAction: TextInputAction.next
                         ),
                       ),
                       Gap(10),
@@ -301,20 +301,20 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          controller: phoneController,
-                          inputFormatters: [
-                            MultiMaskedTextInputFormatter(
-                                masks: ['xxx-xxxx-xxxx', 'xxx-xxx-xxxx'],
-                                separator: '-'),
-                          ],
-                          decoration: InputDecoration(
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            hintText: '휴대전화번호를 입력해 주세요.',
+                            keyboardType: TextInputType.number,
+                            controller: phoneController,
+                            inputFormatters: [
+                              MultiMaskedTextInputFormatter(
+                                  masks: ['xxx-xxxx-xxxx', 'xxx-xxx-xxxx'],
+                                  separator: '-'),
+                            ],
+                            decoration: InputDecoration(
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              hintText: '휴대전화번호를 입력해 주세요.',
 
-                          ),
-                          textInputAction: TextInputAction.next
+                            ),
+                            textInputAction: TextInputAction.next
                         ),
                       ),
                       Gap(10),
@@ -327,19 +327,19 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          controller: dateController,
-                          inputFormatters: [
-                            MultiMaskedTextInputFormatter(
-                                masks: ['xx.xx.xx'], separator: '.'),
-                          ],
-                          decoration: InputDecoration(
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            hintText: '생년월일(6자리)을 입력해 주세요.',
+                            keyboardType: TextInputType.number,
+                            controller: dateController,
+                            inputFormatters: [
+                              MultiMaskedTextInputFormatter(
+                                  masks: ['xx.xx.xx'], separator: '.'),
+                            ],
+                            decoration: InputDecoration(
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              hintText: '생년월일(6자리)을 입력해 주세요.',
 
-                          ),
-                          textInputAction: TextInputAction.done
+                            ),
+                            textInputAction: TextInputAction.done
                         ),
                       ),
                       Gap(30),

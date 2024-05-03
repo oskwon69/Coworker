@@ -74,39 +74,42 @@ class _CardDefectListWidgetState extends State<CardDefectListWidget> {
                   builder: (context) => UpdateDefectModel(defect: _defect, function: returnUpdate),
               );
             },
-            child: Container(
-              width: MediaQuery.of(context).size.width/2*0.40,
-              height: MediaQuery.of(context).size.width/2*0.40*3/4,
-              decoration: BoxDecoration( color: Colors.grey.shade200),
-              child: _image_path != '' ? Image.file(File(_image_path)) : Center(child: Icon(CupertinoIcons.photo_fill_on_rectangle_fill)),
-            ),
-          ),
-          Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 0),
-                child: Column(
+            child: Row(
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width/2*0.40,
+                  height: MediaQuery.of(context).size.width/2*0.40*3/4,
+                  decoration: BoxDecoration( color: Colors.grey.shade200),
+                  child: _image_path != '' ? Image.file(File(_image_path)) : Center(child: Icon(CupertinoIcons.photo_fill_on_rectangle_fill)),
+                ),
+                Gap(10),
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ListTile(
-                      isThreeLine: true,
-                      title: Text(_title,
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Text(widget.defect.claim,
-                        style: TextStyle(fontSize: 12),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      //visualDensity: VisualDensity(horizontal: -4),
-                      dense: true,
+                    Container(
+                      padding: EdgeInsets.fromLTRB(5, 10, 0, 0),
+                      width: MediaQuery.of(context).size.width*0.6,
+                      color: Colors.white,
+                      child:      Text(_title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black), maxLines: 1, overflow: TextOverflow.ellipsis,),
                     ),
-                    Divider(thickness: 1.5, color: Colors.grey.shade200, indent: 15, endIndent: 15,),
-                    Text('     전송 날짜 : ${widget.defect.sent!}', style: TextStyle(fontSize: 13)),
+                    Container(
+                      padding: EdgeInsets.fromLTRB(5, 5, 0, 0),
+                      width: MediaQuery.of(context).size.width*0.6,
+                      color: Colors.white,
+                      child:  Text(widget.defect.claim, style: TextStyle(fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis,),
+
+                    ),
+                    Container(
+                      padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+                      width: MediaQuery.of(context).size.width*0.6,
+                      child: Divider(thickness: 1.5, color: Colors.grey.shade300,),
+                    ),
+//                    Divider(thickness: 1.5, color: Colors.black, indent: 15, endIndent: 15,),
+                    Text('  전송 날짜 : ${widget.defect.sent!}', style: TextStyle(fontSize: 13)),
                   ]
                 ),
-              ),
+              ],
+            ),
           ),
         ],
       ),
