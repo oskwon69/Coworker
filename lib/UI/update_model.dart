@@ -15,6 +15,7 @@ import 'package:coworker/UI/textfield_widget.dart';
 import 'package:coworker/model/defect.dart';
 import 'package:coworker/database/defect_database.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UpdateDefectModel extends StatefulWidget {
   const UpdateDefectModel({Key? key, required this.defect, required this.function}) : super(key: key);
@@ -36,6 +37,9 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
   String _claim = '';
   String _pic1Path = '';
   String _pic2Path = '';
+
+  bool isEditValid = false;
+  final supabase = Supabase.instance.client;
 
   FocusNode focusNode = FocusNode();
   var claimController = TextEditingController();
@@ -77,11 +81,23 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
     });
   }
 
+  Future<void> checkEditValid() async {
+    var result = await supabase.from('site').select().eq('site_code',_site);
+    if( result.isNotEmpty )  {
+      DateTime startDate = DateTime.parse(result[0]['check_startdate'].toString());
+      DateTime endDate = DateTime.parse(result[0]['check_enddate'].toString());
+      DateTime today = DateTime.now();
+
+      if( today.compareTo(startDate) >= 0 && today.compareTo(endDate) <= 0 )  {
+        isEditValid = true;
+      }
+    }
+  }
+
   void initState() {
     super.initState();
 
     _defect = widget.defect;
-
     _site = _defect.site;
     _space = _defect.space;
     _area = _defect.area;
@@ -90,8 +106,9 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
     _claim = _defect.claim;
     _pic1Path = _defect.pic1!;
     _pic2Path = _defect.pic2!;
-
     claimController.text = _claim;
+
+    checkEditValid();
   }
 
   @override
@@ -337,6 +354,11 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                               padding: EdgeInsets.symmetric(vertical: 14),
                             ),
                             onPressed: () async {
+                              if( isEditValid == false )  {
+                                Fluttertoast.showToast(msg: '사전점검 기간이 아닙니다.');
+                                return;
+                              }
+
                               if( _space == '' )  {
                                 Fluttertoast.showToast(msg: '실명을 입력해 주세요.');
                                 return;

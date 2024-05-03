@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:coworker/UI/send_page.dart';
@@ -27,6 +29,7 @@ class RequestPage extends StatefulWidget {
 class _RequestPageState extends State<RequestPage> {
   late UserInfo _user;
   List<Defect> defectList = [];
+  bool isEditValid = false;
 
   final supabase = Supabase.instance.client;
   static final storage = FlutterSecureStorage();
@@ -45,9 +48,20 @@ class _RequestPageState extends State<RequestPage> {
   }
 
   refreshScreen() {
-    setState(() {
-      //_getDefects();
-    });
+    setState(() { });
+  }
+
+  Future<void> checkEditValid() async {
+    var result = await supabase.from('site').select().eq('site_code',_user.site_code!);
+    if( result.isNotEmpty )  {
+      DateTime startDate = DateTime.parse(result[0]['check_startdate'].toString());
+      DateTime endDate = DateTime.parse(result[0]['check_enddate'].toString());
+      DateTime today = DateTime.now();
+
+      if( today.compareTo(startDate) >= 0 && today.compareTo(endDate) <= 0 )  {
+        isEditValid = true;
+      }
+    }
   }
 
   Future<List<Defect>> _getDefects() async {
@@ -67,6 +81,7 @@ class _RequestPageState extends State<RequestPage> {
   void initState() {
     super.initState();
     _user = widget.user;
+    checkEditValid();
   }
 
   @override
@@ -85,6 +100,7 @@ class _RequestPageState extends State<RequestPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
+        titleSpacing: -10,
         title: ListTile(
           title: Text('${_user.user_name} 님', style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)),
           subtitle: Text('입주를 환영합니다!', style: TextStyle(fontSize: 13, color: Colors.grey)),
@@ -92,6 +108,11 @@ class _RequestPageState extends State<RequestPage> {
         actions: [
           IconButton(
             onPressed: () {
+              if( isEditValid == false )  {
+                Fluttertoast.showToast(msg: '사전점검 기간이 아닙니다.', gravity: ToastGravity.CENTER);
+                return;
+              }
+
               showModalBottomSheet(
                 isDismissible: false,
                 isScrollControlled: true,
@@ -108,6 +129,10 @@ class _RequestPageState extends State<RequestPage> {
           backgroundColor: Colors.blue,
           splashColor: Colors.white.withOpacity(0.25),
           onPressed: () {
+            if( isEditValid == false )  {
+              Fluttertoast.showToast(msg: '사전점검 기간이 아닙니다.', gravity: ToastGravity.CENTER);
+              return;
+            }
             showModalBottomSheet(
                 isScrollControlled: true,
                 context: context,
@@ -149,7 +174,7 @@ class _RequestPageState extends State<RequestPage> {
                         borderRadius: BorderRadius.circular(7),
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           Row(
                             children: [
@@ -157,9 +182,9 @@ class _RequestPageState extends State<RequestPage> {
                               Gap(5),
                               Container(
                                 alignment: Alignment.center,
-                                decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.all(Radius.circular(7))),
+                                decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.all(Radius.circular(7))),
                                 width: 30,
-                                child: Text(defectList.length.toString(), style: TextStyle(color: Colors.black)),
+                                child: Text(defectList.length.toString(), style: TextStyle(color: Colors.white)),
                               ),
                             ],
                           ),
@@ -171,7 +196,7 @@ class _RequestPageState extends State<RequestPage> {
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.all(Radius.circular(7))),
                                 width: 30,
-                                child: Text(_sent.toString(), style: TextStyle(color: Colors.black)),
+                                child: Text(_sent.toString(), style: TextStyle(color: Colors.white)),
                               ),
                             ],
                           ),
@@ -183,7 +208,7 @@ class _RequestPageState extends State<RequestPage> {
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.all(Radius.circular(7))),
                                 width: 30,
-                                child: Text((defectList.length-_sent).toString(), style: TextStyle(color: Colors.black)),
+                                child: Text((defectList.length-_sent).toString(), style: TextStyle(color: Colors.white)),
                               ),
                             ],
                           ),
@@ -212,7 +237,11 @@ class _RequestPageState extends State<RequestPage> {
                                 setState(() {});
                             },
                             confirmDismiss: (direction)  {
-                              return  showDialog(
+                              if( isEditValid == false )  {
+                                Fluttertoast.showToast(msg: '사전점검 기간이 아닙니다.', gravity: ToastGravity.CENTER);
+                                return Future.value(false);
+                              }
+                              return showDialog(
                                   context: context,
                                   builder: (context) {
                                     return AlertDialog(
