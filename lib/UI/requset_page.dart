@@ -106,7 +106,15 @@ class _RequestPageState extends State<RequestPage> {
           subtitle: Text('입주를 환영합니다!', style: TextStyle(fontSize: 13, color: Colors.grey)),
         ),
         actions: [
-          IconButton(
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue.shade700,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              padding: EdgeInsets.symmetric(vertical: 5),
+            ),
             onPressed: () {
               if( isEditValid == false )  {
                 Fluttertoast.showToast(msg: '사전점검 기간이 아닙니다.', gravity: ToastGravity.CENTER);
@@ -120,13 +128,13 @@ class _RequestPageState extends State<RequestPage> {
                 builder: (context) => SendData(user: _user,function: refreshScreen),
               );
             },
-            color: Colors.blue,
-            icon: Icon(Icons.sync)
-          )
+            child: Text('전송'),
+          ),
+          Gap(15),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.blue.shade700,
           splashColor: Colors.white.withOpacity(0.25),
           onPressed: () {
             if( isEditValid == false )  {
@@ -178,11 +186,11 @@ class _RequestPageState extends State<RequestPage> {
                         children: [
                           Row(
                             children: [
-                              Text('전체'),
+                              Text('전체건수'),
                               Gap(5),
                               Container(
                                 alignment: Alignment.center,
-                                decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.all(Radius.circular(7))),
+                                decoration: BoxDecoration(color: Colors.grey.shade700, borderRadius: BorderRadius.all(Radius.circular(7))),
                                 width: 30,
                                 child: Text(defectList.length.toString(), style: TextStyle(color: Colors.white)),
                               ),
