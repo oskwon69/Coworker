@@ -52,7 +52,11 @@ dependencies:
   intl: ^0.19.0
   sn_progress_dialog: ^1.1.4
   webview_flutter: ^4.7.0
+  webview_flutter_android: ^3.16.1
+  webview_flutter_wkwebview: ^3.13.0
   connectivity_plus: ^6.0.3
+  permission_handler: ^11.3.1
+  file_picker: ^8.0.3
 
 dev_dependencies:
   flutter_test:

@@ -22,6 +22,7 @@ class _PictureSelectState extends State<PictureSelect> {
     var image = await ImagePicker().pickImage(source: ImageSource.gallery);
     setState(() {
       _imagePath = image!.path;
+      print(_imagePath);
     });
   }
 
@@ -29,6 +30,7 @@ class _PictureSelectState extends State<PictureSelect> {
     var image = await ImagePicker().pickImage(source: ImageSource.camera);
     setState(() {
       _imagePath = image!.path;
+      print(_imagePath);
     });
   }
 

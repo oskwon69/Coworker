@@ -368,15 +368,16 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
 
                               try {
                                 if( _pic1Path != '' ) {
-                                  Directory fileNewDir = await getTemporaryDirectory();
+                                  Directory fileNewDir = await getApplicationDocumentsDirectory();
                                   String fileNewName = _pic1Path.split('/').last;
                                   String fileNewPath = fileNewDir.path+'/'+fileNewName.split('.').first+'1.'+fileNewName.split('.').last;
+                                  print(fileNewPath);
                                   var result = await FlutterImageCompress.compressAndGetFile(_pic1Path, fileNewPath, quality: 50);
                                   _pic1Path = fileNewPath;
                                 }
 
                                 if( _pic2Path != '' ) {
-                                  Directory fileNewDir = await getTemporaryDirectory();
+                                  Directory fileNewDir = await getApplicationDocumentsDirectory();
                                   String fileNewName = _pic2Path.split('/').last;
                                   String fileNewPath = fileNewDir.path+'/'+fileNewName.split('.').first+'2.'+fileNewName.split('.').last;
                                   var result = await FlutterImageCompress.compressAndGetFile(_pic2Path, fileNewPath, quality: 50);

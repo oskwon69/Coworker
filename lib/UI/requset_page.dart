@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
-import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:coworker/UI/send_page.dart';
@@ -80,6 +79,7 @@ class _RequestPageState extends State<RequestPage> {
   @override
   void initState() {
     super.initState();
+
     _user = widget.user;
     checkEditValid();
   }
@@ -340,34 +340,6 @@ class NavigationDrawer extends StatelessWidget {
                         Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginPage()));
                       },
                       child: Text("로그아웃", style: TextStyle(fontSize: 15))
-                  ),
-                ],
-              );
-            },
-          );
-        },
-      ),
-      ListTile(
-        leading: Icon(Icons.logout),
-        title: Text('앱 종료'),
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text('앱을 종료하시겠습니까?', style: TextStyle(fontSize: 15)),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(false);
-                      },
-                      child: Text("취소", style: TextStyle(fontSize: 15))
-                  ),
-                  TextButton(
-                      onPressed: () {
-                        SystemNavigator.pop();
-                      },
-                      child: Text("앱 종료", style: TextStyle(fontSize: 15))
                   ),
                 ],
               );
