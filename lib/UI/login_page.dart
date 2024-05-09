@@ -365,40 +365,40 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               onPressed: () async {
                                 if( _site_code >= 999 )  {
-                                  Fluttertoast.showToast(msg: '단지를 선택해 주세요.');
+                                  Fluttertoast.showToast(msg: '단지를 선택해 주세요.', gravity: ToastGravity.CENTER);
                                   return;
                                 }
                                 if( _building_no == "동 선택" )  {
-                                  Fluttertoast.showToast(msg: '동을 선택해 주세요.');
+                                  Fluttertoast.showToast(msg: '동을 선택해 주세요.', gravity: ToastGravity.CENTER);
                                   return;
                                 }
                                 if( _house_no == "호 선택" )  {
-                                  Fluttertoast.showToast(msg: '호를 선택해 주세요.');
+                                  Fluttertoast.showToast(msg: '호를 선택해 주세요.', gravity: ToastGravity.CENTER);
                                   return;
                                 }
 
                                 if( nameController.text == '' )  {
-                                  Fluttertoast.showToast(msg: '이름을 입력해 주세요.');
+                                  Fluttertoast.showToast(msg: '이름을 입력해 주세요.', gravity: ToastGravity.CENTER);
                                   return;
                                 }
 
                                 if( phoneController.text == '' )  {
-                                  Fluttertoast.showToast(msg: '휴대전화번호를 입력해 주세요.');
+                                  Fluttertoast.showToast(msg: '휴대전화번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
                                   return;
                                 }
 
                                 if( phoneController.text.trim().length < 12 || phoneController.text.trim().length > 13 ) {
-                                  Fluttertoast.showToast(msg: '유효한 휴대전화 번호를 입력해 주세요.');
+                                  Fluttertoast.showToast(msg: '유효한 휴대전화 번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
                                   return;
                                 }
 
                                 if( dateController.text == '' )  {
-                                  Fluttertoast.showToast(msg: '생년월일(6자리)를 입력해 주세요.');
+                                  Fluttertoast.showToast(msg: '생년월일(6자리)를 입력해 주세요.', gravity: ToastGravity.CENTER);
                                   return;
                                 }
 
                                 if( dateController.text.trim().length != 8 ) {
-                                  Fluttertoast.showToast(msg: '유효한 생년월일(YY.MM.DD)을 입력해 주세요.');
+                                  Fluttertoast.showToast(msg: '유효한 생년월일(YY.MM.DD)을 입력해 주세요.', gravity: ToastGravity.CENTER);
                                   return;
                                 }
 
@@ -416,7 +416,7 @@ class _LoginPageState extends State<LoginPage> {
                                   if (result.isNotEmpty) {
                                     _type = result[0]['type'].toString();
                                   } else {
-                                    Fluttertoast.showToast(msg: '입력하신 정보로 등록된 세대가 없습니다.');
+                                    Fluttertoast.showToast(msg: '입력하신 정보로 등록된 세대가 없습니다.', gravity: ToastGravity.CENTER);
                                     return;
                                   }
 
@@ -458,7 +458,7 @@ class _LoginPageState extends State<LoginPage> {
                                       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RequestPage(user: _user)));
                                     }
                                   } else { // 유저DB에 자료가 없다는 것은 이상함.
-                                    Fluttertoast.showToast(msg: 'DB 오류 : 고객센터 문의바랍니다.');
+                                    Fluttertoast.showToast(msg: 'DB 오류 : 고객센터 문의바랍니다.', gravity: ToastGravity.CENTER);
                                   }
                                 } catch(e) {
                                   Fluttertoast.showToast(msg: e.toString());
