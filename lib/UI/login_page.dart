@@ -364,6 +364,9 @@ class _LoginPageState extends State<LoginPage> {
                                     vertical: 14),
                               ),
                               onPressed: () async {
+                                var commStatus = await checkCurrentCommState();
+                                if(  commStatus == false ) return;
+
                                 if( _site_code >= 999 )  {
                                   Fluttertoast.showToast(msg: '단지를 선택해 주세요.', gravity: ToastGravity.CENTER);
                                   return;
@@ -401,9 +404,6 @@ class _LoginPageState extends State<LoginPage> {
                                   Fluttertoast.showToast(msg: '유효한 생년월일(YY.MM.DD)을 입력해 주세요.', gravity: ToastGravity.CENTER);
                                   return;
                                 }
-
-                                var commStatus = await checkCurrentCommState();
-                                if(  commStatus == false ) return;
 
                                 try {
                                   List<Map<String, dynamic>> result = await supabase.from('owner').select().match({

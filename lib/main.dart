@@ -8,7 +8,6 @@ void main() async {
 
   await Permission.camera.request();
   await Permission.photos.request();
-  await Permission.manageExternalStorage.request();
   await Permission.storage.request();
 
   await Supabase.initialize(
