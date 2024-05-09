@@ -15,15 +15,15 @@ Icon?
 profile
 xcuserdata
 **/.generated/
-Flutter/App.framework
-Flutter/Flutter.framework
-Flutter/Flutter.podspec
-Flutter/Generated.xcconfig
-Flutter/ephemeral/
-Flutter/app.flx
-Flutter/app.zip
-Flutter/flutter_assets/
-Flutter/flutter_export_environment.sh
+../assets/icons/Flutter/App.framework
+../assets/icons/Flutter/Flutter.framework
+../assets/icons/Flutter/Flutter.podspec
+../assets/icons/Flutter/Generated.xcconfig
+../assets/icons/Flutter/ephemeral/
+../assets/icons/Flutter/app.flx
+../assets/icons/Flutter/app.zip
+../assets/icons/Flutter/flutter_assets/
+../assets/icons/Flutter/flutter_export_environment.sh
 ServiceDefinitions.json
 Runner/GeneratedPluginRegistrant.*
 

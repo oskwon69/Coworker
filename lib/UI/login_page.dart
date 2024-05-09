@@ -224,12 +224,12 @@ class _LoginPageState extends State<LoginPage> {
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         //defaultSite();
-        checkInitCommState();
+        //checkInitCommState();
       });
 
-      nameController.text = '홍길동';
-      phoneController.text = '010-1234-5678';
-      dateController.text = '01.01.01';
+      //nameController.text = '홍길동';
+      //phoneController.text = '010-1234-5678';
+      //dateController.text = '01.01.01';
     }
 
     @override
