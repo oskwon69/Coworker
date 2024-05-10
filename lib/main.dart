@@ -6,9 +6,20 @@ import 'package:permission_handler/permission_handler.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Permission.camera.request();
-  await Permission.photos.request();
-  await Permission.storage.request();
+  final permissionCamera = Permission.camera;
+  if (await permissionCamera.isDenied) {
+    await permissionCamera.request();
+  }
+
+  final permissionStorage = Permission.storage;
+  if (await permissionStorage.isDenied) {
+    await permissionStorage.request();
+  }
+
+  final permissionPhotos = Permission.photos;
+  if (await permissionPhotos.isDenied) {
+    await permissionPhotos.request();
+  }
 
   await Supabase.initialize(
       url: 'https://lwioiwxyjemmmjqkwuha.supabase.co',

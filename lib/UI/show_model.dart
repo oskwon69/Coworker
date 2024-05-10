@@ -374,6 +374,7 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
                                   print(fileNewPath);
                                   var result = await FlutterImageCompress.compressAndGetFile(_pic1Path, fileNewPath, quality: 50);
                                   _pic1Path = fileNewPath;
+
                                 }
 
                                 if( _pic2Path != '' ) {

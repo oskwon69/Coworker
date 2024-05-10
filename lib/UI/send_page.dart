@@ -315,10 +315,12 @@ class _SendDataState extends State<SendData> {
                         }
 
                         Fluttertoast.showToast(msg: '전송이 시작되었습니다.', gravity: ToastGravity.CENTER);
-                        _sent = 0;
-                        _sending = true;
-                        _done = false;
-                        _break = false;
+                        setState(() {
+                          _sent = 0;
+                          _sending = true;
+                          _done = false;
+                          _break = false;
+                        });
                         sendDefects().listen((event) {
                           if( _sent >= _notSynced )  {   // 완료될때
                             _sending = false;
@@ -339,7 +341,7 @@ class _SendDataState extends State<SendData> {
 
                       widget.function();
                     },
-                    child: _sending != true ? Text('전송') : Text('중단'),
+                    child: _sending != true ? Text('전송') : Text('전송중 ...'),
                   ),
                 )
               ],
