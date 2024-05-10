@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:coworker/UI/dropdown_widget.dart';
 import 'package:coworker/UI/requset_page.dart';
 import 'package:coworker/UI/show_agreement.dart';
@@ -15,6 +14,7 @@ import 'package:gap/gap.dart';
 import 'package:http/http.dart' as http;
 import 'package:sn_progress_dialog/sn_progress_dialog.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 import '../database/env_database.dart';
 import '../model/env.dart';
@@ -37,6 +37,8 @@ class _LoginPageState extends State<LoginPage> {
   var phoneController = TextEditingController();
   var dateController = TextEditingController();
 
+  String _uid = '';
+  String _did = '';
   int _site_code = 999;
   String _site_name = '단지 선택';
   String _building_no = '동 선택';
@@ -47,6 +49,22 @@ class _LoginPageState extends State<LoginPage> {
   final EnvDatabase _envdatabase = EnvDatabase();
   static final storage = FlutterSecureStorage();
   late UserInfo _user;
+
+  Future<String> getDeviceUniqueId() async {
+    String uniqueDeviceId = '';
+
+    var deviceInfo = DeviceInfoPlugin();
+
+    if (Platform.isIOS) {
+      IosDeviceInfo iosDeviceInfo = await deviceInfo.iosInfo;
+      uniqueDeviceId = iosDeviceInfo.identifierForVendor!;
+    } else if(Platform.isAndroid) {
+      AndroidDeviceInfo androidDeviceInfo = await deviceInfo.androidInfo;
+      uniqueDeviceId = androidDeviceInfo.id;
+    }
+
+    return uniqueDeviceId;
+  }
 
   copyLocalDatabase(ProgressDialog pd) async {
     List<dynamic> dataList = [];
@@ -110,16 +128,17 @@ class _LoginPageState extends State<LoginPage> {
 
       String _url = remoteDir + "/" + fileName;
       final http.Response response = await http.get(Uri.parse(_url));
-
       Directory fileDir = await getApplicationDocumentsDirectory();
       String filePath = fileDir.path + '/' + fileName;
-
       final file = File(filePath);
       await file.writeAsBytes(response.bodyBytes);
-
       await storage.write(key: "typeImage", value: "path " + filePath + " " + "type " + _type);
-
       pd.update(value: 90);
+
+
+      _did = await getDeviceUniqueId();
+      pd.update(value: 100);
+
     } catch(e)  {
       print(e.toString());
     }
@@ -262,19 +281,10 @@ class _LoginPageState extends State<LoginPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Gap(30),
-                      /*Container(
-                        alignment: Alignment.center,
-                        child: Text('로그인', style: TextStyle(fontSize: 30, color: Colors.black, fontWeight: FontWeight.bold)),
-                      ),*/
-/*
                       Container(
                         alignment: Alignment.center,
-                        //width: MediaQuery.of(context).size.width*0.30,
-                        //height: MediaQuery.of(context).size.width*0.30,
-                        decoration: BoxDecoration( color: Colors.white),
-                        child: Image.asset('assets/icons/login_logo.png', height: 150,),
+                        child: Text('Coworker', style: TextStyle(fontSize: 60, color: Colors.indigo, fontWeight: FontWeight.bold)),
                       ),
-*/
                       SiteWidget(key: _siteKey, function: changeSite),
                       Gap(10),
                       Row(
@@ -431,7 +441,7 @@ class _LoginPageState extends State<LoginPage> {
                                   }
 
                                   ProgressDialog pd = ProgressDialog(context: context);
-                                  pd.show(max: 100, msg: '데이터를 받고 있습니다...');
+                                  pd.show(max: 100, msg: '데이터 다운로드 중 ...');
 
                                   result = await supabase.from('users').select().match({
                                     'user_name': nameController.text.trim(),
@@ -451,6 +461,7 @@ class _LoginPageState extends State<LoginPage> {
                                       'birth_date': dateController.text.replaceAll('.', ''),
                                       'last_login': '${DateFormat("yy-MM-dd hh:mm a").format(DateTime.now())}'}).select();
                                   }
+                                  _uid = result[0]['id'];
                                   pd.update(value: 30);
 
                                   await copyLocalDatabase(pd);
@@ -458,7 +469,7 @@ class _LoginPageState extends State<LoginPage> {
                                   pd.update(value: 100);
                                   pd.close();
 
-                                  _user = UserInfo(uid: result[0]['id'], site_code: _site_code, site_name: _site_name, building_no: _building_no, house_no: _house_no, user_name: result[0]['user_name'], birth_date: result[0]['birth_date'], user_phone: result[0]['phone_number'], type: _type);
+                                  _user = UserInfo(uid: _uid, did: _did, site_code: _site_code, site_name: _site_name, building_no: _building_no, house_no: _house_no, user_name: result[0]['user_name'], birth_date: result[0]['birth_date'], user_phone: result[0]['phone_number'], type: _type);
 
                                   result = await supabase.from('users').select().eq('id', _user.uid!);
                                   if( result.isNotEmpty )  {

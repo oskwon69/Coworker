@@ -100,7 +100,7 @@ class _RequestPageState extends State<RequestPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
-        titleSpacing: -10,
+        titleSpacing: -5,
         title: ListTile(
           title: Text('${_user.user_name} 님', style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)),
           subtitle: Text('입주를 환영합니다!', style: TextStyle(fontSize: 13, color: Colors.grey)),
@@ -120,7 +120,7 @@ class _RequestPageState extends State<RequestPage> {
                 Fluttertoast.showToast(msg: '사전점검 기간이 아닙니다.', gravity: ToastGravity.CENTER);
                 return;
               }
-
+              //Navigator.push(context, MaterialPageRoute(builder: (context) => SendData(user: _user,function: refreshScreen)));
               showModalBottomSheet(
                 isDismissible: false,
                 isScrollControlled: true,
@@ -306,47 +306,51 @@ class NavigationDrawer extends StatelessWidget {
   );
 
   Widget buildHeader(BuildContext context) => Container(
+    color: Colors.white,
     padding: EdgeInsets.only(
       top: MediaQuery.of(context).padding.top,
     )
   );
 
-  Widget buildMenuItems(BuildContext context) => Column(
-    children: [
-      ListTile(
-        leading: Icon(Icons.call),
-        title: Text('고객센터'),
-        onTap: () {},
-      ),
-      ListTile(
-        leading: Icon(Icons.logout),
-        title: Text('로그아웃'),
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text('로그아웃 하시겠습니까?', style: TextStyle(fontSize: 15)),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(false);
-                      },
-                      child: Text("취소", style: TextStyle(fontSize: 15))
-                  ),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).popUntil((route) => route.isFirst);
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginPage()));
-                      },
-                      child: Text("로그아웃", style: TextStyle(fontSize: 15))
-                  ),
-                ],
-              );
-            },
-          );
-        },
-      ),
-    ],
+  Widget buildMenuItems(BuildContext context) => Container(
+    color: Colors.white,
+    child: Column(
+      children: [
+        ListTile(
+          leading: Icon(Icons.call),
+          title: Text('고객센터'),
+          onTap: () {},
+        ),
+        ListTile(
+          leading: Icon(Icons.logout),
+          title: Text('로그아웃'),
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text('로그아웃 하시겠습니까?', style: TextStyle(fontSize: 15)),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        },
+                        child: Text("취소", style: TextStyle(fontSize: 15))
+                    ),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).popUntil((route) => route.isFirst);
+                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginPage()));
+                        },
+                        child: Text("로그아웃", style: TextStyle(fontSize: 15))
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        ),
+      ],
+    )
   );
 }

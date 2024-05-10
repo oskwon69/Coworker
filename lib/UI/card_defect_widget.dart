@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:coworker/UI/update_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:coworker/model/defect.dart';
 import 'package:coworker/database/defect_database.dart';
@@ -19,7 +21,8 @@ class CardDefectListWidget extends StatefulWidget {
 
 class _CardDefectListWidgetState extends State<CardDefectListWidget> {
   late Defect _defect;
-  String _image_path = '';
+  String _imageString = '';
+  Uint8List? imageBytes;
 
   final DefectDatabase _databaseService = DefectDatabase();
 
@@ -34,10 +37,12 @@ class _CardDefectListWidgetState extends State<CardDefectListWidget> {
     super.initState();
 
     if( widget.defect.pic1 != '' )  {
-      _image_path = widget.defect.pic1;
+      _imageString = widget.defect.pic1;
     } else if( widget.defect.pic2 != '' ) {
-      _image_path = widget.defect.pic2;
+      _imageString = widget.defect.pic2;
     }
+
+    imageBytes = Base64Decoder().convert(_imageString);
   }
 
   @override
@@ -79,8 +84,13 @@ class _CardDefectListWidgetState extends State<CardDefectListWidget> {
                 Container(
                   width: MediaQuery.of(context).size.width/2*0.40,
                   height: MediaQuery.of(context).size.width/2*0.40*3/4,
-                  decoration: BoxDecoration( color: Colors.grey.shade200),
-                  child: _image_path != '' ? Image.file(File(_image_path)) : Center(child: Icon(CupertinoIcons.photo_fill_on_rectangle_fill)),
+                  decoration: BoxDecoration( borderRadius: BorderRadius.circular(8.0), color: Colors.grey.shade200),
+                  child: _imageString != '' ?
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.memory(imageBytes!)
+                    ) :
+                    Center(child: Icon(CupertinoIcons.photo_fill_on_rectangle_fill)),
                 ),
                 Gap(10),
                 Column(

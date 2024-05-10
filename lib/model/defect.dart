@@ -3,6 +3,7 @@ import 'dart:convert';
 class Defect {
   final int? id;
   String uid;
+  String did;
   int site;
   String building;
   String house;
@@ -23,6 +24,7 @@ class Defect {
   Defect({
     this.id,
     required this.uid,
+    required this.did,
     required this.site,
     required this.building,
     required this.house,
@@ -45,6 +47,7 @@ class Defect {
     return {
       'id' : id,
       'uid' : uid,
+      'did' : did,
       'site' : site,
       'building' : building,
       'house' : house,
@@ -68,6 +71,7 @@ class Defect {
     return Defect(
       id: map['id']?.toInt() ?? 0,
       uid: map['uid'] ?? '',
+      did: map['did'] ?? '',
       site: map['site']?.toInt() ?? '',
       building: map['building'] ?? '',
       house: map['house'] ?? '',
@@ -93,6 +97,6 @@ class Defect {
 
   @override
   String toString() {
-    return 'Defect(id: $id, uid: $uid, site: $site, building: $building, house: $house, reg_name: $reg_name, reg_phone: $reg_phone, space: $space, area: $area, work: $work, sort: $sort, claim: $claim, pic1: $pic1, pic2: $pic2, sent: $sent, synced: $synced, completed: $completed, deleted: $deleted)';
+    return 'Defect(id: $id, uid: $uid, did: $did, site: $site, building: $building, house: $house, reg_name: $reg_name, reg_phone: $reg_phone, space: $space, area: $area, work: $work, sort: $sort, claim: $claim, sent: $sent, synced: $synced, completed: $completed, deleted: $deleted)';
   }
 }

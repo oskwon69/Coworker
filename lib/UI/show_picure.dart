@@ -1,46 +1,57 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:image_picker/image_picker.dart';
 
 class PictureSelect extends StatefulWidget {
-  const PictureSelect({Key? key, required this.picture, required this.function}) : super(key: key);
+  const PictureSelect({Key? key, required this.image, required this.function}) : super(key: key);
 
   final Function function;
-  final String picture;
+  final String image;
 
   @override
   State<PictureSelect> createState() => _PictureSelectState();
 }
 
 class _PictureSelectState extends State<PictureSelect> {
-  String _imagePath = '';
+  String imageString = '';
+  Uint8List? imageBytes;
 
   Future getGalleryImage() async {
     var image = await ImagePicker().pickImage(source: ImageSource.gallery);
-    setState(() {
-      _imagePath = image!.path;
-      print(_imagePath);
-    });
+    if( image != null ) {
+      imageBytes = await image.readAsBytes();
+      imageString = base64Encode(imageBytes!);
+    }
+
+    setState(() {});
   }
 
   Future getCameraImage() async {
     var image = await ImagePicker().pickImage(source: ImageSource.camera);
-    setState(() {
-      _imagePath = image!.path;
-      print(_imagePath);
-    });
+    if( image != null ) {
+      imageBytes = await image.readAsBytes();
+      imageString = base64Encode(imageBytes!);
+    }
+    setState(() {});
   }
 
+  void initState() {
+    super.initState();
+    imageString = widget.image;
+    imageBytes = Base64Decoder().convert(imageString);
+  }
 
   @override
   Widget build(BuildContext context)  {
 
     return Container(
       padding: const EdgeInsets.all(30),
-      height: widget.picture == '' ? MediaQuery.of(context).size.height*0.40 : MediaQuery.of(context).size.height*0.60,
+      height: imageString == '' ? MediaQuery.of(context).size.height*0.40 : MediaQuery.of(context).size.height*0.60,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -87,7 +98,7 @@ class _PictureSelectState extends State<PictureSelect> {
                 child: SizedBox(
                   //width: 160,
                   //height: 90,
-                    child: widget.picture == '' ?
+                    child: imageString == '' ?
                     Row(
                       children: [
                         Icon(Icons.photo),
@@ -95,7 +106,7 @@ class _PictureSelectState extends State<PictureSelect> {
                         Text('사진이 선택되지 않았습니다.'),
                       ],
                     ) :
-                    Image.file(File(widget.picture))
+                    Image.memory(imageBytes!)
                   //CircleAvatar(backgroundImage: FileImage(File(_image!.path)),radius: 100)
                 ),
               ),
@@ -115,7 +126,7 @@ class _PictureSelectState extends State<PictureSelect> {
                     onPressed: () async {
                       await getCameraImage();
                       Navigator.pop(context);
-                      widget.function(_imagePath);
+                      widget.function(imageString);
                     },
                     child: Text('카메라'),
                   ),
@@ -133,7 +144,7 @@ class _PictureSelectState extends State<PictureSelect> {
                       onPressed: () async {
                         await getGalleryImage();
                         Navigator.pop(context);
-                        widget.function(_imagePath);
+                        widget.function(imageString);
                       },
                       child: Text('앨범'),
                     ),

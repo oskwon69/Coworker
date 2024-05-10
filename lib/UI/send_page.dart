@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
@@ -71,6 +73,7 @@ class _SendDataState extends State<SendData> {
         await supabase.rpc("defect_upsert", params: {
           "local_id_arg": defectDeledtedList[i].id,
           'uid_arg': defectDeledtedList[i].uid,
+          'did_arg': defectDeledtedList[i].did,
           'site_code_arg': defectDeledtedList[i].site,
           'building_no_arg': defectDeledtedList[i].building,
           'house_no_arg': defectDeledtedList[i].house,
@@ -81,8 +84,8 @@ class _SendDataState extends State<SendData> {
           'work_name_arg': defectDeledtedList[i].work,
           'sort_name_arg': defectDeledtedList[i].sort,
           'claim_arg': defectDeledtedList[i].claim,
-          'pic1_arg': defectDeledtedList[i].pic1,
-          'pic2_arg': defectDeledtedList[i].pic2,
+          'pic1_arg': '',
+          'pic2_arg': '',
           'deleted_arg': defectDeledtedList[i].deleted,
           'sent_date_arg': sent_date,
         });
@@ -102,23 +105,25 @@ class _SendDataState extends State<SendData> {
 
       try {
         if( defectSendList[i].pic1 != '' ) {
-          filepath1 = 'site ${defectSendList[i].site}/${defectSendList[i].uid}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].id}_1.jpg';
-          File file = File(defectSendList[i].pic1);
-          await supabase.storage.from('photos').upload(
-              filepath1, file, fileOptions: const FileOptions(
+          Uint8List bytes = Base64Decoder().convert(defectSendList[i].pic1);
+          filepath1 = 'Site${defectSendList[i].site}/${defectSendList[i].uid}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].did}_${defectSendList[i].id}_1.jpg';
+          await supabase.storage.from('photos').uploadBinary(
+              filepath1, bytes, fileOptions: const FileOptions(
               cacheControl: '3600', upsert: true));
         }
+
         if( defectSendList[i].pic2 != '' ) {
-          filepath2 = 'site ${defectSendList[i].site}/${defectSendList[i].uid}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].id}_2.jpg';
-          File file = File(defectSendList[i].pic2);
-          await supabase.storage.from('photos').upload(
-              filepath2, file, fileOptions: const FileOptions(
+          Uint8List bytes = Base64Decoder().convert(defectSendList[i].pic2);
+          filepath2 = 'Site${defectSendList[i].site}/${defectSendList[i].uid}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].did}_${defectSendList[i].id}_2.jpg';
+          await supabase.storage.from('photos').uploadBinary(
+              filepath2, bytes, fileOptions: const FileOptions(
               cacheControl: '3600', upsert: true));
         }
 
         await supabase.rpc("defect_upsert", params: {
           "local_id_arg": defectSendList[i].id,
           'uid_arg': defectSendList[i].uid,
+          'did_arg': defectSendList[i].did,
           'site_code_arg': defectSendList[i].site,
           'building_no_arg': defectSendList[i].building,
           'house_no_arg': defectSendList[i].house,

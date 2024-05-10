@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:coworker/UI/show_sort.dart';
 import 'package:coworker/UI/show_work.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:gap/gap.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -35,10 +37,11 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
   String _work = '';
   String _sort = '';
   String _claim = '';
-  String _pic1Path = '';
-  String _pic2Path = '';
+  String _pic1 = '';
+  String _pic2 = '';
 
   bool isEditValid = false;
+  bool isImageChanged = false;
   final supabase = Supabase.instance.client;
 
   FocusNode focusNode = FocusNode();
@@ -69,15 +72,19 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
     });
   }
 
-  void getPic1Path(String str)  {
+  void getPic1(String str)  {
+    FocusScope.of(context).unfocus();
     setState(() {
-      _pic1Path = str;
+      _pic1 = str;
+      isImageChanged = true;
     });
   }
 
-  void getPic2Path(String str)  {
+  void getPic2(String str)  {
+    FocusScope.of(context).unfocus();
     setState(() {
-      _pic2Path = str;
+      _pic2 = str;
+      isImageChanged = true;
     });
   }
 
@@ -104,8 +111,8 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
     _work = _defect.work;
     _sort = _defect.sort;
     _claim = _defect.claim;
-    _pic1Path = _defect.pic1!;
-    _pic2Path = _defect.pic2!;
+    _pic1 = _defect.pic1;
+    _pic2 = _defect.pic2;
     claimController.text = _claim;
 
     checkEditValid();
@@ -318,9 +325,9 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        PictureWidget(titleText: '근접사진', imagePath: _pic1Path, function: getPic1Path),
+                        PictureWidget(titleText: '근접사진', image: _pic1, function: getPic1),
                         Gap(22),
-                        PictureWidget(titleText: '원경사진', imagePath: _pic2Path, function: getPic2Path),
+                        PictureWidget(titleText: '원경사진', image: _pic2, function: getPic2),
                       ],
                     ),
                     Gap(20),
@@ -384,29 +391,24 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                                 return;
                               }
 
-                              if( _space == _defect.space && _area == _defect.area && _work == _defect.work && _sort == _defect.sort && _claim == _defect.claim && _pic1Path == _defect.pic1 && _pic2Path == _defect.pic2 )  {
+                              if( _space == _defect.space && _area == _defect.area && _work == _defect.work && _sort == _defect.sort && _claim == _defect.claim && isImageChanged == false )  {
                                 Fluttertoast.showToast(msg: '수정사항이 없습니다.');
                                 return;
                               }
 
-                              if( _pic1Path != _defect.pic1 )  {
-                                if( _pic1Path != '' ) {
-                                  Directory fileNewDir = await getApplicationDocumentsDirectory();
-                                  String fileNewName = _pic1Path.split('/').last;
-                                  String fileNewPath = fileNewDir.path+'/'+fileNewName.split('.').first+'1.'+fileNewName.split('.').last;
-                                  print(fileNewPath);
-                                  var result = await FlutterImageCompress.compressAndGetFile(_pic1Path, fileNewPath, quality: 50);
-                                  _pic1Path = fileNewPath;
+                              if( isImageChanged )  {
+                                if( _pic1 != '' ) {
+                                  Uint8List originalBytes = Base64Decoder().convert(_pic1);
+                                  Uint8List compressedBytes = await FlutterImageCompress.compressWithList(originalBytes, quality: 50);
+                                  _pic1 = base64Encode(compressedBytes);
                                 }
                               }
 
-                              if( _pic2Path != _defect.pic2 )  {
-                                if( _pic2Path != '' ) {
-                                  Directory fileNewDir = await getApplicationDocumentsDirectory();
-                                  String fileNewName = _pic2Path.split('/').last;
-                                  String fileNewPath = fileNewDir.path+'/'+fileNewName.split('.').first+'2.'+fileNewName.split('.').last;
-                                  var result = await FlutterImageCompress.compressAndGetFile(_pic2Path, fileNewPath, quality: 50);
-                                  _pic2Path = fileNewPath;
+                              if( isImageChanged )  {
+                                if( _pic2 != '' ) {
+                                  Uint8List originalBytes = Base64Decoder().convert(_pic2);
+                                  Uint8List compressedBytes = await FlutterImageCompress.compressWithList(originalBytes, quality: 50);
+                                  _pic2 = base64Encode(compressedBytes);
                                 }
                               }
 
@@ -415,8 +417,8 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                               _defect.work = _work;
                               _defect.sort = _sort;
                               _defect.claim = _claim;
-                              _defect.pic1 = _pic1Path;
-                              _defect.pic2 = _pic2Path;
+                              _defect.pic1 = _pic1;
+                              _defect.pic2 = _pic2;
                               _defect.sent = '미전송';
                               _defect.synced = 0;
 

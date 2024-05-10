@@ -1,17 +1,19 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:coworker/UI/show_picure.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'app_style.dart';
 
 class PictureWidget extends StatefulWidget {
-  const PictureWidget({Key? key, required this.titleText, required this.imagePath, required this.function }) : super(key: key);
+  const PictureWidget({Key? key, required this.titleText, required this.image, required this.function }) : super(key: key);
 
   final String titleText;
-  final String imagePath;
+  final String image;
   final Function function;
 
   @override
@@ -19,18 +21,20 @@ class PictureWidget extends StatefulWidget {
 }
 
 class _PictureWidgetState extends State<PictureWidget> {
-  String _imagePath = '';
+  String imageString = '';
+  Uint8List? imageBytes;
 
   void initState() {
     super.initState();
-    _imagePath = widget.imagePath;
+    imageString = widget.image;
+    imageBytes = Base64Decoder().convert(imageString);
   }
 
-  void getPicturePath(String path) {
-    setState(() {
-      _imagePath = path;
-      widget.function(_imagePath);
-    });
+  void getPicture(String image) {
+    imageString = image;
+    imageBytes = Base64Decoder().convert(image);
+    widget.function(imageString);
+    setState(() {});
   }
 
   @override
@@ -57,7 +61,7 @@ class _PictureWidgetState extends State<PictureWidget> {
                   showModalBottomSheet(
                     isScrollControlled: true,
                     context: context,
-                    builder: (context) => PictureSelect(picture: _imagePath, function: getPicturePath),
+                    builder: (context) => PictureSelect(image: imageString, function: getPicture),
                   );
                 },
                 child: Container(
@@ -72,7 +76,7 @@ class _PictureWidgetState extends State<PictureWidget> {
                   child: SizedBox(
                       width: 150,
                       height: 80,
-                      child: _imagePath == '' ?
+                      child: imageString == '' ?
                         Row(
                           children: [
                             Icon(Icons.photo),
@@ -83,7 +87,7 @@ class _PictureWidgetState extends State<PictureWidget> {
                         Stack(
                           alignment: Alignment.center,
                           children: [
-                            Image.file(File(_imagePath)),
+                            Image.memory(imageBytes!),
                             Positioned(
                               right: -20,
                               top: -10,
@@ -110,9 +114,9 @@ class _PictureWidgetState extends State<PictureWidget> {
                                           ),
                                           TextButton(
                                               onPressed: () {
-                                                _imagePath = '';
+                                                imageString = '';
                                                 Navigator.pop(context);
-                                                widget.function(_imagePath);
+                                                widget.function(imageString);
                                               },
                                               child: Text("삭제", style: TextStyle(fontSize: 15))
                                           ),

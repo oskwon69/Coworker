@@ -1,5 +1,6 @@
 class UserInfo {
   String? uid;
+  String? did;
   int? site_code;
   String? site_name;
   String? building_no;
@@ -11,6 +12,7 @@ class UserInfo {
 
   UserInfo({
     this.uid,
+    this.did,
     this.site_code,
     this.site_name,
     this.building_no,
@@ -23,6 +25,6 @@ class UserInfo {
 
   @override
   String toString() {
-    return 'UserInfo(id: $uid, site_code: $site_code, site_name: $site_name, building_no: $building_no, house_no: $house_no, user_name: $user_name, user_phone: $user_phone, birth_date: $birth_date, type: $type)';
+    return 'UserInfo(uid: $uid, mid: $did, site_code: $site_code, site_name: $site_name, building_no: $building_no, house_no: $house_no, user_name: $user_name, user_phone: $user_phone, birth_date: $birth_date, type: $type)';
   }
 }

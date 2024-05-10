@@ -36,7 +36,7 @@ void main() async {
         final MediaQueryData data = MediaQuery.of(context);
         return MediaQuery(
           child: child!,
-          data: data.copyWith(textScaleFactor: 1.1),
+          data: data.copyWith(textScaleFactor: 1.0),
         );
       },
     )

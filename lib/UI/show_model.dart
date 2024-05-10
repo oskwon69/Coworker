@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:gap/gap.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -28,6 +30,7 @@ class AddNewDefectModel extends StatefulWidget {
 
 class _AddNewDefectState extends State<AddNewDefectModel> {
   String _uid='';
+  String _did='';
   int _site_code = 0;
   String _building_no = '';
   String _house_no = '';
@@ -38,9 +41,8 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
   String _work = '';
   String _sort = '';
   String _claim = '';
-  String _pic1Path='';
-  String _pic2Path='';
-  String _type='';
+  String _pic1='';
+  String _pic2='';
   int _synced = 0;
   int _deleted = 0;
 
@@ -54,12 +56,12 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
     super.initState();
 
     _uid = widget.user.uid!;
+    _did = widget.user.did!;
     _site_code = widget.user.site_code!;
     _building_no = widget.user.building_no!;
     _house_no = widget.user.house_no!;
     _reg_name = widget.user.user_name!;
     _reg_phone = widget.user.user_phone!;
-    _type = widget.user.type!;
   }
 
   @override
@@ -94,15 +96,17 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
     });
   }
 
-  void getPic1Path(String str)  {
+  void getPic1(String str)  {
+    FocusScope.of(context).unfocus();
     setState(() {
-      _pic1Path = str;
+      _pic1 = str;
     });
   }
 
-  void getPic2Path(String str)  {
+  void getPic2(String str)  {
+    FocusScope.of(context).unfocus();
     setState(() {
-      _pic2Path = str;
+      _pic2 = str;
     });
   }
 
@@ -305,9 +309,9 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        PictureWidget(titleText: '근접사진', imagePath: _pic1Path, function: getPic1Path),
+                        PictureWidget(titleText: '근접사진', image: _pic1, function: getPic1),
                         Gap(22),
-                        PictureWidget(titleText: '원경사진', imagePath: _pic2Path, function: getPic2Path),
+                        PictureWidget(titleText: '원경사진', image: _pic2, function: getPic2),
                       ],
                     ),
                     Gap(20),
@@ -367,25 +371,19 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
                               }
 
                               try {
-                                if( _pic1Path != '' ) {
-                                  Directory fileNewDir = await getApplicationDocumentsDirectory();
-                                  String fileNewName = _pic1Path.split('/').last;
-                                  String fileNewPath = fileNewDir.path+'/'+fileNewName.split('.').first+'1.'+fileNewName.split('.').last;
-                                  print(fileNewPath);
-                                  var result = await FlutterImageCompress.compressAndGetFile(_pic1Path, fileNewPath, quality: 50);
-                                  _pic1Path = fileNewPath;
-
+                                if( _pic1 != '' ) {
+                                  Uint8List originalBytes = Base64Decoder().convert(_pic1);
+                                  Uint8List compressedBytes = await FlutterImageCompress.compressWithList(originalBytes, quality: 50);
+                                  _pic1 = base64Encode(compressedBytes);
                                 }
 
-                                if( _pic2Path != '' ) {
-                                  Directory fileNewDir = await getApplicationDocumentsDirectory();
-                                  String fileNewName = _pic2Path.split('/').last;
-                                  String fileNewPath = fileNewDir.path+'/'+fileNewName.split('.').first+'2.'+fileNewName.split('.').last;
-                                  var result = await FlutterImageCompress.compressAndGetFile(_pic2Path, fileNewPath, quality: 50);
-                                  _pic2Path = fileNewPath;
+                                if( _pic2 != '' ) {
+                                  Uint8List originalBytes = Base64Decoder().convert(_pic2);
+                                  Uint8List compressedBytes = await FlutterImageCompress.compressWithList(originalBytes, quality: 50);
+                                  _pic2 = base64Encode(compressedBytes);
                                 }
 
-                                Defect defect = Defect(uid: _uid, site: _site_code, building: _building_no, house: _house_no, reg_name: _reg_name, reg_phone: _reg_phone, space: _space, area: _area, work: _work, sort: _sort, claim: _claim, pic1: _pic1Path, pic2: _pic2Path, synced: _synced, deleted: _deleted, sent: '미전송');
+                                Defect defect = Defect(uid: _uid, did: _did, site: _site_code, building: _building_no, house: _house_no, reg_name: _reg_name, reg_phone: _reg_phone, space: _space, area: _area, work: _work, sort: _sort, claim: _claim, pic1: _pic1, pic2: _pic2, synced: _synced, deleted: _deleted, sent: '미전송');
 
                                 var result = await _databaseService.addDefect(defect);
                               } catch(e) {
