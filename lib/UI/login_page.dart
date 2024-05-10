@@ -261,12 +261,20 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Gap(10),
-                      Container(
+                      Gap(30),
+                      /*Container(
                         alignment: Alignment.center,
                         child: Text('로그인', style: TextStyle(fontSize: 30, color: Colors.black, fontWeight: FontWeight.bold)),
+                      ),*/
+/*
+                      Container(
+                        alignment: Alignment.center,
+                        //width: MediaQuery.of(context).size.width*0.30,
+                        //height: MediaQuery.of(context).size.width*0.30,
+                        decoration: BoxDecoration( color: Colors.white),
+                        child: Image.asset('assets/icons/login_logo.png', height: 150,),
                       ),
-                      Gap(10),
+*/
                       SiteWidget(key: _siteKey, function: changeSite),
                       Gap(10),
                       Row(
