@@ -239,11 +239,11 @@ class _LoginPageState extends State<LoginPage> {
         defaultSite();
         checkInitCommState();
       });
-*/
 
       nameController.text = '홍길동';
       phoneController.text = '010-1234-5678';
       dateController.text = '01.01.01';
+*/
     }
 
     @override
