@@ -97,14 +97,12 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
   }
 
   void getPic1(String str)  {
-    FocusScope.of(context).unfocus();
     setState(() {
       _pic1 = str;
     });
   }
 
   void getPic2(String str)  {
-    FocusScope.of(context).unfocus();
     setState(() {
       _pic2 = str;
     });

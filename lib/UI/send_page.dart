@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -31,6 +32,7 @@ class _SendDataState extends State<SendData> {
   int _notSynced = 0;
   int _sent = 0;
   double percent = 0;
+  String _buttonText = '전송';
 
   bool _sending = false;
   bool _done = false;
@@ -38,6 +40,10 @@ class _SendDataState extends State<SendData> {
 
   final DefectDatabase _databaseService = DefectDatabase();
   final supabase = Supabase.instance.client;
+  late StreamSubscription<List<ConnectivityResult>> subscriptionComm;
+  bool isMobile = false;
+  bool isWifi = false;
+  bool isEthernet = false;
 
   Future<void> getDefects() async {
     final defects = await _databaseService.getAllDefects(widget.user.uid!, widget.user.site_code!, widget.user.building_no!, widget.user.house_no!);
@@ -158,23 +164,8 @@ class _SendDataState extends State<SendData> {
     }
   }
 
-  Future<bool> checkConnectivity() async {
-    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult.contains(ConnectivityResult.mobile)) {
-      print('mobile ok');
-      return true;
-    } else if (connectivityResult.contains(ConnectivityResult.wifi)) {
-      print('wifi ok');
-      return true;
-    } else {
-      print('comm NG');
-      return false;
-    }
-  }
-
   Future<bool> checkCurrentCommState() async {
-    bool result = await checkConnectivity();
-    if( result == false )  {
+    if( isMobile == false && isWifi == false && isEthernet == false )  {
       await showDialog<String>(
         barrierDismissible: false,
         context: context,
@@ -199,12 +190,30 @@ class _SendDataState extends State<SendData> {
   void initState() {
     super.initState();
 
+    subscriptionComm = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
+      isMobile = false;
+      isWifi = false;
+      isEthernet = false;
+      if (result.contains(ConnectivityResult.mobile)) {
+        isMobile = true;
+      } else if (result.contains(ConnectivityResult.wifi)) {
+        isWifi = true;
+      } else if (result.contains(ConnectivityResult.ethernet)) {
+        isEthernet = true;
+      }
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await getDefects();
       await getDeletedDefects();
     });
   }
 
+  @override
+  void dispose() {
+    subscriptionComm.cancel();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context)  {
     return Container(
@@ -310,7 +319,7 @@ class _SendDataState extends State<SendData> {
 
                       if( _sending == false ) {   // 전송할때
                         if( _done == true )  {
-                          Fluttertoast.showToast(msg: '전송이 완료되었습니다..', gravity: ToastGravity.CENTER);
+                          Fluttertoast.showToast(msg: '전송할 하자가 없습니다.', gravity: ToastGravity.CENTER);
                           return;
                         }
 
@@ -325,12 +334,15 @@ class _SendDataState extends State<SendData> {
                           _sending = true;
                           _done = false;
                           _break = false;
+                          _buttonText = '전송중 ...';
                         });
                         sendDefects().listen((event) {
                           if( _sent >= _notSynced )  {   // 완료될때
                             _sending = false;
                             _done = true;
                             _break = true;
+                            _buttonText = '전송 완료';
+
                             Fluttertoast.showToast(msg: '전송이 완료되었습니다.', gravity: ToastGravity.CENTER);
                           };
                         });
@@ -346,7 +358,7 @@ class _SendDataState extends State<SendData> {
 
                       widget.function();
                     },
-                    child: _sending != true ? Text('전송') : Text('전송중 ...'),
+                    child: Text(_buttonText),
                   ),
                 )
               ],

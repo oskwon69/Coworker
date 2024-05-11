@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:coworker/UI/dropdown_widget.dart';
 import 'package:coworker/UI/requset_page.dart';
@@ -15,6 +16,7 @@ import 'package:http/http.dart' as http;
 import 'package:sn_progress_dialog/sn_progress_dialog.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:android_id/android_id.dart';
 
 import '../database/env_database.dart';
 import '../model/env.dart';
@@ -38,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
   var dateController = TextEditingController();
 
   String _uid = '';
-  String _did = '';
+  String? _did;
   int _site_code = 999;
   String _site_name = '단지 선택';
   String _building_no = '동 선택';
@@ -48,19 +50,23 @@ class _LoginPageState extends State<LoginPage> {
   final supabase = Supabase.instance.client;
   final EnvDatabase _envdatabase = EnvDatabase();
   static final storage = FlutterSecureStorage();
+  late StreamSubscription<List<ConnectivityResult>> subscriptionComm;
+  bool isMobile = false;
+  bool isWifi = false;
+  bool isEthernet = false;
   late UserInfo _user;
 
-  Future<String> getDeviceUniqueId() async {
-    String uniqueDeviceId = '';
-
-    var deviceInfo = DeviceInfoPlugin();
+  Future<String?> getDeviceUniqueId() async {
+    String? uniqueDeviceId;
 
     if (Platform.isIOS) {
+      var deviceInfo = DeviceInfoPlugin();
       IosDeviceInfo iosDeviceInfo = await deviceInfo.iosInfo;
       uniqueDeviceId = iosDeviceInfo.identifierForVendor!;
     } else if(Platform.isAndroid) {
-      AndroidDeviceInfo androidDeviceInfo = await deviceInfo.androidInfo;
-      uniqueDeviceId = androidDeviceInfo.id;
+      const androidId = AndroidId();
+      uniqueDeviceId = await androidId.getId();
+      print(uniqueDeviceId);
     }
 
     return uniqueDeviceId;
@@ -135,71 +141,25 @@ class _LoginPageState extends State<LoginPage> {
       await storage.write(key: "typeImage", value: "path " + filePath + " " + "type " + _type);
       pd.update(value: 90);
 
-
       _did = await getDeviceUniqueId();
-      pd.update(value: 100);
 
+      result = await supabase.from('site').select().eq('site_code',_site_code);
+      if( result.isNotEmpty )  {
+        DateTime startDate = DateTime.parse(result[0]['check_startdate'].toString());
+        DateTime endDate = DateTime.parse(result[0]['check_enddate'].toString());
+        DateTime today = DateTime.now();
+
+        if( today.compareTo(startDate) >= 0 && today.compareTo(endDate) <= 0 )  {
+          await storage.write(key: "isEditValid", value: "valid");
+        }  else {
+          await storage.write(key: "isEditValid", value: "invalid");
+        }
+      }
+
+      pd.update(value: 100);
     } catch(e)  {
       print(e.toString());
     }
-  }
-
-  Future<bool> checkConnectivity() async {
-    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult.contains(ConnectivityResult.mobile)) {
-      print('mobile ok');
-      return true;
-    } else if (connectivityResult.contains(ConnectivityResult.wifi)) {
-      print('wifi ok');
-      return true;
-    } else {
-      print('comm NG');
-      return false;
-    }
-  }
-
-  void checkInitCommState() async {
-    bool result = await checkConnectivity();
-    if( result == false )  {
-      showDialog<String>(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) =>
-            AlertDialog(
-              title: Text('알림'),
-              content: Text( '인터넷이 연결되어 있지 않습니다. wifi 또는 모바일 데이터통신 연결 확인바랍니다.'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () => SystemNavigator.pop(),
-                  child: const Text('앱 종료'),
-                ),
-              ],
-            ),
-      );
-    }
-  }
-
-  Future<bool> checkCurrentCommState() async {
-    bool result = await checkConnectivity();
-    if( result == false )  {
-      await showDialog<String>(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) =>
-            AlertDialog(
-              title: Text('알림'),
-              content: Text('인터넷이 연결되어 있지 않습니다. wifi 또는 모바일 데이터통신 연결 확인바랍니다.'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('확인'),
-                ),
-              ],
-            ),
-      );
-      return false;
-    } else
-      return true;
   }
 
   Future<void> defaultSite() async {
@@ -236,21 +196,54 @@ class _LoginPageState extends State<LoginPage> {
     setState(() { });
   }
 
-    late Future futureFunc;
+  Future<bool> checkCurrentCommState() async {
+    if( isMobile == false && isWifi == false && isEthernet == false )  {
+      await showDialog<String>(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) =>
+            AlertDialog(
+              title: Text('알림'),
+              content: Text('인터넷이 연결되어 있지 않습니다. wifi 또는 모바일 데이터통신 연결 확인바랍니다.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('확인'),
+                ),
+              ],
+            ),
+      );
+      return false;
+    } else
+      return true;
+  }
+
     @override
     void initState() {
       super.initState();
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        //defaultSite();
-        //checkInitCommState();
+      subscriptionComm = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
+        isMobile = false;
+        isWifi = false;
+        isEthernet = false;
+        if (result.contains(ConnectivityResult.mobile)) {
+          isMobile = true;
+        } else if (result.contains(ConnectivityResult.wifi)) {
+          isWifi = true;
+        } else if (result.contains(ConnectivityResult.ethernet)) {
+          isEthernet = true;
+        }
       });
-
 /*
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        defaultSite();
+        checkInitCommState();
+      });
+*/
+
       nameController.text = '홍길동';
       phoneController.text = '010-1234-5678';
       dateController.text = '01.01.01';
-*/
     }
 
     @override
@@ -258,6 +251,7 @@ class _LoginPageState extends State<LoginPage> {
       nameController.dispose();
       phoneController.dispose();
       dateController.dispose();
+      subscriptionComm.cancel();
       super.dispose();
     }
 
@@ -283,7 +277,7 @@ class _LoginPageState extends State<LoginPage> {
                       Gap(30),
                       Container(
                         alignment: Alignment.center,
-                        child: Text('Coworker', style: TextStyle(fontSize: 60, color: Colors.indigo, fontWeight: FontWeight.bold)),
+                        child: Text('Coworker', style: TextStyle(fontSize: 60, color: Colors.black, fontWeight: FontWeight.bold)),
                       ),
                       SiteWidget(key: _siteKey, function: changeSite),
                       Gap(10),
@@ -466,10 +460,12 @@ class _LoginPageState extends State<LoginPage> {
 
                                   await copyLocalDatabase(pd);
                                   print('Establish Local DB');
+
                                   pd.update(value: 100);
                                   pd.close();
 
                                   _user = UserInfo(uid: _uid, did: _did, site_code: _site_code, site_name: _site_name, building_no: _building_no, house_no: _house_no, user_name: result[0]['user_name'], birth_date: result[0]['birth_date'], user_phone: result[0]['phone_number'], type: _type);
+                                  print(_user);
 
                                   result = await supabase.from('users').select().eq('id', _user.uid!);
                                   if( result.isNotEmpty )  {

@@ -6,6 +6,7 @@ import 'package:coworker/UI/show_work.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gap/gap.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -47,6 +48,7 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
   FocusNode focusNode = FocusNode();
   var claimController = TextEditingController();
   final DefectDatabase _databaseService = DefectDatabase();
+  static final storage = FlutterSecureStorage();
 
   void getSpaceName(String str)  {
     setState(() {
@@ -73,7 +75,6 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
   }
 
   void getPic1(String str)  {
-    FocusScope.of(context).unfocus();
     setState(() {
       _pic1 = str;
       isImageChanged = true;
@@ -81,7 +82,6 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
   }
 
   void getPic2(String str)  {
-    FocusScope.of(context).unfocus();
     setState(() {
       _pic2 = str;
       isImageChanged = true;
@@ -89,13 +89,14 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
   }
 
   Future<void> checkEditValid() async {
-    var result = await supabase.from('site').select().eq('site_code',_site);
-    if( result.isNotEmpty )  {
-      DateTime startDate = DateTime.parse(result[0]['check_startdate'].toString());
-      DateTime endDate = DateTime.parse(result[0]['check_enddate'].toString());
-      DateTime today = DateTime.now();
+    String? localInfo = '';
 
-      if( today.compareTo(startDate) >= 0 && today.compareTo(endDate) <= 0 )  {
+    localInfo = await storage.read(key:'isEditValid');
+    if (localInfo != null) {
+      String value = localInfo;
+      if( value == 'valid' )  {
+        isEditValid = true;
+      } else {
         isEditValid = true;
       }
     }

@@ -20,7 +20,6 @@ class _LayoutWidgetState extends State<LayoutWidget> {
     String? localInfo = '';
 
     localInfo = await storage.read(key:'typeImage');
-
     if (localInfo != null)
       _imagePath = localInfo.split(' ')[1];
 

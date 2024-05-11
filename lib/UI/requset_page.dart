@@ -51,14 +51,15 @@ class _RequestPageState extends State<RequestPage> {
   }
 
   Future<void> checkEditValid() async {
-    var result = await supabase.from('site').select().eq('site_code',_user.site_code!);
-    if( result.isNotEmpty )  {
-      DateTime startDate = DateTime.parse(result[0]['check_startdate'].toString());
-      DateTime endDate = DateTime.parse(result[0]['check_enddate'].toString());
-      DateTime today = DateTime.now();
+    String? localInfo = '';
 
-      if( today.compareTo(startDate) >= 0 && today.compareTo(endDate) <= 0 )  {
+    localInfo = await storage.read(key:'isEditValid');
+    if (localInfo != null) {
+      String value = localInfo;
+      if( value == 'valid' )  {
         isEditValid = true;
+      } else {
+        isEditValid = false;
       }
     }
   }
@@ -95,7 +96,7 @@ class _RequestPageState extends State<RequestPage> {
     }
 
     return Scaffold(
-      drawer: NavigationDrawer(),
+      drawer: NavigationDrawer(user: _user),
       backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -290,7 +291,8 @@ class _RequestPageState extends State<RequestPage> {
 }
 
 class NavigationDrawer extends StatelessWidget {
-  const NavigationDrawer({Key? key}) : super(key: key);
+  const NavigationDrawer({Key? key, required this.user}) : super(key: key);
+  final UserInfo user;
 
   @override
   Widget build(BuildContext context)  => Drawer(
@@ -306,15 +308,27 @@ class NavigationDrawer extends StatelessWidget {
   );
 
   Widget buildHeader(BuildContext context) => Container(
-    color: Colors.white,
-    padding: EdgeInsets.only(
-      top: MediaQuery.of(context).padding.top,
-    )
+    color: Colors.blue.shade700,
+    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top,),
+    child: Column(
+      children: [
+        CircleAvatar(
+          radius: 40,
+          child: Icon(CupertinoIcons.house),
+        ),
+        Gap(10),
+        Text('${user.user_name!} 님', style: TextStyle(fontSize: 25, color: Colors.white),),
+        Text('${user.site_name!}', style: TextStyle(fontSize: 16, color: Colors.white),),
+        Text('${user.building_no!}동 ${user.house_no!}호', style: TextStyle(fontSize: 16, color: Colors.white),),
+        Gap(10),
+      ],
+    ),
   );
 
   Widget buildMenuItems(BuildContext context) => Container(
-    color: Colors.white,
-    child: Column(
+    padding: EdgeInsets.all(4),
+    child : Wrap(
+      runSpacing: 16,
       children: [
         ListTile(
           leading: Icon(Icons.call),

@@ -16,8 +16,7 @@ class TextFieldWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -34,6 +33,9 @@ class TextFieldWidget extends StatelessWidget {
             child: TextField(
               controller: controller,
               focusNode: focusNode,
+              onTapOutside: (event) {
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
               decoration: InputDecoration(
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
@@ -43,7 +45,6 @@ class TextFieldWidget extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
+      );
   }
 }
