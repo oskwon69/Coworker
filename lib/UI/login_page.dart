@@ -45,6 +45,9 @@ class _LoginPageState extends State<LoginPage> {
   String _site_name = '단지 선택';
   String _building_no = '동 선택';
   String _house_no = '호 선택';
+  String _owner_name = '';
+  String _owner_phone = '';
+  String _birth_date = '';
   String _type = '';
 
   final supabase = Supabase.instance.client;
@@ -420,13 +423,17 @@ class _LoginPageState extends State<LoginPage> {
                                 }
 
                                 try {
+                                  _owner_name = nameController.text.trim();
+                                  _owner_phone = phoneController.text;
+                                  _birth_date = dateController.text.replaceAll('.', '');
+
                                   List<Map<String, dynamic>> result = await supabase.from('owner').select().match({
                                     'site_code': _site_code,
                                     'building_no': _building_no,
                                     'house_no': _house_no,
-                                    'owner_name': nameController.text.trim(),
-                                    'owner_phone': phoneController.text,
-                                    'birth_date': dateController.text.replaceAll('.', '')});
+                                    'owner_name': _owner_name,
+                                    'owner_phone': _owner_phone,
+                                    'birth_date': _birth_date});
                                   if (result.isNotEmpty) {
                                     _type = result[0]['type'].toString();
                                   } else {
@@ -434,25 +441,41 @@ class _LoginPageState extends State<LoginPage> {
                                     return;
                                   }
 
+/*
+                                  List<Map<String, dynamic>> result = await supabase.from('owner').select().match({
+                                    'site_code': _site_code,
+                                    'building_no': _building_no,
+                                    'house_no': _house_no});
+                                  if (result.isNotEmpty) {
+                                    _type = result[0]['type'].toString();
+                                  } else {
+                                    Fluttertoast.showToast(msg: '입력하신 정보로 등록된 세대가 없습니다.', gravity: ToastGravity.CENTER);
+                                    return;
+                                  }
+                                  _owner_name = result[0]['owner_name'].toString();
+                                  _owner_phone = result[0]['owner_phone'].toString();
+                                  _birth_date = result[0]['birth_date'].toString();
+*/
+
                                   ProgressDialog pd = ProgressDialog(context: context);
                                   pd.show(max: 100, msg: '데이터 다운로드 중 ...');
 
                                   result = await supabase.from('users').select().match({
-                                    'user_name': nameController.text.trim(),
-                                    'phone_number': phoneController.text,
-                                    'birth_date': dateController.text.replaceAll('.', '')});
+                                    'user_name': _owner_name,
+                                    'phone_number': _owner_phone,
+                                    'birth_date': _birth_date});
                                   if (result.isNotEmpty) {
                                     await supabase.from('users').update({
                                       'last_login': '${DateFormat("yy-MM-dd hh:mm a").format(DateTime.now())}'
                                     }).match({
-                                      'user_name': nameController.text.trim(),
-                                      'phone_number': phoneController.text,
-                                      'birth_date': dateController.text.replaceAll('.', '')});
+                                      'user_name': _owner_name,
+                                      'phone_number': _owner_phone,
+                                      'birth_date': _birth_date});
                                   } else {
                                     result =  await supabase.from('users').insert({
-                                      'user_name': nameController.text.trim(),
-                                      'phone_number': phoneController.text,
-                                      'birth_date': dateController.text.replaceAll('.', ''),
+                                      'user_name': _owner_name,
+                                      'phone_number': _owner_phone,
+                                      'birth_date': _birth_date,
                                       'last_login': '${DateFormat("yy-MM-dd hh:mm a").format(DateTime.now())}'}).select();
                                   }
                                   _uid = result[0]['id'];
@@ -464,7 +487,7 @@ class _LoginPageState extends State<LoginPage> {
                                   pd.update(value: 100);
                                   pd.close();
 
-                                  _user = UserInfo(uid: _uid, did: _did, site_code: _site_code, site_name: _site_name, building_no: _building_no, house_no: _house_no, user_name: result[0]['user_name'], birth_date: result[0]['birth_date'], user_phone: result[0]['phone_number'], type: _type);
+                                  _user = UserInfo(uid: _uid, did: _did, site_code: _site_code, site_name: _site_name, building_no: _building_no, house_no: _house_no, user_name: _owner_name, birth_date: _birth_date, user_phone: _owner_phone, type: _type);
                                   print(_user);
 
                                   result = await supabase.from('users').select().eq('id', _user.uid!);
