@@ -264,7 +264,7 @@ class _SendDataState extends State<SendData> {
                         Gap(10),
                         Text(': $_total 건', style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold)),
                         Gap(10),
-                        Text(': $_notSynced 건', style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold)),
+                        Text(': ${_notSynced-_sent} 건', style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold)),
                         Gap(10),
                         Text(': $_sent 건', style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold)),
                       ],
