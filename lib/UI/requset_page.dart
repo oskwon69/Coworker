@@ -331,11 +331,6 @@ class NavigationDrawer extends StatelessWidget {
       runSpacing: 16,
       children: [
         ListTile(
-          leading: Icon(Icons.call),
-          title: Text('고객센터'),
-          onTap: () {},
-        ),
-        ListTile(
           leading: Icon(Icons.logout),
           title: Text('로그아웃'),
           onTap: () {
