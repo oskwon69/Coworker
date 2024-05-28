@@ -53,6 +53,7 @@ class _LoginPageState extends State<LoginPage> {
 
   final supabase = Supabase.instance.client;
   final EnvDatabase _envdatabase = EnvDatabase();
+  final DefectDatabase _databaseService = DefectDatabase();
 
   static final storage = FlutterSecureStorage();
   late StreamSubscription<List<ConnectivityResult>> subscriptionComm;
@@ -223,32 +224,42 @@ class _LoginPageState extends State<LoginPage> {
       return true;
   }
 
-    @override
-    void initState() {
-      super.initState();
+  @override
+  void initState() {
+    super.initState();
 
-      subscriptionComm = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
-        isMobile = false;
-        isWifi = false;
-        isEthernet = false;
-        if (result.contains(ConnectivityResult.mobile)) {
-          isMobile = true;
-        } else if (result.contains(ConnectivityResult.wifi)) {
-          isWifi = true;
-        } else if (result.contains(ConnectivityResult.ethernet)) {
-          isEthernet = true;
-        }
+    subscriptionComm = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
+      isMobile = false;
+      isWifi = false;
+      isEthernet = false;
+      if (result.contains(ConnectivityResult.mobile)) {
+        isMobile = true;
+      } else if (result.contains(ConnectivityResult.wifi)) {
+        isWifi = true;
+      } else if (result.contains(ConnectivityResult.ethernet)) {
+        isEthernet = true;
+      }
+    });
+/*
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        defaultSite();
+        checkInitCommState();
       });
-    }
 
-    @override
-    void dispose() {
-      nameController.dispose();
-      phoneController.dispose();
-      dateController.dispose();
-      subscriptionComm.cancel();
-      super.dispose();
-    }
+      nameController.text = '홍길동';
+      phoneController.text = '010-1234-5678';
+      dateController.text = '01.01.01';
+*/
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    phoneController.dispose();
+    dateController.dispose();
+    subscriptionComm.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -376,7 +387,6 @@ class _LoginPageState extends State<LoginPage> {
                                 var commStatus = await checkCurrentCommState();
                                 if(  commStatus == false ) return;
 
-
                                 if( _site_code >= 999 )  {
                                   Fluttertoast.showToast(msg: '단지를 선택해 주세요.', gravity: ToastGravity.CENTER);
                                   return;
@@ -415,8 +425,11 @@ class _LoginPageState extends State<LoginPage> {
                                   return;
                                 }
 
-
                                 try {
+                                  _owner_name = nameController.text.trim();
+                                  _owner_phone = phoneController.text;
+                                  _birth_date = dateController.text.replaceAll('.', '');
+
                                   List<Map<String, dynamic>> result = await supabase.from('owner').select().match({
                                     'site_code': _site_code,
                                     'building_no': _building_no,
@@ -431,8 +444,8 @@ class _LoginPageState extends State<LoginPage> {
                                     return;
                                   }
 
-                                  // patch start
-                                  result = await supabase.from('owner').select().match({
+/*
+                                  List<Map<String, dynamic>> result = await supabase.from('owner').select().match({
                                     'site_code': _site_code,
                                     'building_no': _building_no,
                                     'house_no': _house_no});
@@ -445,7 +458,7 @@ class _LoginPageState extends State<LoginPage> {
                                   _owner_name = result[0]['owner_name'].toString();
                                   _owner_phone = result[0]['owner_phone'].toString();
                                   _birth_date = result[0]['birth_date'].toString();
-                                  // patch end
+*/
 
                                   ProgressDialog pd = ProgressDialog(context: context);
                                   pd.show(max: 100, msg: '데이터 다운로드 중 ...');
@@ -496,6 +509,240 @@ class _LoginPageState extends State<LoginPage> {
                                 }
                               },
                               child: Text('로그인'),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Gap(10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue.shade800,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        8)),
+                                side: BorderSide(
+                                    color: Colors.blue.shade800),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 14),
+                              ),
+                              onPressed: () async {
+                                var commStatus = await checkCurrentCommState();
+                                if(  commStatus == false ) return;
+
+                                if( _site_code >= 999 )  {
+                                  Fluttertoast.showToast(msg: '단지를 선택해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+                                if( _building_no == "동 선택" )  {
+                                  Fluttertoast.showToast(msg: '동을 선택해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+                                if( _house_no == "호 선택" )  {
+                                  Fluttertoast.showToast(msg: '호를 선택해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+                                if( nameController.text == '' )  {
+                                  Fluttertoast.showToast(msg: '이름을 입력해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+                                if( phoneController.text == '' )  {
+                                  Fluttertoast.showToast(msg: '휴대전화번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+                                if( phoneController.text.trim().length < 12 || phoneController.text.trim().length > 13 ) {
+                                  Fluttertoast.showToast(msg: '유효한 휴대전화 번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+                                if( dateController.text == '' )  {
+                                  Fluttertoast.showToast(msg: '생년월일(6자리)를 입력해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+
+                                if( dateController.text.trim().length != 8 ) {
+                                  Fluttertoast.showToast(msg: '유효한 생년월일(YY.MM.DD)을 입력해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+
+                                try {
+                                  _owner_name = nameController.text.trim();
+                                  _owner_phone = phoneController.text;
+                                  _birth_date =
+                                      dateController.text.replaceAll('.', '');
+
+                                  List<Map<String,
+                                      dynamic>> result = await supabase.from(
+                                      'owner').select().match({
+                                    'site_code': _site_code,
+                                    'building_no': _building_no,
+                                    'house_no': _house_no,
+                                    'owner_name': _owner_name,
+                                    'owner_phone': _owner_phone,
+                                    'birth_date': _birth_date});
+                                  if (result.isNotEmpty) {
+                                    _type = result[0]['type'].toString();
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg: '입력하신 정보로 등록된 세대가 없습니다.',
+                                        gravity: ToastGravity.CENTER);
+                                    return;
+                                  }
+
+                                  result =
+                                  await supabase.from('users').select().match({
+                                    'user_name': _owner_name,
+                                    'phone_number': _owner_phone,
+                                    'birth_date': _birth_date});
+                                  if (result.isNotEmpty) {
+                                    await supabase.from('users').update({
+                                      'last_login': '${DateFormat(
+                                          "yy-MM-dd hh:mm a").format(
+                                          DateTime.now())}'
+                                    }).match({
+                                      'user_name': _owner_name,
+                                      'phone_number': _owner_phone,
+                                      'birth_date': _birth_date});
+                                  } else {
+                                    result =
+                                    await supabase.from('users').insert({
+                                      'user_name': _owner_name,
+                                      'phone_number': _owner_phone,
+                                      'birth_date': _birth_date,
+                                      'last_login': '${DateFormat(
+                                          "yy-MM-dd hh:mm a").format(
+                                          DateTime.now())}'}).select();
+                                  }
+                                  _uid = result[0]['id'];
+
+                                  await _databaseService.deletePic2(_uid);
+                                  Fluttertoast.showToast(msg: '원경사진 삭제가 완료되었습니다.', gravity: ToastGravity.CENTER);
+
+                                } catch(e) {
+                                  print(e.toString());
+                                }
+                              },
+                              child: Text('원경 사진지우기'),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Gap(10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue.shade800,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        8)),
+                                side: BorderSide(
+                                    color: Colors.blue.shade800),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 14),
+                              ),
+                              onPressed: () async {
+                                var commStatus = await checkCurrentCommState();
+                                if(  commStatus == false ) return;
+
+                                if( _site_code >= 999 )  {
+                                  Fluttertoast.showToast(msg: '단지를 선택해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+                                if( _building_no == "동 선택" )  {
+                                  Fluttertoast.showToast(msg: '동을 선택해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+                                if( _house_no == "호 선택" )  {
+                                  Fluttertoast.showToast(msg: '호를 선택해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+                                if( nameController.text == '' )  {
+                                  Fluttertoast.showToast(msg: '이름을 입력해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+                                if( phoneController.text == '' )  {
+                                  Fluttertoast.showToast(msg: '휴대전화번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+                                if( phoneController.text.trim().length < 12 || phoneController.text.trim().length > 13 ) {
+                                  Fluttertoast.showToast(msg: '유효한 휴대전화 번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+                                if( dateController.text == '' )  {
+                                  Fluttertoast.showToast(msg: '생년월일(6자리)를 입력해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+
+                                if( dateController.text.trim().length != 8 ) {
+                                  Fluttertoast.showToast(msg: '유효한 생년월일(YY.MM.DD)을 입력해 주세요.', gravity: ToastGravity.CENTER);
+                                  return;
+                                }
+
+                                try {
+                                  _owner_name = nameController.text.trim();
+                                  _owner_phone = phoneController.text;
+                                  _birth_date =
+                                      dateController.text.replaceAll('.', '');
+
+                                  List<Map<String,
+                                      dynamic>> result = await supabase.from(
+                                      'owner').select().match({
+                                    'site_code': _site_code,
+                                    'building_no': _building_no,
+                                    'house_no': _house_no,
+                                    'owner_name': _owner_name,
+                                    'owner_phone': _owner_phone,
+                                    'birth_date': _birth_date});
+                                  if (result.isNotEmpty) {
+                                    _type = result[0]['type'].toString();
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg: '입력하신 정보로 등록된 세대가 없습니다.',
+                                        gravity: ToastGravity.CENTER);
+                                    return;
+                                  }
+
+                                  result =
+                                  await supabase.from('users').select().match({
+                                    'user_name': _owner_name,
+                                    'phone_number': _owner_phone,
+                                    'birth_date': _birth_date});
+                                  if (result.isNotEmpty) {
+                                    await supabase.from('users').update({
+                                      'last_login': '${DateFormat(
+                                          "yy-MM-dd hh:mm a").format(
+                                          DateTime.now())}'
+                                    }).match({
+                                      'user_name': _owner_name,
+                                      'phone_number': _owner_phone,
+                                      'birth_date': _birth_date});
+                                  } else {
+                                    result =
+                                    await supabase.from('users').insert({
+                                      'user_name': _owner_name,
+                                      'phone_number': _owner_phone,
+                                      'birth_date': _birth_date,
+                                      'last_login': '${DateFormat(
+                                          "yy-MM-dd hh:mm a").format(
+                                          DateTime.now())}'}).select();
+                                  }
+                                  _uid = result[0]['id'];
+
+                                  await _databaseService.deletePic1(_uid);
+                                  Fluttertoast.showToast(msg: '근접사진 삭제가 완료되었습니다.', gravity: ToastGravity.CENTER);
+
+                                } catch(e) {
+                                  print(e.toString());
+                                }
+                              },
+                              child: Text('근접 사진지우기'),
                             ),
                           ),
                         ],

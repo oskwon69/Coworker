@@ -121,7 +121,7 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
           child: SingleChildScrollView(
             child: Container(
               padding: const EdgeInsets.all(30),
-              height: MediaQuery.of(context).size.height*0.9,
+              height: MediaQuery.of(context).size.height*1.0,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),

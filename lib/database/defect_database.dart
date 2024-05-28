@@ -82,4 +82,14 @@ class DefectDatabase {
 
     return List.generate(data.length, (index) => Defect.fromMap(data[index]));
   }
+
+  Future<void> deletePic2(String uid) async {
+    final db = await database;
+    await db.rawQuery("update defects set pic2='' where uid='"+uid+"'");
+  }
+
+  Future<void> deletePic1(String uid) async {
+    final db = await database;
+    await db.rawQuery("update defects set pic1='' where uid='"+uid+"'");
+  }
 }
