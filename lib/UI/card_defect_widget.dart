@@ -21,8 +21,7 @@ class CardDefectListWidget extends StatefulWidget {
 
 class _CardDefectListWidgetState extends State<CardDefectListWidget> {
   late Defect _defect;
-  String _imageString = '';
-  Uint8List? imageBytes;
+  String _imagePath = '';
 
   final DefectDatabase _databaseService = DefectDatabase();
 
@@ -37,18 +36,18 @@ class _CardDefectListWidgetState extends State<CardDefectListWidget> {
     super.initState();
 
     if( widget.defect.pic1 != '' )  {
-      _imageString = widget.defect.pic1;
+      _imagePath = widget.defect.pic1;
     } else if( widget.defect.pic2 != '' ) {
-      _imageString = widget.defect.pic2;
+      _imagePath = widget.defect.pic2;
     }
-
-    imageBytes = Base64Decoder().convert(_imageString);
   }
 
   @override
   Widget build(BuildContext context) {
     _defect = widget.defect;
     String _title = '${widget.defect.space} ${widget.defect.area} ${widget.defect.work} ${widget.defect.sort}';
+    print("path"+_imagePath);
+    Uri uri = Uri.file(_imagePath);
 
     return Container(
       margin: EdgeInsets.symmetric(vertical: 5),
@@ -85,10 +84,10 @@ class _CardDefectListWidgetState extends State<CardDefectListWidget> {
                   width: MediaQuery.of(context).size.width/2*0.40,
                   height: MediaQuery.of(context).size.width/2*0.40*3/4,
                   decoration: BoxDecoration( borderRadius: BorderRadius.circular(8.0), color: Colors.grey.shade200),
-                  child: _imageString != '' ?
+                  child: _imagePath != '' ?
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
-                      child: Image.memory(imageBytes!)
+                      child: Image.file(File(_imagePath)),
                     ) :
                     Center(child: Icon(CupertinoIcons.photo_fill_on_rectangle_fill)),
                 ),

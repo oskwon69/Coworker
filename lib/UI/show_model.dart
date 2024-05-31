@@ -17,6 +17,7 @@ import 'package:coworker/UI/show_area.dart';
 import 'package:coworker/UI/textfield_widget.dart';
 import 'package:coworker/model/defect.dart';
 import 'package:coworker/database/defect_database.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class AddNewDefectModel extends StatefulWidget {
   const AddNewDefectModel({Key? key, required this.user, required this.function}) : super(key: key);
@@ -369,16 +370,26 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
                               }
 
                               try {
+                                Directory _directory = await getApplicationDocumentsDirectory();
+
                                 if( _pic1 != '' ) {
-                                  Uint8List originalBytes = Base64Decoder().convert(_pic1);
-                                  Uint8List compressedBytes = await FlutterImageCompress.compressWithList(originalBytes, quality: 50);
-                                  _pic1 = base64Encode(compressedBytes);
+                                  String fileName = "${_building_no}_${_house_no}_${DateTime.now()}_pic1.jpg";
+                                  String filePath = "${_directory.path}/$fileName";
+                                  File file = File(filePath);
+                                  Uint8List imageBytes = await File(_pic1).readAsBytesSync();
+                                  file.writeAsBytes(imageBytes);
+                                  ImageGallerySaver.saveImage(imageBytes, name: fileName);
+                                  _pic1 = filePath;
                                 }
 
                                 if( _pic2 != '' ) {
-                                  Uint8List originalBytes = Base64Decoder().convert(_pic2);
-                                  Uint8List compressedBytes = await FlutterImageCompress.compressWithList(originalBytes, quality: 50);
-                                  _pic2 = base64Encode(compressedBytes);
+                                  String fileName = "${_building_no}_${_house_no}_${DateTime.now()}_pic2.jpg";
+                                  String filePath = "${_directory.path}/$fileName";
+                                  File file = File(filePath);
+                                  Uint8List imageBytes = await File(_pic2).readAsBytesSync();
+                                  file.writeAsBytes(imageBytes);
+                                  ImageGallerySaver.saveImage(imageBytes, name: fileName);
+                                  _pic2 = filePath;
                                 }
 
                                 Defect defect = Defect(uid: _uid, did: _did, site: _site_code, building: _building_no, house: _house_no, reg_name: _reg_name, reg_phone: _reg_phone, space: _space, area: _area, work: _work, sort: _sort, claim: _claim, pic1: _pic1, pic2: _pic2, synced: _synced, deleted: _deleted, sent: '미전송');

@@ -16,6 +16,13 @@ void main() async {
     await permissionStorage.request();
   }
 
+/*
+  final permissionManageExternalStorage = Permission.manageExternalStorage;
+  if (await permissionManageExternalStorage.isDenied) {
+    await permissionManageExternalStorage.request();
+  }
+*/
+
   final permissionPhotos = Permission.photos;
   if (await permissionPhotos.isDenied) {
     await permissionPhotos.request();

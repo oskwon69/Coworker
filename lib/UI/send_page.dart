@@ -46,27 +46,35 @@ class _SendDataState extends State<SendData> {
   bool isEthernet = false;
 
   Future<void> getDefects() async {
-    final defects = await _databaseService.getAllDefects(widget.user.uid!, widget.user.site_code!, widget.user.building_no!, widget.user.house_no!);
-    if ( defectList.isNotEmpty ) {
-      defectList.clear();
+    try {
+      final defects = await _databaseService.getAllDefects(widget.user.uid!, widget.user.site_code!, widget.user.building_no!, widget.user.house_no!);
+      if ( defectList.isNotEmpty ) {
+        defectList.clear();
+      }
+
+      defectList.addAll(defects);
+
+      setState(() {
+        _total = defectList.length;
+        defectSendList = defectList.where((item) => item.synced == 0).toList();
+        _notSynced = defectSendList.length;
+      });
+    } catch(e) {
+      print(e.toString());
     }
-
-    defectList.addAll(defects);
-
-    setState(() {
-      _total = defectList.length;
-      defectSendList = defectList.where((item) => item.synced == 0).toList();
-      _notSynced = defectSendList.length;
-    });
   }
 
   Future<void> getDeletedDefects() async {
-    final defects = await _databaseService.getAllDelDefects(widget.user.uid!, widget.user.site_code!, widget.user.building_no!, widget.user.house_no!);
-    if ( defectDeledtedList.isNotEmpty ) {
-      defectDeledtedList.clear();
-    }
+    try {
+      final defects = await _databaseService.getAllDelDefects(widget.user.uid!, widget.user.site_code!, widget.user.building_no!,widget.user.house_no!);
+      if (defectDeledtedList.isNotEmpty) {
+        defectDeledtedList.clear();
+      }
 
-    defectDeledtedList.addAll(defects);
+      defectDeledtedList.addAll(defects);
+    } catch(e) {
+      print(e.toString());
+    }
   }
 
   Stream<int> sendDefects() async* {
@@ -111,18 +119,18 @@ class _SendDataState extends State<SendData> {
 
       try {
         if( defectSendList[i].pic1 != '' ) {
-          Uint8List bytes = Base64Decoder().convert(defectSendList[i].pic1);
-          filepath1 = 'Site${defectSendList[i].site}/${defectSendList[i].uid}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].did}_${defectSendList[i].id}_1.jpg';
+          Uint8List imageBytes = await File(defectSendList[i].pic1).readAsBytesSync();
+          filepath1 = 'Site${defectSendList[i].site}/${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].id}_1.jpg';
           await supabase.storage.from('photos').uploadBinary(
-              filepath1, bytes, fileOptions: const FileOptions(
+              filepath1, imageBytes, fileOptions: const FileOptions(
               cacheControl: '3600', upsert: true));
         }
 
         if( defectSendList[i].pic2 != '' ) {
-          Uint8List bytes = Base64Decoder().convert(defectSendList[i].pic2);
-          filepath2 = 'Site${defectSendList[i].site}/${defectSendList[i].uid}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].did}_${defectSendList[i].id}_2.jpg';
+          Uint8List imageBytes = await File(defectSendList[i].pic2).readAsBytesSync();
+          filepath2 = 'Site${defectSendList[i].site}/${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].id}_2.jpg';
           await supabase.storage.from('photos').uploadBinary(
-              filepath2, bytes, fileOptions: const FileOptions(
+              filepath2, imageBytes, fileOptions: const FileOptions(
               cacheControl: '3600', upsert: true));
         }
 

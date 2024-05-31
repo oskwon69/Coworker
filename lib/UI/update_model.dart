@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -17,6 +18,7 @@ import 'package:coworker/UI/show_area.dart';
 import 'package:coworker/UI/textfield_widget.dart';
 import 'package:coworker/model/defect.dart';
 import 'package:coworker/database/defect_database.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -32,7 +34,10 @@ class UpdateDefectModel extends StatefulWidget {
 
 class _UpdateDefectState extends State<UpdateDefectModel> {
   late Defect _defect;
+  String _did = '';
   int _site = 0;
+  String _building = '';
+  String _house = '';
   String _space = '';
   String _area = '';
   String _work = '';
@@ -106,7 +111,10 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
     super.initState();
 
     _defect = widget.defect;
+    _did = _defect.did;
     _site = _defect.site;
+    _building = _defect.building;
+    _house = _defect.house;
     _space = _defect.space;
     _area = _defect.area;
     _work = _defect.work;
@@ -397,33 +405,43 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                                 return;
                               }
 
-                              if( isImageChanged )  {
-                                if( _pic1 != '' ) {
-                                  Uint8List originalBytes = Base64Decoder().convert(_pic1);
-                                  Uint8List compressedBytes = await FlutterImageCompress.compressWithList(originalBytes, quality: 50);
-                                  _pic1 = base64Encode(compressedBytes);
-                                }
-                              }
-
-                              if( isImageChanged )  {
-                                if( _pic2 != '' ) {
-                                  Uint8List originalBytes = Base64Decoder().convert(_pic2);
-                                  Uint8List compressedBytes = await FlutterImageCompress.compressWithList(originalBytes, quality: 50);
-                                  _pic2 = base64Encode(compressedBytes);
-                                }
-                              }
-
-                              _defect.space = _space;
-                              _defect.area = _area;
-                              _defect.work = _work;
-                              _defect.sort = _sort;
-                              _defect.claim = _claim;
-                              _defect.pic1 = _pic1;
-                              _defect.pic2 = _pic2;
-                              _defect.sent = '미전송';
-                              _defect.synced = 0;
-
                               try {
+                                Directory _directory = await getApplicationDocumentsDirectory();
+
+                                if( isImageChanged )  {
+                                  if( _pic1 != '' ) {
+                                    String fileName = "${_building}_${_house}_${DateTime.now()}_pic1.jpg";
+                                    String filePath = "${_directory.path}/$fileName";
+                                    File file = File(filePath);
+                                    Uint8List imageBytes = await File(_pic1).readAsBytesSync();
+                                    file.writeAsBytes(imageBytes);
+                                    ImageGallerySaver.saveImage(imageBytes, name: fileName);
+                                    _pic1 = filePath;
+                                  }
+                                }
+
+                                if( isImageChanged )  {
+                                  if( _pic2 != '' ) {
+                                    String fileName = "${_building}_${_house}_${DateTime.now()}_pic2.jpg";
+                                    String filePath = "${_directory.path}/$fileName";
+                                    File file = File(filePath);
+                                    Uint8List imageBytes = await File(_pic2).readAsBytesSync();
+                                    file.writeAsBytes(imageBytes);
+                                    ImageGallerySaver.saveImage(imageBytes, name: fileName);
+                                    _pic2 = filePath;
+                                  }
+                                }
+
+                                _defect.space = _space;
+                                _defect.area = _area;
+                                _defect.work = _work;
+                                _defect.sort = _sort;
+                                _defect.claim = _claim;
+                                _defect.pic1 = _pic1;
+                                _defect.pic2 = _pic2;
+                                _defect.sent = '미전송';
+                                _defect.synced = 0;
+
                                 var result = await _databaseService.updateDefect(_defect);
                               } catch(e) {
                                 print(e.toString());

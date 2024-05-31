@@ -18,32 +18,30 @@ class PictureSelect extends StatefulWidget {
 }
 
 class _PictureSelectState extends State<PictureSelect> {
-  String imageString = '';
-  Uint8List? imageBytes;
+  String imagePath = '';
 
   Future getGalleryImage() async {
-    var image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    var image = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 75, maxHeight: 600, maxWidth: 900);
     if( image != null ) {
-      imageBytes = await image.readAsBytes();
-      imageString = base64Encode(imageBytes!);
+      imagePath = image.path;
     }
+
+    print(imagePath);
 
     setState(() {});
   }
 
   Future getCameraImage() async {
-    var image = await ImagePicker().pickImage(source: ImageSource.camera);
+    var image = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 75, maxHeight: 600, maxWidth: 900);
     if( image != null ) {
-      imageBytes = await image.readAsBytes();
-      imageString = base64Encode(imageBytes!);
+      imagePath = image.path;
     }
     setState(() {});
   }
 
   void initState() {
     super.initState();
-    imageString = widget.image;
-    imageBytes = Base64Decoder().convert(imageString);
+    imagePath = widget.image;
   }
 
   @override
@@ -51,7 +49,7 @@ class _PictureSelectState extends State<PictureSelect> {
 
     return Container(
       padding: const EdgeInsets.all(30),
-      height: imageString == '' ? MediaQuery.of(context).size.height*0.40 : MediaQuery.of(context).size.height*0.60,
+      height: imagePath == '' ? MediaQuery.of(context).size.height*0.40 : MediaQuery.of(context).size.height*0.60,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -98,7 +96,7 @@ class _PictureSelectState extends State<PictureSelect> {
                 child: SizedBox(
                   //width: 160,
                   //height: 90,
-                    child: imageString == '' ?
+                    child: imagePath == '' ?
                     Row(
                       children: [
                         Icon(Icons.photo),
@@ -106,7 +104,7 @@ class _PictureSelectState extends State<PictureSelect> {
                         Text('사진이 선택되지 않았습니다.'),
                       ],
                     ) :
-                    Image.memory(imageBytes!)
+                    Image.file(File(imagePath))
                   //CircleAvatar(backgroundImage: FileImage(File(_image!.path)),radius: 100)
                 ),
               ),
@@ -126,7 +124,7 @@ class _PictureSelectState extends State<PictureSelect> {
                     onPressed: () async {
                       await getCameraImage();
                       Navigator.pop(context);
-                      widget.function(imageString);
+                      widget.function(imagePath);
                     },
                     child: Text('카메라'),
                   ),
@@ -144,7 +142,7 @@ class _PictureSelectState extends State<PictureSelect> {
                       onPressed: () async {
                         await getGalleryImage();
                         Navigator.pop(context);
-                        widget.function(imageString);
+                        widget.function(imagePath);
                       },
                       child: Text('앨범'),
                     ),

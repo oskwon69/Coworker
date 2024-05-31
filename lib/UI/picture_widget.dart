@@ -21,19 +21,16 @@ class PictureWidget extends StatefulWidget {
 }
 
 class _PictureWidgetState extends State<PictureWidget> {
-  String imageString = '';
-  Uint8List? imageBytes;
+  String imagePath = '';
 
   void initState() {
     super.initState();
-    imageString = widget.image;
-    imageBytes = Base64Decoder().convert(imageString);
+    imagePath = widget.image;
   }
 
   void getPicture(String image) {
-    imageString = image;
-    imageBytes = Base64Decoder().convert(image);
-    widget.function(imageString);
+    imagePath = image;
+    widget.function(imagePath);
     setState(() {});
   }
 
@@ -61,7 +58,7 @@ class _PictureWidgetState extends State<PictureWidget> {
                   showModalBottomSheet(
                     isScrollControlled: true,
                     context: context,
-                    builder: (context) => PictureSelect(image: imageString, function: getPicture),
+                    builder: (context) => PictureSelect(image: imagePath, function: getPicture),
                   );
                 },
                 child: Container(
@@ -76,7 +73,7 @@ class _PictureWidgetState extends State<PictureWidget> {
                   child: SizedBox(
                       width: 150,
                       height: 80,
-                      child: imageString == '' ?
+                      child: imagePath == '' ?
                         Row(
                           children: [
                             Icon(Icons.photo),
@@ -87,7 +84,7 @@ class _PictureWidgetState extends State<PictureWidget> {
                         Stack(
                           alignment: Alignment.center,
                           children: [
-                            Image.memory(imageBytes!),
+                            Image.file(File(imagePath)),
                             Positioned(
                               right: -20,
                               top: -10,
@@ -114,9 +111,9 @@ class _PictureWidgetState extends State<PictureWidget> {
                                           ),
                                           TextButton(
                                               onPressed: () {
-                                                imageString = '';
+                                                imagePath = '';
                                                 Navigator.pop(context);
-                                                widget.function(imageString);
+                                                widget.function(imagePath);
                                               },
                                               child: Text("삭제", style: TextStyle(fontSize: 15))
                                           ),

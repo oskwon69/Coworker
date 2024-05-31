@@ -1,3 +1,4 @@
+import 'package:coworker/UI/show_defects_sent.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -65,15 +66,19 @@ class _RequestPageState extends State<RequestPage> {
   }
 
   Future<List<Defect>> _getDefects() async {
-    final defects = await _databaseService.getAllDefects(_user.uid!, _user.site_code!, _user.building_no!, _user.house_no!);
-    if ( defectList.isNotEmpty )  {
-      defectList.clear();
+    try {
+      final defects = await _databaseService.getAllDefects(_user.uid!, _user.site_code!, _user.building_no!, _user.house_no!);
+      if (defectList.isNotEmpty) {
+        defectList.clear();
+      }
+      defectList.addAll(defects);
+
+      _sent = await _databaseService.getSentDefects(_user.uid!, _user.site_code!, _user.building_no!, _user.house_no!);
+
+      print('getDefectList');
+    } catch(e) {
+      print(e.toString());
     }
-    defectList.addAll(defects);
-
-    _sent = await _databaseService.getSentDefects(_user.uid!, _user.site_code!, _user.building_no!, _user.house_no!);
-
-    print('getDefectList');
     return defectList;
   }
 
@@ -126,7 +131,7 @@ class _RequestPageState extends State<RequestPage> {
                 isDismissible: false,
                 isScrollControlled: true,
                 context: context,
-                builder: (context) => SendData(user: _user,function: refreshScreen),
+                builder: (context) => SendData(user: _user, function: refreshScreen),
               );
             },
             child: Text('전송'),
@@ -330,6 +335,13 @@ class NavigationDrawer extends StatelessWidget {
     child : Wrap(
       runSpacing: 16,
       children: [
+        ListTile(
+          leading: Icon(CupertinoIcons.arrow_right_arrow_left),
+          title: Text('접수현황'),
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ShowDefectsSent(user:user)));
+          },
+        ),
         ListTile(
           leading: Icon(Icons.logout),
           title: Text('로그아웃'),
