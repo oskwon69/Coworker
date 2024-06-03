@@ -70,63 +70,70 @@ class _PictureWidgetState extends State<PictureWidget> {
                     color: Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: SizedBox(
-                      width: 150,
-                      height: 80,
-                      child: imagePath == '' ?
-                        Row(
-                          children: [
-                            Icon(Icons.photo),
-                            Gap(12),
-                            Text('카메라 / 앨범'),
-                          ],
-                        ) :
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Image.file(File(imagePath)),
-                            Positioned(
-                              right: -20,
-                              top: -10,
-                              child:  ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                minimumSize: Size(5,5),
-                                backgroundColor: Colors.transparent,
-                                foregroundColor: Colors.grey.shade600,
-                                elevation: 0,
-                                shape: CircleBorder(),
-                                ),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        title: Text('하자 사진을 삭제하시겠습니까?', style: TextStyle(fontSize: 15)),
-                                        actions: [
-                                          TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: Text("취소", style: TextStyle(fontSize: 15))
-                                          ),
-                                          TextButton(
-                                              onPressed: () {
-                                                imagePath = '';
-                                                Navigator.pop(context);
-                                                widget.function(imagePath);
-                                              },
-                                              child: Text("삭제", style: TextStyle(fontSize: 15))
-                                          ),
-                                        ],
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                          width: 150,
+                          height: 80,
+                          child: imagePath == '' ?
+                          Row(
+                            children: [
+                              Gap(10),
+                              Icon(Icons.photo),
+                              Gap(12),
+                              Text('카메라 / 앨범'),
+                            ],
+                          ) :
+                          Stack(
+                            alignment: Alignment.topRight,
+                            children: [
+                              Image.file(File(imagePath), width:150, height: 80),
+                              //Text(File(imagePath).lengthSync().toString()),
+                              Positioned(
+                                top: -10,
+                                right: -25,
+                                child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      minimumSize: Size(5,5),
+                                      backgroundColor: Colors.grey.shade200,
+                                      foregroundColor: Colors.grey.shade800,
+                                      elevation: 0,
+                                      shape: CircleBorder(),
+                                    ),
+                                    onPressed: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: Text('하자 사진을 삭제하시겠습니까?', style: TextStyle(fontSize: 15)),
+                                              actions: [
+                                                TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text("취소", style: TextStyle(fontSize: 15))
+                                                ),
+                                                TextButton(
+                                                    onPressed: () {
+                                                      imagePath = '';
+                                                      Navigator.pop(context);
+                                                      widget.function(imagePath);
+                                                    },
+                                                    child: Text("삭제", style: TextStyle(fontSize: 15))
+                                                ),
+                                              ],
+                                            );
+                                          }
                                       );
-                                    }
-                                  );
-                                },
-                                child: Icon(CupertinoIcons.delete),
+                                    },
+                                    child: Icon(CupertinoIcons.delete),
+                                  ),
                               ),
-                            )
-                          ],
-                        )
+                            ],
+                          )
+                      ),
+                    ],
                   ),
                 ),
               ),

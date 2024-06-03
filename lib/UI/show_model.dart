@@ -308,9 +308,11 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        PictureWidget(titleText: '근접사진', image: _pic1, function: getPic1),
+                        PictureWidget(titleText: '하자사진', image: _pic1, function: getPic1),
+/*
                         Gap(22),
                         PictureWidget(titleText: '원경사진', image: _pic2, function: getPic2),
+*/
                       ],
                     ),
                     Gap(20),
@@ -373,6 +375,7 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
                                 Directory _directory = await getApplicationDocumentsDirectory();
 
                                 if( _pic1 != '' ) {
+                                  print(_pic1);
                                   String fileName = "${_building_no}_${_house_no}_${DateTime.now()}_pic1.jpg";
                                   String filePath = "${_directory.path}/$fileName";
                                   File file = File(filePath);

@@ -46,8 +46,6 @@ class _CardDefectListWidgetState extends State<CardDefectListWidget> {
   Widget build(BuildContext context) {
     _defect = widget.defect;
     String _title = '${widget.defect.space} ${widget.defect.area} ${widget.defect.work} ${widget.defect.sort}';
-    print("path"+_imagePath);
-    Uri uri = Uri.file(_imagePath);
 
     return Container(
       margin: EdgeInsets.symmetric(vertical: 5),

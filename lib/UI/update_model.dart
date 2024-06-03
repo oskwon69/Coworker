@@ -334,9 +334,11 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        PictureWidget(titleText: '근접사진', image: _pic1, function: getPic1),
+                        PictureWidget(titleText: '하자사진', image: _pic1, function: getPic1),
+/*
                         Gap(22),
                         PictureWidget(titleText: '원경사진', image: _pic2, function: getPic2),
+*/
                       ],
                     ),
                     Gap(20),

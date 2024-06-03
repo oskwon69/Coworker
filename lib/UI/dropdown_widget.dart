@@ -28,10 +28,17 @@ class SiteWidgetState extends State<SiteWidget> {
     }
   }
 
-  void refreshList(int site)  {
-    setState(() {
+  Future<void> refreshList()  async {
+    await _getSites();
+    setState(() {});
+  }
+
+  void setList(int site) {
+    int index = siteList.indexWhere((element) => element['site_code'] == site);
+    if( index >= 0 ) {
       _site_code = site;
-    });
+      setState(() {});
+    }
   }
 
   @override
@@ -39,9 +46,7 @@ class SiteWidgetState extends State<SiteWidget> {
     super.initState();
     _site_code = 999;
 
-    _getSites().then( (_) {
-      setState(() {});
-    });
+    _getSites().then( (_) {setState(() {}); });
   }
 
   @override
@@ -102,8 +107,12 @@ class BuildingWidgetState extends State<BuildingWidget> {
   Future<void> refreshList(int site)  async {
     _building_no = '동 선택';
     await _getBuildings(site);
-    setState(() {
-    });
+    setState(() {});
+  }
+
+  void setList(String building)  {
+    _building_no = building;
+    setState(() {});
   }
 
   @override
@@ -172,6 +181,11 @@ class HouseWidgetState extends State<HouseWidget> {
     await _getHouses(site, building);
     setState(() {
     });
+  }
+
+  void setList(String house)  {
+    _house_no = house;
+    setState(() {});
   }
 
   @override

@@ -21,7 +21,7 @@ class _PictureSelectState extends State<PictureSelect> {
   String imagePath = '';
 
   Future getGalleryImage() async {
-    var image = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 75, maxHeight: 600, maxWidth: 900);
+    var image = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 50, maxHeight: 600, maxWidth: 900);
     if( image != null ) {
       imagePath = image.path;
     }
@@ -32,7 +32,7 @@ class _PictureSelectState extends State<PictureSelect> {
   }
 
   Future getCameraImage() async {
-    var image = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 75, maxHeight: 600, maxWidth: 900);
+    var image = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 50, maxHeight: 600, maxWidth: 900);
     if( image != null ) {
       imagePath = image.path;
     }

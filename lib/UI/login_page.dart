@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:coworker/UI/dropdown_widget.dart';
 import 'package:coworker/UI/requset_page.dart';
+import 'package:coworker/UI/send_page.dart';
 import 'package:coworker/UI/show_agreement.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -71,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
     } else if(Platform.isAndroid) {
       const androidId = AndroidId();
       uniqueDeviceId = await androidId.getId();
-      print(uniqueDeviceId);
+      //print(uniqueDeviceId);
     }
 
     return uniqueDeviceId;
@@ -174,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
       _site_code = int.parse(result[0]['site_code'].toString());
       _site_name = result[0]['site_name'].toString();
       _building_no = '동 선택';
-      _siteKey.currentState?.refreshList(_site_code);
+      _siteKey.currentState?.refreshList();
       await _buildingKey.currentState?.refreshList(_site_code);
       await _houseKey.currentState?.refreshList(_site_code, _building_no);
     }  else return;
@@ -182,7 +183,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() { });
   }
 
-  changeSite(int site, String name) async {
+  Future<void> changeSite(int site, String name) async {
     _site_code = site;
     _site_name = name;
     _building_no = '동 선택';
@@ -191,18 +192,31 @@ class _LoginPageState extends State<LoginPage> {
     setState(() { });
   }
 
-  changeBuilding(String building) async {
+  Future<void> changeBuilding(String building) async {
     _building_no = building;
     await _houseKey.currentState?.refreshList(_site_code, _building_no);
     setState(() { });
   }
 
-  changeHouse(String house) {
+  Future<void> changeHouse(String house) async {
     _house_no = house;
     setState(() { });
   }
 
   Future<bool> checkCurrentCommState() async {
+    isMobile = false;
+    isWifi = false;
+    isEthernet = false;
+
+    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult.contains(ConnectivityResult.mobile)) {
+      isMobile = true;
+    } else if (connectivityResult.contains(ConnectivityResult.wifi)) {
+      isWifi = true;
+    } else if (connectivityResult.contains(ConnectivityResult.ethernet)) {
+      isEthernet = true;
+    }
+
     if( isMobile == false && isWifi == false && isEthernet == false )  {
       await showDialog<String>(
         barrierDismissible: false,
@@ -271,15 +285,6 @@ class _LoginPageState extends State<LoginPage> {
       _owner_phone = phoneController.text;
       _birth_date = dateController.text.replaceAll('.', '');
 
-/*
-      _site_code = 1;
-      _building_no = '101';
-      _house_no = '101';
-      _owner_name = '홍길동';
-      _owner_phone = '010-1234-5678';
-      _birth_date = '010101';
-*/
-
       List<Map<String, dynamic>> result = await supabase.from('owner').select().match({
         'site_code': _site_code,
         'building_no': _building_no,
@@ -300,10 +305,35 @@ class _LoginPageState extends State<LoginPage> {
     return true;
   }
 
+  Future<void> getLastLoginInfo() async {
+    await Future.delayed(Duration.zero);
+
+    String? localInfo = '';
+
+    localInfo = await storage.read(key:'loginInfo');
+    if (localInfo != null) {
+      _site_code = int.parse(localInfo.split(' ')[1]);
+      _site_name = localInfo.split(' ')[3].replaceAll('_', ' ');
+      _building_no = localInfo.split(' ')[5];
+      _house_no = localInfo.split(' ')[7];
+      nameController.text = localInfo.split(' ')[9];
+      phoneController.text = localInfo.split(' ')[11];
+      dateController.text = localInfo.split(' ')[13];
+
+      _siteKey.currentState?.setList(_site_code);
+      await _buildingKey.currentState?.refreshList(_site_code);
+      _buildingKey.currentState?.setList(_building_no);
+
+      await _houseKey.currentState?.refreshList(_site_code, _building_no);
+      _houseKey.currentState?.setList(_house_no);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
+/*
     subscriptionComm = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
       isMobile = false;
       isWifi = false;
@@ -316,6 +346,11 @@ class _LoginPageState extends State<LoginPage> {
         isEthernet = true;
       }
     });
+*/
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(Duration(seconds: 1), () => getLastLoginInfo());
+    });
   }
 
   @override
@@ -323,7 +358,7 @@ class _LoginPageState extends State<LoginPage> {
     nameController.dispose();
     phoneController.dispose();
     dateController.dispose();
-    subscriptionComm.cancel();
+//    subscriptionComm.cancel();
     super.dispose();
   }
 
@@ -486,6 +521,9 @@ class _LoginPageState extends State<LoginPage> {
                                   _user = UserInfo(uid: _uid, did: _did, site_code: _site_code, site_name: _site_name, building_no: _building_no, house_no: _house_no, user_name: _owner_name, birth_date: _birth_date, user_phone: _owner_phone, type: _type);
                                   print(_user);
 
+                                  await storage.write(key: "loginInfo", value: "site_code "+_site_code.toString()+" site_name "+_site_name.replaceAll(" ","_")+" building_no "+_building_no+" house_no "+_house_no+
+                                      " owner_name "+_owner_name+" owner_phone "+_owner_phone+" birth_date "+_birth_date.substring(0,2)+"."+_birth_date.substring(2,4)+"."+_birth_date.substring(4,6));
+
                                   result = await supabase.from('users').select().eq('id', _user.uid!);
                                   if( result.isNotEmpty )  {
                                     if( result[0]['terms_agree'] == 0 )  {  // 아직 동의하지 않음.
@@ -508,43 +546,73 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       Gap(10),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: Colors.blue.shade800,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                side: BorderSide(color: Colors.blue.shade800),
-                                padding: EdgeInsets.symmetric(vertical: 14),
-                              ),
-                              onPressed: () async {
-                                await checkLoginStatus();
-
-                                await showDialog<String>(
-                                  barrierDismissible: false,
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      AlertDialog(
-                                        title: Text('알림'),
-                                        content: Text('저장된 데이터를 서버로 전송하시겠습니까?'),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            onPressed: () => Navigator.pop(context),
-                                            child: const Text('닫기'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () => Navigator.pop(context),
-                                            child: const Text('전송'),
-                                          ),
-                                        ],
-                                      ),
-                                );
-                              },
-                              child: Text('백업받기'),
+                          TextButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.blue.shade800,
+                              elevation: 0,
+                              padding: EdgeInsets.symmetric(vertical: 14),
                             ),
-                          ),
+                            onPressed: () async {
+                              await checkLoginStatus();
+
+                              var result = await supabase.from('users').select().match({
+                                'user_name': _owner_name,
+                                'phone_number': _owner_phone,
+                                'birth_date': _birth_date});
+                              if (result.isNotEmpty) {
+                                await supabase.from('users').update({
+                                  'last_login': '${DateFormat("yy-MM-dd hh:mm a").format(DateTime.now())}'
+                                }).match({
+                                  'user_name': _owner_name,
+                                  'phone_number': _owner_phone,
+                                  'birth_date': _birth_date});
+                              } else {
+                                result =  await supabase.from('users').insert({
+                                  'user_name': _owner_name,
+                                  'phone_number': _owner_phone,
+                                  'birth_date': _birth_date,
+                                  'last_login': '${DateFormat("yy-MM-dd hh:mm a").format(DateTime.now())}'}).select();
+                              }
+                              _uid = result[0]['id'];
+                              _did = await getDeviceUniqueId();
+
+                              _user = UserInfo(uid: _uid, did: _did, site_code: _site_code, site_name: _site_name, building_no: _building_no, house_no: _house_no, user_name: _owner_name, birth_date: _birth_date, user_phone: _owner_phone, type: _type);
+                              print(_user);
+
+                              await showDialog<String>(
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    AlertDialog(
+                                      title: Text('알림'),
+                                      content: Text('저장된 데이터를 서버로 전송하시겠습니까?'),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: const Text('닫기'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+
+                                            showModalBottomSheet(
+                                              isDismissible: false,
+                                              isScrollControlled: true,
+                                              context: context,
+                                              builder: (context) => SendData(user: _user, function: null),
+                                            );
+                                          },
+                                          child: Text('전송'),
+                                        ),
+                                      ],
+                                    ),
+                              );
+                            },
+                            child: Text('백업 전송하기'),
+                          )
                         ],
                       ),
                     ],

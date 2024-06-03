@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../database/defect_database.dart';
 import '../model/defect.dart';
@@ -17,7 +18,7 @@ class SendData extends StatefulWidget {
   const SendData({Key? key, required this.user , required this.function}) : super(key: key);
 
   final UserInfo user;
-  final Function function;
+  final Function? function;
 
   @override
   State<SendData> createState() => _SendDataState();
@@ -173,6 +174,19 @@ class _SendDataState extends State<SendData> {
   }
 
   Future<bool> checkCurrentCommState() async {
+    isMobile = false;
+    isWifi = false;
+    isEthernet = false;
+
+    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult.contains(ConnectivityResult.mobile)) {
+      isMobile = true;
+    } else if (connectivityResult.contains(ConnectivityResult.wifi)) {
+      isWifi = true;
+    } else if (connectivityResult.contains(ConnectivityResult.ethernet)) {
+      isEthernet = true;
+    }
+
     if( isMobile == false && isWifi == false && isEthernet == false )  {
       await showDialog<String>(
         barrierDismissible: false,
@@ -198,10 +212,13 @@ class _SendDataState extends State<SendData> {
   void initState() {
     super.initState();
 
+/*
+    print('start Connectivity');
     subscriptionComm = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
       isMobile = false;
       isWifi = false;
       isEthernet = false;
+      print(ConnectivityResult);
       if (result.contains(ConnectivityResult.mobile)) {
         isMobile = true;
       } else if (result.contains(ConnectivityResult.wifi)) {
@@ -210,6 +227,10 @@ class _SendDataState extends State<SendData> {
         isEthernet = true;
       }
     });
+    print('end Connectivity');
+*/
+
+    WakelockPlus.enable();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await getDefects();
@@ -219,7 +240,8 @@ class _SendDataState extends State<SendData> {
 
   @override
   void dispose() {
-    subscriptionComm.cancel();
+//    subscriptionComm.cancel();
+    WakelockPlus.disable();
     super.dispose();
   }
   @override
@@ -306,7 +328,7 @@ class _SendDataState extends State<SendData> {
                       ),
                       onPressed: () {
                         Navigator.pop(context);
-                        widget.function();
+                        if( widget.function != null ) widget.function!();
                       },
                       child: Text('닫기'),
                     )
@@ -361,10 +383,11 @@ class _SendDataState extends State<SendData> {
                           _sending = false;
                           _done = true;
                           _break = true;
+                          _buttonText = '전송';
                         });
                       }
 
-                      widget.function();
+                      if( widget.function != null ) widget.function!();
                     },
                     child: Text(_buttonText),
                   ),
