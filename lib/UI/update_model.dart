@@ -6,7 +6,6 @@ import 'package:coworker/UI/show_sort.dart';
 import 'package:coworker/UI/show_work.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gap/gap.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -21,6 +20,7 @@ import 'package:coworker/database/defect_database.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../API/globals.dart' as globals;
 
 class UpdateDefectModel extends StatefulWidget {
   const UpdateDefectModel({Key? key, required this.defect, required this.function}) : super(key: key);
@@ -418,7 +418,7 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                                     Uint8List imageBytes = await File(_pic1).readAsBytesSync();
                                     file.writeAsBytes(imageBytes);
                                     ImageGallerySaver.saveImage(imageBytes, name: fileName);
-                                    _pic1 = filePath;
+                                    _pic1 = fileName;
                                   }
                                 }
 
@@ -430,7 +430,7 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                                     Uint8List imageBytes = await File(_pic2).readAsBytesSync();
                                     file.writeAsBytes(imageBytes);
                                     ImageGallerySaver.saveImage(imageBytes, name: fileName);
-                                    _pic2 = filePath;
+                                    _pic2 = fileName;
                                   }
                                 }
 

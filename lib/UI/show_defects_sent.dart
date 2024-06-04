@@ -1,18 +1,16 @@
 import 'package:coworker/UI/show_defect_card.dart';
 import 'package:coworker/database/defect_from_server.dart';
+import 'package:coworker/model/defect.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 import 'package:coworker/model/user.dart';
-import 'package:coworker/model/defect.dart';
-import 'package:coworker/database/defect_from_server.dart';
 import '../model/defect_server.dart';
-import 'card_defect_widget.dart';
 
 class ShowDefectsSent extends StatefulWidget {
   const ShowDefectsSent({Key? key, required this.user}) : super(key: key);
@@ -26,9 +24,12 @@ class ShowDefectsSent extends StatefulWidget {
 class _ShowDefectsSentState extends State<ShowDefectsSent> {
   late UserInfo _user;
   List<DefectEx> defectList = [];
-
   final DefectServer _databaseService = DefectServer();
+  static const _pageSize = 20;
 
+  final PagingController<int, DefectEx> _pagingController = PagingController(firstPageKey: 0);
+
+/*
   Future<List<DefectEx>> _getDefects() async {
     try {
       final defects = await _databaseService.getAllDefects(_user.site_code!, _user.building_no!, _user.house_no!);
@@ -43,12 +44,38 @@ class _ShowDefectsSentState extends State<ShowDefectsSent> {
     }
     return defectList;
   }
+*/
 
   @override
   void initState() {
-    super.initState();
-
     _user = widget.user;
+    _pagingController.addPageRequestListener((pageKey) {
+      _fetchPage(pageKey);
+    });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchPage(int pageKey) async {
+    try {
+      final newItems = await _databaseService.getAllDefects(_user.site_code!, _user.building_no!, _user.house_no!, pageKey, _pageSize);
+      //final newItems = await _databaseService.getAllDefects(3, '207', '201', pageKey, _pageSize);
+      final isLastPage = newItems.length < _pageSize;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        final nextPageKey = pageKey + newItems.length;
+        _pagingController.appendPage(newItems, nextPageKey);
+      }
+    } catch (error) {
+      _pagingController.error = error;
+    }
   }
 
   @override
@@ -74,7 +101,15 @@ class _ShowDefectsSentState extends State<ShowDefectsSent> {
         actions: [
         ],
       ),
-      body: FutureBuilder(
+      body: PagedListView<int, DefectEx>(
+        pagingController: _pagingController,
+        builderDelegate: PagedChildBuilderDelegate<DefectEx>(
+          itemBuilder: (context, item, index) => DefectCardWidget(index: index, defect: item),
+          firstPageErrorIndicatorBuilder: (context) => const Center(child: Text('Error loading data!'),),
+          noItemsFoundIndicatorBuilder: (context) => const Center(child: Text('No items found.'),),
+        ),
+      ),
+/*      body: FutureBuilder(
           future: _getDefects(),
           builder: (BuildContext context, AsyncSnapshot<List<DefectEx>> snapshot) {
             if( snapshot.hasData )  {
@@ -102,7 +137,7 @@ class _ShowDefectsSentState extends State<ShowDefectsSent> {
               return Center(child: CircularProgressIndicator());
             }
           }
-      ),
+      ),*/
     );
   }
 }

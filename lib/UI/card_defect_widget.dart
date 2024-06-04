@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:coworker/UI/update_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
+
 import 'package:coworker/model/defect.dart';
-import 'package:coworker/database/defect_database.dart';
+import 'package:coworker/UI/update_model.dart';
+import '../API/globals.dart' as globals;
 
 class CardDefectListWidget extends StatefulWidget {
   const CardDefectListWidget({Key? key, required this.defect, required this.function}) : super(key: key);
@@ -22,8 +23,7 @@ class CardDefectListWidget extends StatefulWidget {
 class _CardDefectListWidgetState extends State<CardDefectListWidget> {
   late Defect _defect;
   String _imagePath = '';
-
-  final DefectDatabase _databaseService = DefectDatabase();
+  String _dirPath = '';
 
   returnUpdate() {
     setState(() {
@@ -85,7 +85,7 @@ class _CardDefectListWidgetState extends State<CardDefectListWidget> {
                   child: _imagePath != '' ?
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
-                      child: Image.file(File(_imagePath)),
+                      child: Image.file(File("${globals.appDirectory}/$_imagePath")),
                     ) :
                     Center(child: Icon(CupertinoIcons.photo_fill_on_rectangle_fill)),
                 ),

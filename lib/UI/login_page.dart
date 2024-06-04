@@ -19,11 +19,11 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:android_id/android_id.dart';
 
-import '../database/defect_database.dart';
 import '../database/env_database.dart';
 import '../model/env.dart';
 import '../model/user.dart';
 import 'app_style.dart';
+import '../API/globals.dart' as globals;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -72,7 +72,6 @@ class _LoginPageState extends State<LoginPage> {
     } else if(Platform.isAndroid) {
       const androidId = AndroidId();
       uniqueDeviceId = await androidId.getId();
-      //print(uniqueDeviceId);
     }
 
     return uniqueDeviceId;
@@ -145,6 +144,10 @@ class _LoginPageState extends State<LoginPage> {
       final file = File(filePath);
       await file.writeAsBytes(response.bodyBytes);
       await storage.write(key: "typeImage", value: "path " + filePath + " " + "type " + _type);
+
+      globals.appDirectory = fileDir.path;
+      print('appDirectory:${globals.appDirectory}');
+
       pd.update(value: 90);
 
       _did = await getDeviceUniqueId();

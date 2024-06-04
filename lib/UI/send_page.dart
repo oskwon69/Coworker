@@ -13,6 +13,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../database/defect_database.dart';
 import '../model/defect.dart';
 import '../model/user.dart';
+import '../API/globals.dart' as globals;
 
 class SendData extends StatefulWidget {
   const SendData({Key? key, required this.user , required this.function}) : super(key: key);
@@ -120,7 +121,8 @@ class _SendDataState extends State<SendData> {
 
       try {
         if( defectSendList[i].pic1 != '' ) {
-          Uint8List imageBytes = await File(defectSendList[i].pic1).readAsBytesSync();
+          String imagePath = "${globals.appDirectory}/${defectList[i].pic1}";
+          Uint8List imageBytes = await File(imagePath).readAsBytesSync();
           filepath1 = 'Site${defectSendList[i].site}/${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].id}_1.jpg';
           await supabase.storage.from('photos').uploadBinary(
               filepath1, imageBytes, fileOptions: const FileOptions(
@@ -128,7 +130,8 @@ class _SendDataState extends State<SendData> {
         }
 
         if( defectSendList[i].pic2 != '' ) {
-          Uint8List imageBytes = await File(defectSendList[i].pic2).readAsBytesSync();
+          String imagePath = "${globals.appDirectory}/${defectList[i].pic2}";
+          Uint8List imageBytes = await File(imagePath).readAsBytesSync();
           filepath2 = 'Site${defectSendList[i].site}/${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].id}_2.jpg';
           await supabase.storage.from('photos').uploadBinary(
               filepath2, imageBytes, fileOptions: const FileOptions(

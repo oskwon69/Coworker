@@ -9,11 +9,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:sn_progress_dialog/sn_progress_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 import 'package:coworker/UI/send_page.dart';
 import 'package:coworker/model/user.dart';
@@ -41,6 +38,9 @@ class _RequestPageState extends State<RequestPage> {
   final supabase = Supabase.instance.client;
   static final storage = FlutterSecureStorage();
   final DefectDatabase _databaseService = DefectDatabase();
+
+  static const _pageSize = 20;
+  final PagingController<int, Defect> _pagingController = PagingController(firstPageKey: 0);
 
   int _sent=0;
   int ownHouseNo = 0;
@@ -99,7 +99,7 @@ class _RequestPageState extends State<RequestPage> {
           file.delete();
         }
 
-        var result = await _databaseService.deleteDefect(defectList[i].id!);
+        await _databaseService.deleteDefect(defectList[i].id!);
       }
     } catch(e)  {
       print(e.toString());
@@ -114,6 +114,28 @@ class _RequestPageState extends State<RequestPage> {
 
     _user = widget.user;
     checkEditValid();
+  }
+
+  @override
+  void dispose() {
+    //_pagingController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchPage(int pageKey) async {
+    try {
+      final newItems = await _databaseService.getAllDefectsByPage(_user.uid!, _user.site_code!, _user.building_no!, _user.house_no!, pageKey, _pageSize);
+      //final newItems = await _databaseService.getAllDefects(3, '207', '201', pageKey, _pageSize);
+      final isLastPage = newItems.length < _pageSize;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        final nextPageKey = pageKey + newItems.length;
+        _pagingController.appendPage(newItems, nextPageKey);
+      }
+    } catch (error) {
+      _pagingController.error = error;
+    }
   }
 
   @override
@@ -346,7 +368,7 @@ class _RequestPageState extends State<RequestPage> {
                                 try {
                                   Defect defect = defectList[index];
                                   defect.deleted = 1;
-                                  var result = await _databaseService.updateDefect(defect);
+                                  await _databaseService.updateDefect(defect);
                                 } catch(e) {
                                   print(e.toString());
                                 }

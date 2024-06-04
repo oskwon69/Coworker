@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:gap/gap.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
@@ -382,7 +381,7 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
                                   Uint8List imageBytes = await File(_pic1).readAsBytesSync();
                                   file.writeAsBytes(imageBytes);
                                   ImageGallerySaver.saveImage(imageBytes, name: fileName);
-                                  _pic1 = filePath;
+                                  _pic1 = fileName;
                                 }
 
                                 if( _pic2 != '' ) {
@@ -392,7 +391,7 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
                                   Uint8List imageBytes = await File(_pic2).readAsBytesSync();
                                   file.writeAsBytes(imageBytes);
                                   ImageGallerySaver.saveImage(imageBytes, name: fileName);
-                                  _pic2 = filePath;
+                                  _pic2 = fileName;
                                 }
 
                                 Defect defect = Defect(uid: _uid, did: _did, site: _site_code, building: _building_no, house: _house_no, reg_name: _reg_name, reg_phone: _reg_phone, space: _space, area: _area, work: _work, sort: _sort, claim: _claim, pic1: _pic1, pic2: _pic2, synced: _synced, deleted: _deleted, sent: '미전송');

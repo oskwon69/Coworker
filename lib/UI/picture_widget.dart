@@ -5,9 +5,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
-import 'package:image_picker/image_picker.dart';
 
 import 'app_style.dart';
+import '../API/globals.dart' as globals;
+
 
 class PictureWidget extends StatefulWidget {
   const PictureWidget({Key? key, required this.titleText, required this.image, required this.function }) : super(key: key);
@@ -37,6 +38,10 @@ class _PictureWidgetState extends State<PictureWidget> {
   @override
   Widget build(BuildContext context) {
     String titleText = widget.titleText;
+
+    if( imagePath !='' && imagePath.contains('/') != true )  {
+      imagePath = '${globals.appDirectory}/$imagePath';
+    }
 
     return Expanded(
       child: Column(

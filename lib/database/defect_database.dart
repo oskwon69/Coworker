@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:coworker/model/defect.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -74,6 +76,17 @@ class DefectDatabase {
     final List<Map<String, dynamic>> data = await db.query('defects', where:"uid=? and site=? and building=? and house=? and deleted=0", whereArgs: [uid, site, building, house], orderBy: 'id DESC');
     
     return List.generate(data.length, (index) => Defect.fromMap(data[index]));
+  }
+
+  Future<List<Defect>> getAllDefectsByPage(String uid, int site, String building, String house, int pagekey, int pagesize) async {
+    final db = await database;
+    final List<Map<String, dynamic>> data = await db.query('defects', where:"uid=? and site=? and building=? and house=? and deleted=0", whereArgs: [uid, site, building, house], orderBy: 'id DESC', offset: pagekey, limit: pagesize);
+
+    if( data.length < pagesize )  {
+      return List.generate(data.length, (index) => Defect.fromMap(data[index]));
+    } else {
+      return List.generate(pagesize, (index) => Defect.fromMap(data[index]));
+    }
   }
 
   Future<List<Defect>> getAllDelDefects(String uid, int site, String building, String house) async {
