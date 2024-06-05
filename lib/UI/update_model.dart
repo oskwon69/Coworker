@@ -9,6 +9,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gap/gap.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:coworker/UI/app_style.dart';
 import 'package:coworker/UI/picture_widget.dart';
@@ -17,10 +20,7 @@ import 'package:coworker/UI/show_area.dart';
 import 'package:coworker/UI/textfield_widget.dart';
 import 'package:coworker/model/defect.dart';
 import 'package:coworker/database/defect_database.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../API/globals.dart' as globals;
+import 'package:coworker/API/globals.dart' as globals;
 
 class UpdateDefectModel extends StatefulWidget {
   const UpdateDefectModel({Key? key, required this.defect, required this.function}) : super(key: key);
@@ -408,29 +408,15 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                               }
 
                               try {
-                                Directory _directory = await getApplicationDocumentsDirectory();
-
                                 if( isImageChanged )  {
                                   if( _pic1 != '' ) {
                                     String fileName = "${_building}_${_house}_${DateTime.now()}_pic1.jpg";
-                                    String filePath = "${_directory.path}/$fileName";
+                                    String filePath = "${globals.appDirectory}/$fileName";
                                     File file = File(filePath);
                                     Uint8List imageBytes = await File(_pic1).readAsBytesSync();
                                     file.writeAsBytes(imageBytes);
                                     ImageGallerySaver.saveImage(imageBytes, name: fileName);
                                     _pic1 = fileName;
-                                  }
-                                }
-
-                                if( isImageChanged )  {
-                                  if( _pic2 != '' ) {
-                                    String fileName = "${_building}_${_house}_${DateTime.now()}_pic2.jpg";
-                                    String filePath = "${_directory.path}/$fileName";
-                                    File file = File(filePath);
-                                    Uint8List imageBytes = await File(_pic2).readAsBytesSync();
-                                    file.writeAsBytes(imageBytes);
-                                    ImageGallerySaver.saveImage(imageBytes, name: fileName);
-                                    _pic2 = fileName;
                                   }
                                 }
 

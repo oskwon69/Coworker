@@ -26,6 +26,7 @@ class _ShowDefectsSentState extends State<ShowDefectsSent> {
   List<DefectEx> defectList = [];
   final DefectServer _databaseService = DefectServer();
   static const _pageSize = 20;
+  int _total=0;
 
   final PagingController<int, DefectEx> _pagingController = PagingController(firstPageKey: 0);
 
@@ -46,12 +47,20 @@ class _ShowDefectsSentState extends State<ShowDefectsSent> {
   }
 */
 
+  Future<void> _getDefectsCount() async {
+    _total = await _databaseService.getTotalDefectsCount(_user.site_code!, _user.building_no!, _user.house_no!);
+    setState(() {
+    });
+  }
+
   @override
   void initState() {
     _user = widget.user;
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
     });
+
+    _getDefectsCount();
 
     super.initState();
   }
@@ -95,7 +104,7 @@ class _ShowDefectsSentState extends State<ShowDefectsSent> {
         foregroundColor: Colors.black,
         titleSpacing: -5,
         title: ListTile(
-          title: Text('하자 접수 내역', style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)),
+          title: Text('하자 접수 내역 ($_total건)', style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)),
           subtitle: Text(_houseName, style: TextStyle(fontSize: 13, color: Colors.black)),
         ),
         actions: [
@@ -109,35 +118,6 @@ class _ShowDefectsSentState extends State<ShowDefectsSent> {
           noItemsFoundIndicatorBuilder: (context) => const Center(child: Text('No items found.'),),
         ),
       ),
-/*      body: FutureBuilder(
-          future: _getDefects(),
-          builder: (BuildContext context, AsyncSnapshot<List<DefectEx>> snapshot) {
-            if( snapshot.hasData )  {
-              return SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Column(
-                    children: [
-                      Gap(5),
-                      ListView.builder(
-                          itemCount: defectList.length,
-                          shrinkWrap: true,
-                          primary: false,
-                          scrollDirection: Axis.vertical,
-                          itemBuilder: (context, index) {
-                            return DefectCardWidget(index: index, defect: defectList[index]);
-                          }
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }
-            else {
-              return Center(child: CircularProgressIndicator());
-            }
-          }
-      ),*/
     );
   }
 }

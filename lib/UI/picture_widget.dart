@@ -79,30 +79,30 @@ class _PictureWidgetState extends State<PictureWidget> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                          width: 150,
+                          width: 250,
                           height: 80,
                           child: imagePath == '' ?
                           Row(
                             children: [
                               Gap(10),
                               Icon(Icons.photo),
-                              Gap(12),
-                              Text('카메라 / 앨범'),
+                              Gap(10),
+                              Text('카메라 또는 앨범 에서 사진 선택'),
                             ],
                           ) :
                           Stack(
-                            alignment: Alignment.topRight,
+                            alignment: Alignment.center,
                             children: [
                               Image.file(File(imagePath), width:150, height: 80),
                               //Text(File(imagePath).lengthSync().toString()),
                               Positioned(
                                 top: -10,
-                                right: -25,
+                                right: 10,
                                 child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       minimumSize: Size(5,5),
                                       backgroundColor: Colors.grey.shade200,
-                                      foregroundColor: Colors.grey.shade800,
+                                      foregroundColor: Colors.black,
                                       elevation: 0,
                                       shape: CircleBorder(),
                                     ),

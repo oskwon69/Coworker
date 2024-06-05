@@ -9,6 +9,7 @@ import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../database/defect_database.dart';
 import '../model/defect.dart';
@@ -42,7 +43,6 @@ class _SendDataState extends State<SendData> {
 
   final DefectDatabase _databaseService = DefectDatabase();
   final supabase = Supabase.instance.client;
-  late StreamSubscription<List<ConnectivityResult>> subscriptionComm;
   bool isMobile = false;
   bool isWifi = false;
   bool isEthernet = false;
@@ -82,6 +82,8 @@ class _SendDataState extends State<SendData> {
   Stream<int> sendDefects() async* {
     String sent_date = '${DateFormat("yyyy/MM/dd").format(DateTime.now())}';
 
+    print('send deleted');
+
     // 우선 삭제된 항목을 서버DB와 동기화한다.
     for(int i=0 ; i < defectDeledtedList.length ; i++) {
       if( _break == true ) break;
@@ -111,30 +113,22 @@ class _SendDataState extends State<SendData> {
       }
     }
 
-    print('alive');
     // 아직 보내지 않았거나 수정된 항목을 서버DB와 동기화한다.
     for(int i=0 ; i < defectSendList.length ; i++) {
       String filepath1 = '';
-      String filepath2 = '';
 
       if( _break == true ) break;
 
+      print('send index: $i');
+
       try {
         if( defectSendList[i].pic1 != '' ) {
+          print('pic1: ${defectSendList[i].pic1}');
           String imagePath = "${globals.appDirectory}/${defectList[i].pic1}";
           Uint8List imageBytes = await File(imagePath).readAsBytesSync();
           filepath1 = 'Site${defectSendList[i].site}/${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].id}_1.jpg';
           await supabase.storage.from('photos').uploadBinary(
               filepath1, imageBytes, fileOptions: const FileOptions(
-              cacheControl: '3600', upsert: true));
-        }
-
-        if( defectSendList[i].pic2 != '' ) {
-          String imagePath = "${globals.appDirectory}/${defectList[i].pic2}";
-          Uint8List imageBytes = await File(imagePath).readAsBytesSync();
-          filepath2 = 'Site${defectSendList[i].site}/${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].id}_2.jpg';
-          await supabase.storage.from('photos').uploadBinary(
-              filepath2, imageBytes, fileOptions: const FileOptions(
               cacheControl: '3600', upsert: true));
         }
 
@@ -153,10 +147,11 @@ class _SendDataState extends State<SendData> {
           'sort_name_arg': defectSendList[i].sort,
           'claim_arg': defectSendList[i].claim,
           'pic1_arg': filepath1,
-          'pic2_arg': filepath2,
+          'pic2_arg': '',
           'deleted_arg': defectSendList[i].deleted,
           'sent_date_arg': sent_date,
         });
+        print('DB');
 
         Defect defect = defectSendList[i];
         defect.synced = 1;
@@ -215,24 +210,6 @@ class _SendDataState extends State<SendData> {
   void initState() {
     super.initState();
 
-/*
-    print('start Connectivity');
-    subscriptionComm = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
-      isMobile = false;
-      isWifi = false;
-      isEthernet = false;
-      print(ConnectivityResult);
-      if (result.contains(ConnectivityResult.mobile)) {
-        isMobile = true;
-      } else if (result.contains(ConnectivityResult.wifi)) {
-        isWifi = true;
-      } else if (result.contains(ConnectivityResult.ethernet)) {
-        isEthernet = true;
-      }
-    });
-    print('end Connectivity');
-*/
-
     WakelockPlus.enable();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -243,7 +220,6 @@ class _SendDataState extends State<SendData> {
 
   @override
   void dispose() {
-//    subscriptionComm.cancel();
     WakelockPlus.disable();
     super.dispose();
   }
@@ -306,16 +282,26 @@ class _SendDataState extends State<SendData> {
               ],
             ),
             Gap(20),
-            LinearProgressIndicator(
-              value: percent,
-              backgroundColor: Colors.grey.shade300,
-              color: Colors.black45,
-              valueColor:
-              AlwaysStoppedAnimation<Color>(Colors.red),
-              minHeight: 10.0,
-              semanticsLabel: 'semanticsLabel',
-              semanticsValue: 'semanticsValue',
-            ),
+            _sending == true ?
+            Row(
+              children: [
+                Expanded(
+                  child: LinearProgressIndicator(
+                    value: percent,
+                    backgroundColor: Colors.grey.shade300,
+                    color: Colors.black45,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                    minHeight: 10.0,
+                    semanticsLabel: 'semanticsLabel',
+                    semanticsValue: 'semanticsValue',
+                  ),
+                ),
+                Gap(10),
+                LoadingAnimationWidget.fourRotatingDots(
+                  color: Color(0xFF1A1A3F),
+                  size: 20,),
+              ]
+            ) : Container(),
             Gap(30),
             Row(
               children: [
@@ -394,7 +380,7 @@ class _SendDataState extends State<SendData> {
                     },
                     child: Text(_buttonText),
                   ),
-                )
+                ),
               ],
             ),
           ]

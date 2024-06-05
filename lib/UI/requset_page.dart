@@ -18,7 +18,9 @@ import 'package:coworker/UI/login_page.dart';
 import 'package:coworker/UI/show_model.dart';
 import 'package:coworker/model/defect.dart';
 import 'package:coworker/database/defect_database.dart';
-import 'card_defect_widget.dart';
+import 'package:coworker/UI/card_defect_widget.dart';
+import 'package:coworker/API/globals.dart' as globals;
+
 
 class RequestPage extends StatefulWidget {
   const RequestPage({Key? key, required this.user}) : super(key: key);
@@ -42,6 +44,7 @@ class _RequestPageState extends State<RequestPage> {
   static const _pageSize = 20;
   final PagingController<int, Defect> _pagingController = PagingController(firstPageKey: 0);
 
+  int _total=0;
   int _sent=0;
   int ownHouseNo = 0;
 
@@ -55,7 +58,9 @@ class _RequestPageState extends State<RequestPage> {
   }
 
   refreshScreen() {
-    setState(() { });
+    setState(() {
+      _pagingController.refresh();
+    });
   }
 
   Future<void> checkEditValid() async {
@@ -72,6 +77,13 @@ class _RequestPageState extends State<RequestPage> {
     }
   }
 
+  Future<int> _getDefectsCount() async {
+    _total = await _databaseService.getTotalDefectsCount(_user.uid!, _user.site_code!, _user.building_no!, _user.house_no!);
+    _sent = await _databaseService.getSentDefectsCount(_user.uid!, _user.site_code!, _user.building_no!, _user.house_no!);
+    return 0;
+  }
+
+/*
   Future<List<Defect>> _getDefects() async {
     try {
       final defects = await _databaseService.getAllDefects(_user.uid!, _user.site_code!, _user.building_no!, _user.house_no!);
@@ -86,16 +98,23 @@ class _RequestPageState extends State<RequestPage> {
     }
     return defectList;
   }
+*/
 
   Future<void> deleteAllDefect() async {
+    try {
+      final defects = await _databaseService.getAllDefects(_user.uid!, _user.site_code!, _user.building_no!, _user.house_no!);
+      if (defectList.isNotEmpty) {
+        defectList.clear();
+      }
+      defectList.addAll(defects);
+    } catch(e) {
+      print(e.toString());
+    }
+
     try {
       for(int i=0;i<defectList.length;i++) {
         if (defectList[i].pic1 != '') {
           var file = File(defectList[i].pic1);
-          file.delete();
-        }
-        if (defectList[i].pic2 != '') {
-          var file = File(defectList[i].pic2);
           file.delete();
         }
 
@@ -105,7 +124,9 @@ class _RequestPageState extends State<RequestPage> {
       print(e.toString());
     }
 
-    setState(() {});
+    setState(() {
+      _pagingController.refresh();
+    });
   }
 
   @override
@@ -114,11 +135,15 @@ class _RequestPageState extends State<RequestPage> {
 
     _user = widget.user;
     checkEditValid();
+
+    _pagingController.addPageRequestListener((pageKey) {
+      _fetchPage(pageKey);
+    });
   }
 
   @override
   void dispose() {
-    //_pagingController.dispose();
+    _pagingController.dispose();
     super.dispose();
   }
 
@@ -183,7 +208,6 @@ class _RequestPageState extends State<RequestPage> {
             },
             child: Text('전송'),
           ),
-/*
           Gap(5),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -195,36 +219,20 @@ class _RequestPageState extends State<RequestPage> {
               padding: EdgeInsets.symmetric(vertical: 5),
             ),
             onPressed: () async {
-              Directory _directory = await getApplicationDocumentsDirectory();
-
               String _building_no = _user.building_no!;
               String _house_no = _user.house_no!;
               String _pic1 = '';
-              String _pic2 = '';
 
               try {
                 _pic1 = '/storage/emulated/0/Pictures/101_101_2024-06-03 11_07_31.331632_pic1.jpg';
-                _pic2 = '/storage/emulated/0/Pictures/101_101_2024-06-03 11_07_31.336619_pic2.jpg';
                 if (_pic1 != '') {
                   String fileName = "${_building_no}_${_house_no}_${DateTime
                       .now()}_pic1.jpg";
-                  String filePath = "${_directory.path}/$fileName";
+                  String filePath = "${globals.appDirectory}/$fileName";
                   File file = File(filePath);
                   Uint8List imageBytes = await File(_pic1).readAsBytesSync();
                   file.writeAsBytes(imageBytes);
-                  ImageGallerySaver.saveImage(imageBytes, name: fileName);
-                  _pic1 = filePath;
-                }
-
-                if (_pic2 != '') {
-                  String fileName = "${_building_no}_${_house_no}_${DateTime
-                      .now()}_pic2.jpg";
-                  String filePath = "${_directory.path}/$fileName";
-                  File file = File(filePath);
-                  Uint8List imageBytes = await File(_pic2).readAsBytesSync();
-                  file.writeAsBytes(imageBytes);
-                  ImageGallerySaver.saveImage(imageBytes, name: fileName);
-                  _pic2 = filePath;
+                  _pic1 = fileName;
                 }
               } catch(e) {
                 print(e.toString());
@@ -243,17 +251,18 @@ class _RequestPageState extends State<RequestPage> {
                   sort: '유형이름',
                   claim: '하자가 없어야 하는데 많이 있네요. ^^',
                   pic1: _pic1,
-                  pic2: _pic2,
+                  pic2: "",
                   synced: 0,
                   deleted: 0,
                   sent: '미전송');
 
               var result = await _databaseService.addDefect(defect);
-              setState(() {});
+              setState(() {
+                _pagingController.refresh();
+              });
             },
             child: Text('DB테스트'),
           ),
-*/
           Gap(15),
         ],
       ),
@@ -266,7 +275,7 @@ class _RequestPageState extends State<RequestPage> {
               return;
             }
 
-            if( defectList.length >= maxDefects )  {
+            if( _total >= maxDefects )  {
               Fluttertoast.showToast(msg: '최대 저장 갯수($maxDefects건)를 초과하였습니다.', gravity: ToastGravity.CENTER);
               return;
             }
@@ -279,141 +288,142 @@ class _RequestPageState extends State<RequestPage> {
           },
           child: Icon(Icons.add),
       ),
-      body: FutureBuilder(
-        future: _getDefects(),
-        builder: (BuildContext context, AsyncSnapshot<List<Defect>> snapshot) {
-          if( snapshot.hasData )  {
-            return SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Column(
-                  children: [
-                    Gap(20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          children: [
+            Gap(20),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('하자 내역', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
+                      Text(_houseName, style: TextStyle(color: Colors.black))
+                    ],
+                  ),
+                ]
+            ),
+            Gap(5),
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 5),
+              padding: EdgeInsets.all(5),
+              width: double.infinity,
+              height: 30,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: FutureBuilder(
+                  future: _getDefectsCount(),
+                  builder: (context, snapshot) {
+                    if ( snapshot.hasData ) {
+                      return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            Text('하자 내역', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
-                            Text(_houseName, style: TextStyle(color: Colors.black))
-                          ],
-                        ),
-                      ]
-                    ),
-                    Gap(5),
-                    Container(
-                      margin: EdgeInsets.symmetric(vertical: 5),
-                      padding: EdgeInsets.all(5),
-                      width: double.infinity,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(7),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Row(
-                            children: [
-                              Text('전체건수'),
-                              Gap(5),
-                              Container(
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(color: Colors.grey.shade700, borderRadius: BorderRadius.all(Radius.circular(7))),
-                                width: 30,
-                                child: Text(defectList.length.toString(), style: TextStyle(color: Colors.white)),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Text('전송완료'),
-                              Gap(5),
-                              Container(
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.all(Radius.circular(7))),
-                                width: 30,
-                                child: Text(_sent.toString(), style: TextStyle(color: Colors.white)),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Text('미전송'),
-                              Gap(5),
-                              Container(
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.all(Radius.circular(7))),
-                                width: 30,
-                                child: Text((defectList.length-_sent).toString(), style: TextStyle(color: Colors.white)),
-                              ),
-                            ],
-                          ),
-                        ]
-                      ),
-                    ),
-                    Gap(5),
-                    ListView.builder(
-                      itemCount: defectList.length,
-                      shrinkWrap: true,
-                      primary: false,
-                      scrollDirection: Axis.vertical,
-                      itemBuilder: (context, index) {
-                        return Dismissible(
-                            key: UniqueKey(),
-                            child: CardDefectListWidget(defect: defectList[index], function: refreshScreen),
-                            background: Container(color: Colors.grey.shade200),
-                            onDismissed: (direction) async {
-                                try {
-                                  Defect defect = defectList[index];
-                                  defect.deleted = 1;
-                                  await _databaseService.updateDefect(defect);
-                                } catch(e) {
-                                  print(e.toString());
-                                }
-                                setState(() {});
-                            },
-                            confirmDismiss: (direction)  {
-                              if( isEditValid == false )  {
-                                Fluttertoast.showToast(msg: '사전점검 기간이 아닙니다.', gravity: ToastGravity.CENTER);
-                                return Future.value(false);
-                              }
-                              return showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: Text('하자 내용을 삭제하시겠습니까?', style: TextStyle(fontSize: 15)),
-                                      actions: [
-                                        TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop(false);
-                                            },
-                                            child: Text("취소", style: TextStyle(fontSize: 15))
-                                        ),
-                                        TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop(true);
-                                            },
-                                            child: Text("삭제", style: TextStyle(fontSize: 15))
-                                        ),
-                                      ],
-                                    );
-                                  },
-                              );
-                            },
+                            Row(
+                              children: [
+                                Text('전체건수'),
+                                Gap(5),
+                                Container(
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(color: Colors.grey.shade700, borderRadius: BorderRadius.all(Radius.circular(7))),
+                                  width: 30,
+                                  child: Text(_total.toString(), style: TextStyle(color: Colors.white)),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Text('전송완료'),
+                                Gap(5),
+                                Container(
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.all(Radius.circular(7))),
+                                  width: 30,
+                                  child: Text(_sent.toString(), style: TextStyle(color: Colors.white)),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Text('미전송'),
+                                Gap(5),
+                                Container(
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.all(Radius.circular(7))),
+                                  width: 30,
+                                  child: Text((_total-_sent).toString(), style: TextStyle(color: Colors.white)),
+                                ),
+                              ],
+                            ),
+                          ]
+                      );
+                    }
+                    return Center(child: CircularProgressIndicator());
+                  }
+              ),
+            ),
+            Gap(5),
+            Expanded(
+              child: PagedListView<int, Defect>(
+                pagingController: _pagingController,
+                builderDelegate: PagedChildBuilderDelegate<Defect>(
+                  itemBuilder: (context, item, index) {
+                    return Dismissible(
+                      key: UniqueKey(),
+                      child: CardDefectListWidget(defect: item, function: refreshScreen),
+                      background: Container(color: Colors.grey.shade200),
+                      onDismissed: (direction) async {
+                        try {
+                          Defect defect = item;
+                          defect.deleted = 1;
+                          await _databaseService.updateDefect(defect);
+                        } catch(e) {
+                          print(e.toString());
+                        }
+                        setState(() {
+                          _pagingController.refresh();
+                        });
+                      },
+                      confirmDismiss: (direction)  {
+                        if( isEditValid == false )  {
+                          Fluttertoast.showToast(msg: '사전점검 기간이 아닙니다.', gravity: ToastGravity.CENTER);
+                          return Future.value(false);
+                        }
+                        return showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text('하자 내용을 삭제하시겠습니까?', style: TextStyle(fontSize: 15)),
+                              actions: [
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(false);
+                                    },
+                                    child: Text("취소", style: TextStyle(fontSize: 15))
+                                ),
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(true);
+                                    },
+                                    child: Text("삭제", style: TextStyle(fontSize: 15))
+                                ),
+                              ],
+                            );
+                          },
                         );
-                      }
-                    ),
-                  ],
+                      },
+                    );
+                  },
+                  firstPageErrorIndicatorBuilder: (context) => const Center(child: Text('하자정보를 가져오는 주 에러가 발생했습니다!'),),
+                  noItemsFoundIndicatorBuilder: (context) => const Center(child: Text('작성된 하자 내용이 없습니다.'),),
                 ),
               ),
-            );
-          }
-          else {
-            return Center(child: CircularProgressIndicator());
-          }
-        }
+            ),
+          ],
+        ),
       ),
     );
   }

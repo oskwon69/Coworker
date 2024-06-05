@@ -47,6 +47,10 @@ class _CardDefectListWidgetState extends State<CardDefectListWidget> {
     _defect = widget.defect;
     String _title = '${widget.defect.space} ${widget.defect.area} ${widget.defect.work} ${widget.defect.sort}';
 
+    if( _imagePath !='' && _imagePath.contains('/') != true )  {
+      _imagePath = '${globals.appDirectory}/$_imagePath';
+    }
+
     return Container(
       margin: EdgeInsets.symmetric(vertical: 5),
       width: double.infinity,
@@ -85,7 +89,7 @@ class _CardDefectListWidgetState extends State<CardDefectListWidget> {
                   child: _imagePath != '' ?
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
-                      child: Image.file(File("${globals.appDirectory}/$_imagePath")),
+                      child: Image.file(File(_imagePath)),
                     ) :
                     Center(child: Icon(CupertinoIcons.photo_fill_on_rectangle_fill)),
                 ),
