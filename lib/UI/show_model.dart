@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:coworker/UI/show_sort.dart';
@@ -376,6 +377,7 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
                                   print(_pic1);
                                   String fileName = "${_building_no}_${_house_no}_${DateTime.now()}_pic1.jpg";
                                   String filePath = "${globals.appDirectory}/$fileName";
+                                  print(filePath);
                                   File file = File(filePath);
                                   Uint8List imageBytes = await File(_pic1).readAsBytesSync();
                                   file.writeAsBytes(imageBytes);
@@ -383,7 +385,10 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
                                   _pic1 = fileName;
                                 }
 
-                                Defect defect = Defect(uid: _uid, did: _did, site: _site_code, building: _building_no, house: _house_no, reg_name: _reg_name, reg_phone: _reg_phone, space: _space, area: _area, work: _work, sort: _sort, claim: _claim, pic1: _pic1, pic2: _pic2, synced: _synced, deleted: _deleted, sent: '미전송');
+                                String _gentime = '${DateFormat("yyyy/MM/dd/HH/mm/ss").format(DateTime.now())}';
+
+                                Defect defect = Defect(uid: _uid, did: _did, site: _site_code, building: _building_no, house: _house_no, reg_name: _reg_name, reg_phone: _reg_phone, space: _space, area: _area, work: _work, sort: _sort, claim: _claim, pic1: _pic1, pic2: _pic2, gentime: _gentime, synced: _synced, deleted: _deleted, sent: '미전송');
+                                print(defect);
 
                                 var result = await _databaseService.addDefect(defect);
                               } catch(e) {

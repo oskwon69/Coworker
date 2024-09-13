@@ -208,6 +208,7 @@ class _RequestPageState extends State<RequestPage> {
             },
             child: Text('전송'),
           ),
+/*
           Gap(5),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -263,6 +264,7 @@ class _RequestPageState extends State<RequestPage> {
             },
             child: Text('DB테스트'),
           ),
+*/
           Gap(15),
         ],
       ),

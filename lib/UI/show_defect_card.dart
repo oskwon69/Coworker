@@ -76,7 +76,7 @@ class _DefectCardWidgetState extends State<DefectCardWidget> {
                   child: _imagePath != '' ?
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8.0),
-                    child: Image.network("https://lwioiwxyjemmmjqkwuha.supabase.co/storage/v1/object/public/photos/"+_imagePath),
+                    child: Image.network("https://drmfczqtnhslrpejkqst.supabase.co/storage/v1/object/public/photos/"+_imagePath),
                   ) :
                   Center(child: Icon(CupertinoIcons.photo_fill_on_rectangle_fill)),
                 ),

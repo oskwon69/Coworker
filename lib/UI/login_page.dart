@@ -129,6 +129,13 @@ class _LoginPageState extends State<LoginPage> {
     print('sort info ok!');
     pd.update(value:80);
 
+    _did = await getDeviceUniqueId();
+    print('did'+_did.toString());
+
+    Directory fileDir = await getApplicationDocumentsDirectory();
+    globals.appDirectory = fileDir.path;
+    print('appDirectory:${globals.appDirectory}');
+
     try {
       String remoteDir = '';
       String fileName = _type + ".jpg";
@@ -139,20 +146,18 @@ class _LoginPageState extends State<LoginPage> {
 
       String _url = remoteDir + "/" + fileName;
       final http.Response response = await http.get(Uri.parse(_url));
-      Directory fileDir = await getApplicationDocumentsDirectory();
       String filePath = fileDir.path + '/' + fileName;
       final file = File(filePath);
       await file.writeAsBytes(response.bodyBytes);
       await storage.write(key: "typeImage", value: "path " + filePath + " " + "type " + _type);
+    } catch(e)  {
+      print(e.toString());
+    }
 
-      globals.appDirectory = fileDir.path;
-      print('appDirectory:${globals.appDirectory}');
+    pd.update(value: 90);
 
-      pd.update(value: 90);
-
-      _did = await getDeviceUniqueId();
-
-      result = await supabase.from('site').select().eq('site_code',_site_code);
+    try {
+      var result = await supabase.from('site').select().eq('site_code',_site_code);
       if( result.isNotEmpty )  {
         DateTime startDate = DateTime.parse(result[0]['check_startdate'].toString());
         DateTime endDate = DateTime.parse(result[0]['check_enddate'].toString());
@@ -166,10 +171,11 @@ class _LoginPageState extends State<LoginPage> {
         await storage.write(key: "isEditValid", value: "valid");
       }
 
-      pd.update(value: 100);
     } catch(e)  {
       print(e.toString());
     }
+
+    pd.update(value: 100);
   }
 
   Future<void> defaultSite() async {
@@ -241,7 +247,7 @@ class _LoginPageState extends State<LoginPage> {
       return true;
   }
 
-  Future<bool> checkLoginStatus() async {
+  Future<bool> checkLoginStatus(bool manager_mode) async {
     var commStatus = await checkCurrentCommState();
     if (commStatus == false) return false;
 
@@ -258,35 +264,57 @@ class _LoginPageState extends State<LoginPage> {
       return false;
     }
 
-    if( nameController.text == '' )  {
-      Fluttertoast.showToast(msg: '이름을 입력해 주세요.', gravity: ToastGravity.CENTER);
-      return false;
-    }
+    if( manager_mode == false ) {
+      if (nameController.text == '') {
+        Fluttertoast.showToast(msg: '이름을 입력해 주세요.', gravity: ToastGravity.CENTER);
+        return false;
+      }
 
-    if( phoneController.text == '' )  {
-      Fluttertoast.showToast(msg: '휴대전화번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
-      return false;
-    }
+      if (phoneController.text == '') {
+        Fluttertoast.showToast(msg: '휴대전화번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
+        return false;
+      }
 
-    if( phoneController.text.trim().length < 12 || phoneController.text.trim().length > 13 ) {
-      Fluttertoast.showToast(msg: '유효한 휴대전화 번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
-      return false;
-    }
+      if (phoneController.text.trim().length < 12 || phoneController.text.trim().length > 13) {
+        Fluttertoast.showToast(msg: '유효한 휴대전화 번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
+        return false;
+      }
 
-    if( dateController.text == '' )  {
-      Fluttertoast.showToast(msg: '생년월일(6자리)를 입력해 주세요.', gravity: ToastGravity.CENTER);
-      return false;
-    }
+      if (dateController.text == '') {
+        Fluttertoast.showToast(msg: '생년월일(6자리)를 입력해 주세요.', gravity: ToastGravity.CENTER);
+        return false;
+      }
 
-    if( dateController.text.trim().length != 8 ) {
-      Fluttertoast.showToast(msg: '유효한 생년월일(YY.MM.DD)을 입력해 주세요.', gravity: ToastGravity.CENTER);
-      return false;
+      if (dateController.text.trim().length != 8) {
+        Fluttertoast.showToast(msg: '유효한 생년월일(YY.MM.DD)을 입력해 주세요.', gravity: ToastGravity.CENTER);
+        return false;
+      }
     }
 
     try {
-      _owner_name = nameController.text.trim();
-      _owner_phone = phoneController.text;
-      _birth_date = dateController.text.replaceAll('.', '');
+      if(manager_mode == false ) {
+        _owner_name = nameController.text.trim();
+        _owner_phone = phoneController.text;
+        _birth_date = dateController.text.replaceAll('.', '');
+      } else {
+        List<Map<String, dynamic>> result = await supabase.from('owner').select().match({
+          'site_code': _site_code,
+          'building_no': _building_no,
+          'house_no': _house_no});
+        if (result.isNotEmpty) {
+          _owner_name = result[0]['owner_name'].toString();
+          _owner_phone = result[0]['owner_phone'].toString();
+          _birth_date = result[0]['birth_date'].toString().replaceAll('.', '');
+        }
+      }
+
+      print({
+        'site_code': _site_code,
+        'building_no': _building_no,
+        'house_no': _house_no,
+        'owner_name': _owner_name,
+        'owner_phone': _owner_phone,
+        'birth_date': _birth_date});
 
       List<Map<String, dynamic>> result = await supabase.from('owner').select().match({
         'site_code': _site_code,
@@ -488,7 +516,9 @@ class _LoginPageState extends State<LoginPage> {
                                     vertical: 14),
                               ),
                               onPressed: () async {
-                                if( await checkLoginStatus() == false )  return;
+                                bool manager_mode = true;
+
+                                if( await checkLoginStatus(manager_mode) == false )  return;
 
                                 ProgressDialog pd = ProgressDialog(context: context);
                                 pd.show(max: 100, msg: '데이터 다운로드 중 ...');
@@ -529,7 +559,7 @@ class _LoginPageState extends State<LoginPage> {
 
                                   result = await supabase.from('users').select().eq('id', _user.uid!);
                                   if( result.isNotEmpty )  {
-                                    if( result[0]['terms_agree'] == 0 )  {  // 아직 동의하지 않음.
+                                    if( result[0]['terms_agree'] == 0 && manager_mode == false )  {  // 아직 동의하지 않음.
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => AgreementPage(user: _user)));
                                     }  else {  // 이미 동의함.
                                       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RequestPage(user: _user)));
@@ -559,7 +589,7 @@ class _LoginPageState extends State<LoginPage> {
                               padding: EdgeInsets.symmetric(vertical: 14),
                             ),
                             onPressed: () async {
-                              await checkLoginStatus();
+                              await checkLoginStatus(true);
 
                               var result = await supabase.from('users').select().match({
                                 'user_name': _owner_name,

@@ -23,7 +23,7 @@ class DefectDatabase {
 
   Future<Database> _initDB() async {
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath,'defect15.db');
+    final path = join(dbPath,'defect16.db');
 
     return openDatabase(
       path,
@@ -33,7 +33,7 @@ class DefectDatabase {
   }
 
   Future<void> _onCreate(Database db, int version) async {
-    await db.execute('CREATE TABLE defects (id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT, did TEXT, site INTEGER, building TEXT, house TEXT, reg_name TEXT, reg_phone TEXT, space TEXT, area TEXT, work TEXT, sort TEXT, claim TEXT, pic1 BLOB , pic2 BLOB , sent TEXT, synced INTEGER, completed INTEGER, deleted INTEGER)');
+    await db.execute('CREATE TABLE defects (id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT, did TEXT, site INTEGER, building TEXT, house TEXT, reg_name TEXT, reg_phone TEXT, space TEXT, area TEXT, work TEXT, sort TEXT, claim TEXT, pic1 BLOB , pic2 BLOB , gentime TETX, sent TEXT, synced INTEGER, completed INTEGER, deleted INTEGER)');
   }
 
   Future<int> addDefect(Defect defect) async {

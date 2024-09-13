@@ -31,8 +31,8 @@ void main() async {
   }
 
   await Supabase.initialize(
-      url: 'https://lwioiwxyjemmmjqkwuha.supabase.co',
-      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3aW9pd3h5amVtbW1qcWt3dWhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTI4OTE4NzgsImV4cCI6MjAyODQ2Nzg3OH0._f8nivdnCpd7p5OBAHjQX2hgCdO8zLYTmF4q6hityas'
+      url: 'https://drmfczqtnhslrpejkqst.supabase.co',
+      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRybWZjenF0bmhzbHJwZWprcXN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjYwOTk1OTYsImV4cCI6MjA0MTY3NTU5Nn0.q1oO5l50dNxF-I9SgMfl3GtsSfT8pV3pMQQPyRhPYI0'
   );
 
   runApp(MaterialApp(

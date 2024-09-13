@@ -85,9 +85,31 @@ class _SendDataState extends State<SendData> {
     print('send deleted');
 
     // 우선 삭제된 항목을 서버DB와 동기화한다.
+    print('deleted items : ${defectDeledtedList.length}');
     for(int i=0 ; i < defectDeledtedList.length ; i++) {
       if( _break == true ) break;
       try {
+        final data = await supabase.from('defects').update({
+          'reg_name': defectDeledtedList[i].reg_name,
+          'reg_phone': defectDeledtedList[i].reg_phone,
+          'space_name': defectDeledtedList[i].space,
+          'area_name': defectDeledtedList[i].area,
+          'work_name': defectDeledtedList[i].work,
+          'sort_name': defectDeledtedList[i].sort,
+          'claim': defectDeledtedList[i].claim,
+          'pic1': '',
+          'pic2': '',
+          'deleted': 1,
+          'sent_date': ''}).
+          match({
+          'uid': defectDeledtedList[i].uid,
+          'did': defectDeledtedList[i].did,
+          'site_code': defectDeledtedList[i].site,
+          'building_no': defectDeledtedList[i].building,
+          'house_no': defectDeledtedList[i].house,
+          'local_id': defectDeledtedList[i].id!,
+          'gentime': defectDeledtedList[i].gentime});
+/*
         await supabase.rpc("defect_upsert", params: {
           "local_id_arg": defectDeledtedList[i].id,
           'uid_arg': defectDeledtedList[i].uid,
@@ -107,6 +129,7 @@ class _SendDataState extends State<SendData> {
           'deleted_arg': defectDeledtedList[i].deleted,
           'sent_date_arg': sent_date,
         });
+*/
       } catch (e) {
         print(e.toString());
         break;
@@ -132,6 +155,61 @@ class _SendDataState extends State<SendData> {
               cacheControl: '3600', upsert: true));
         }
 
+        var result = await supabase.from('defects').select().match({
+            'uid': defectSendList[i].uid,
+            'did': defectSendList[i].did,
+            'site_code': defectSendList[i].site,
+            'building_no': defectSendList[i].building,
+            'house_no': defectSendList[i].house,
+            'local_id': defectSendList[i].id!,
+            'gentime': defectSendList[i].gentime
+          });
+        if (result.isNotEmpty) {
+          print("update");
+          final data = await supabase.from('defects').update({
+            'reg_name': defectSendList[i].reg_name,
+            'reg_phone': defectSendList[i].reg_phone,
+            'space_name': defectSendList[i].space,
+            'area_name': defectSendList[i].area,
+            'work_name': defectSendList[i].work,
+            'sort_name': defectSendList[i].sort,
+            'claim': defectSendList[i].claim,
+            'pic1': filepath1,
+            'pic2': '',
+            'deleted': defectSendList[i].deleted,
+            'sent_date': sent_date}).
+             match({
+            'uid': defectSendList[i].uid,
+            'did': defectSendList[i].did,
+            'site_code': defectSendList[i].site,
+            'building_no': defectSendList[i].building,
+            'house_no': defectSendList[i].house,
+            'local_id': defectSendList[i].id!,
+            'gentime': defectSendList[i].gentime});
+        } else {
+          print("insert");
+          final data = await supabase.from('defects').insert({
+            "local_id": defectSendList[i].id,
+            'uid': defectSendList[i].uid,
+            'did': defectSendList[i].did,
+            'site_code': defectSendList[i].site,
+            'building_no': defectSendList[i].building,
+            'house_no': defectSendList[i].house,
+            'reg_name': defectSendList[i].reg_name,
+            'reg_phone': defectSendList[i].reg_phone,
+            'space_name': defectSendList[i].space,
+            'area_name': defectSendList[i].area,
+            'work_name': defectSendList[i].work,
+            'sort_name': defectSendList[i].sort,
+            'claim': defectSendList[i].claim,
+            'pic1': filepath1,
+            'pic2': '',
+            'gentime': defectSendList[i].gentime,
+            'deleted': defectSendList[i].deleted,
+            'sent_date': sent_date});
+        }
+        
+/*
         await supabase.rpc("defect_upsert", params: {
           "local_id_arg": defectSendList[i].id,
           'uid_arg': defectSendList[i].uid,
@@ -151,6 +229,7 @@ class _SendDataState extends State<SendData> {
           'deleted_arg': defectSendList[i].deleted,
           'sent_date_arg': sent_date,
         });
+*/
         print('DB');
 
         Defect defect = defectSendList[i];

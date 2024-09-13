@@ -124,6 +124,8 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
     _pic2 = _defect.pic2;
     claimController.text = _claim;
 
+    print(_defect);
+
     checkEditValid();
   }
 

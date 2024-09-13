@@ -18,6 +18,7 @@ class DefectEx {
   String? note;
   String? pic1;
   String? pic2;
+  String gentime;
   String sent_date;
   String? close_date;
   int? completed;
@@ -41,6 +42,7 @@ class DefectEx {
     this.note,
     this.pic1,
     this.pic2,
+    required this.gentime,
     required this.sent_date,
     this.close_date,
     this.completed,
@@ -66,6 +68,7 @@ class DefectEx {
       'note' : note,
       'pic1' : pic1,
       'pic2' : pic2,
+      'gentime' : gentime,
       'sent_date' : sent_date,
       'close_date' : close_date,
       'completed' : completed,
@@ -92,6 +95,7 @@ class DefectEx {
       note: map['note'] ?? '',
       pic1: map['pic1'] ?? '',
       pic2: map['pic2'] ?? '',
+      gentime: map['gentime'] ?? '',
       sent_date: map['sent_date'] ?? '',
       close_date: map['close_date'] ?? '',
       completed: map['completed']?.toInt() ?? 0,
@@ -105,6 +109,6 @@ class DefectEx {
 
   @override
   String toString() {
-    return 'DefectEx(id: $id, local_id:$local_id, uid: $uid, site: $site_code, building: $building_no, house: $house_no, reg_name: $reg_name, reg_phone: $reg_phone, space: $space_name, area: $area_name, work: $work_name, sort: $sort_name, claim: $claim, pic1: $pic1, pic2: $pic2, sent: $sent_date, close: $close_date, completed: $completed, deleted: $deleted)';
+    return 'DefectEx(id: $id, local_id:$local_id, uid: $uid, site: $site_code, building: $building_no, house: $house_no, reg_name: $reg_name, reg_phone: $reg_phone, space: $space_name, area: $area_name, work: $work_name, sort: $sort_name, claim: $claim, pic1: $pic1, pic2: $pic2, gentime: $gentime, sent: $sent_date, close: $close_date, completed: $completed, deleted: $deleted)';
   }
 }

@@ -16,6 +16,7 @@ class Defect {
   String claim;
   String pic1;
   String pic2;
+  String gentime;
   String? sent;
   int synced;
   int? completed;
@@ -37,6 +38,7 @@ class Defect {
     required this.claim,
     required this.pic1,
     required this.pic2,
+    required this.gentime,
     this.sent,
     required this.synced,
     this.completed,
@@ -60,6 +62,7 @@ class Defect {
       'claim' : claim,
       'pic1' : pic1,
       'pic2' : pic2,
+      'gentime' : gentime,
       'sent' : sent,
       'synced' : synced,
       'completed' : completed,
@@ -84,6 +87,7 @@ class Defect {
       claim: map['claim'] ?? '',
       pic1: map['pic1'] ?? '',
       pic2: map['pic2'] ?? '',
+      gentime: map['gentime'] ?? '',
       sent: map['sent'] ?? '',
       synced: map['synced'].toInt() ?? 0,
       completed: map['completed']?.toInt() ?? 0,
@@ -97,6 +101,6 @@ class Defect {
 
   @override
   String toString() {
-    return 'Defect(id: $id, uid: $uid, did: $did, site: $site, building: $building, house: $house, reg_name: $reg_name, reg_phone: $reg_phone, space: $space, area: $area, work: $work, sort: $sort, claim: $claim, sent: $sent, synced: $synced, completed: $completed, deleted: $deleted)';
+    return 'Defect(id: $id, uid: $uid, did: $did, site: $site, building: $building, house: $house, reg_name: $reg_name, reg_phone: $reg_phone, space: $space, area: $area, work: $work, sort: $sort, claim: $claim, pic1: $pic1, gentime: $gentime, sent: $sent, synced: $synced, completed: $completed, deleted: $deleted)';
   }
 }
