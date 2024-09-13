@@ -151,6 +151,7 @@ class _LoginPageState extends State<LoginPage> {
       pd.update(value: 90);
 
       _did = await getDeviceUniqueId();
+      print('did'+_did.toString());
 
       result = await supabase.from('site').select().eq('site_code',_site_code);
       if( result.isNotEmpty )  {
@@ -241,7 +242,7 @@ class _LoginPageState extends State<LoginPage> {
       return true;
   }
 
-  Future<bool> checkLoginStatus() async {
+  Future<bool> checkLoginStatus(bool manager_mode) async {
     var commStatus = await checkCurrentCommState();
     if (commStatus == false) return false;
 
@@ -258,35 +259,57 @@ class _LoginPageState extends State<LoginPage> {
       return false;
     }
 
-    if( nameController.text == '' )  {
-      Fluttertoast.showToast(msg: '이름을 입력해 주세요.', gravity: ToastGravity.CENTER);
-      return false;
-    }
+    if( manager_mode == false ) {
+      if (nameController.text == '') {
+        Fluttertoast.showToast(msg: '이름을 입력해 주세요.', gravity: ToastGravity.CENTER);
+        return false;
+      }
 
-    if( phoneController.text == '' )  {
-      Fluttertoast.showToast(msg: '휴대전화번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
-      return false;
-    }
+      if (phoneController.text == '') {
+        Fluttertoast.showToast(msg: '휴대전화번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
+        return false;
+      }
 
-    if( phoneController.text.trim().length < 12 || phoneController.text.trim().length > 13 ) {
-      Fluttertoast.showToast(msg: '유효한 휴대전화 번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
-      return false;
-    }
+      if (phoneController.text.trim().length < 12 || phoneController.text.trim().length > 13) {
+        Fluttertoast.showToast(msg: '유효한 휴대전화 번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
+        return false;
+      }
 
-    if( dateController.text == '' )  {
-      Fluttertoast.showToast(msg: '생년월일(6자리)를 입력해 주세요.', gravity: ToastGravity.CENTER);
-      return false;
-    }
+      if (dateController.text == '') {
+        Fluttertoast.showToast(msg: '생년월일(6자리)를 입력해 주세요.', gravity: ToastGravity.CENTER);
+        return false;
+      }
 
-    if( dateController.text.trim().length != 8 ) {
-      Fluttertoast.showToast(msg: '유효한 생년월일(YY.MM.DD)을 입력해 주세요.', gravity: ToastGravity.CENTER);
-      return false;
+      if (dateController.text.trim().length != 8) {
+        Fluttertoast.showToast(msg: '유효한 생년월일(YY.MM.DD)을 입력해 주세요.', gravity: ToastGravity.CENTER);
+        return false;
+      }
     }
 
     try {
-      _owner_name = nameController.text.trim();
-      _owner_phone = phoneController.text;
-      _birth_date = dateController.text.replaceAll('.', '');
+      if(manager_mode == false ) {
+        _owner_name = nameController.text.trim();
+        _owner_phone = phoneController.text;
+        _birth_date = dateController.text.replaceAll('.', '');
+      } else {
+        List<Map<String, dynamic>> result = await supabase.from('owner').select().match({
+          'site_code': _site_code,
+          'building_no': _building_no,
+          'house_no': _house_no});
+        if (result.isNotEmpty) {
+          _owner_name = result[0]['owner_name'].toString();
+          _owner_phone = result[0]['owner_phone'].toString();
+          _birth_date = result[0]['birth_date'].toString().replaceAll('.', '');
+        }
+      }
+
+      print({
+        'site_code': _site_code,
+        'building_no': _building_no,
+        'house_no': _house_no,
+        'owner_name': _owner_name,
+        'owner_phone': _owner_phone,
+        'birth_date': _birth_date});
 
       List<Map<String, dynamic>> result = await supabase.from('owner').select().match({
         'site_code': _site_code,
@@ -323,6 +346,10 @@ class _LoginPageState extends State<LoginPage> {
       phoneController.text = localInfo.split(' ')[11];
       dateController.text = localInfo.split(' ')[13];
 
+      print(_site_code);
+      print(_building_no);
+      print(_house_no);
+
       _siteKey.currentState?.setList(_site_code);
       await _buildingKey.currentState?.refreshList(_site_code);
       _buildingKey.currentState?.setList(_building_no);
@@ -351,9 +378,11 @@ class _LoginPageState extends State<LoginPage> {
     });
 */
 
+/*
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(Duration(seconds: 1), () => getLastLoginInfo());
     });
+*/
   }
 
   @override
@@ -488,7 +517,7 @@ class _LoginPageState extends State<LoginPage> {
                                     vertical: 14),
                               ),
                               onPressed: () async {
-                                if( await checkLoginStatus() == false )  return;
+                                if( await checkLoginStatus(true) == false )  return;
 
                                 ProgressDialog pd = ProgressDialog(context: context);
                                 pd.show(max: 100, msg: '데이터 다운로드 중 ...');
@@ -559,7 +588,7 @@ class _LoginPageState extends State<LoginPage> {
                               padding: EdgeInsets.symmetric(vertical: 14),
                             ),
                             onPressed: () async {
-                              await checkLoginStatus();
+                              await checkLoginStatus(true);
 
                               var result = await supabase.from('users').select().match({
                                 'user_name': _owner_name,
