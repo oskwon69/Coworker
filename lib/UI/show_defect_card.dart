@@ -44,6 +44,7 @@ class _DefectCardWidgetState extends State<DefectCardWidget> {
     String _title = '${widget.index+1}. ${widget.defect.space_name} ${widget.defect.area_name} ${widget.defect.work_name} ${widget.defect.sort_name}';
 
     return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5),
       margin: EdgeInsets.symmetric(vertical: 5),
       width: double.infinity,
       height: 100,
@@ -55,7 +56,7 @@ class _DefectCardWidgetState extends State<DefectCardWidget> {
         children: [
           Container(
             decoration: BoxDecoration(
-                color: Colors.green,
+                color: widget.defect.completed == 0 ? Colors.red : Colors.green,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(7),
                   bottomLeft: Radius.circular(7),
@@ -103,7 +104,7 @@ class _DefectCardWidgetState extends State<DefectCardWidget> {
                         child: Divider(thickness: 1.5, color: Colors.grey.shade300,),
                       ),
 //                    Divider(thickness: 1.5, color: Colors.black, indent: 15, endIndent: 15,),
-                      Text('  전송 날짜 : ${widget.defect.sent_date!}', style: TextStyle(fontSize: 13)),
+                      Text('  상태 : ${widget.defect.completed == 0 ? "진행중":"완료"} | 전송 날짜 : ${widget.defect.sent_date!}', style: TextStyle(fontSize: 13)),
                     ]
                 ),
               ],

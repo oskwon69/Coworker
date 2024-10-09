@@ -62,6 +62,8 @@ class _LoginPageState extends State<LoginPage> {
   bool isEthernet = false;
   late UserInfo _user;
 
+  bool manager_mode = false;
+
   Future<String?> getDeviceUniqueId() async {
     String? uniqueDeviceId;
 
@@ -516,8 +518,6 @@ class _LoginPageState extends State<LoginPage> {
                                     vertical: 14),
                               ),
                               onPressed: () async {
-                                bool manager_mode = true;
-
                                 if( await checkLoginStatus(manager_mode) == false )  return;
 
                                 ProgressDialog pd = ProgressDialog(context: context);
