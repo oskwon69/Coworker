@@ -572,7 +572,7 @@ class _LoginPageState extends State<LoginPage> {
                                   print(e.toString());
                                 }
                               },
-                              child: Text('로그인'),
+                              child: Text('입주자 정보확인'),
                             ),
                           ),
                         ],
