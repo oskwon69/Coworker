@@ -11,11 +11,12 @@ import '../API/globals.dart' as globals;
 
 
 class PictureWidget extends StatefulWidget {
-  const PictureWidget({Key? key, required this.titleText, required this.image, required this.function }) : super(key: key);
+  const PictureWidget({Key? key, required this.titleText, required this.image, required this.function, required this.readOnly }) : super(key: key);
 
   final String titleText;
   final String image;
   final Function function;
+  final bool readOnly;
 
   @override
   State<PictureWidget> createState() => _PictureWidgetState();
@@ -60,6 +61,8 @@ class _PictureWidgetState extends State<PictureWidget> {
               ),
               child: InkWell(
                 onTap: () {
+                  if( widget.readOnly == true )  return;
+
                   showModalBottomSheet(
                     isScrollControlled: true,
                     context: context,
@@ -107,6 +110,8 @@ class _PictureWidgetState extends State<PictureWidget> {
                                       shape: CircleBorder(),
                                     ),
                                     onPressed: () {
+                                      if( widget.readOnly == true )  return;
+
                                       showDialog(
                                           context: context,
                                           builder: (context) {

@@ -194,6 +194,11 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                                           ),
 
                                           onPressed: () {
+                                            if( _defect.synced == 1 )  {
+                                              Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
+                                              return;
+                                            }
+
                                             showModalBottomSheet(
                                               isScrollControlled: true,
                                               context: context,
@@ -232,6 +237,11 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                                           ),
 
                                           onPressed: () {
+                                            if( _defect.synced == 1 )  {
+                                              Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
+                                              return;
+                                            }
+
                                             showModalBottomSheet(
                                               isScrollControlled: true,
                                               context: context,
@@ -275,6 +285,11 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                                           ),
 
                                           onPressed: () {
+                                            if( _defect.synced == 1 )  {
+                                              Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
+                                              return;
+                                            }
+
                                             showModalBottomSheet(
                                               isScrollControlled: true,
                                               context: context,
@@ -313,6 +328,11 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                                           ),
 
                                           onPressed: () {
+                                            if( _defect.synced == 1 )  {
+                                              Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
+                                              return;
+                                            }
+
                                             showModalBottomSheet(
                                               isScrollControlled: true,
                                               context: context,
@@ -331,12 +351,12 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                         ]
                     ),
                     Gap(20),
-                    TextFieldWidget(titleText: '내용', maxLines: 3, hintText: '신속한 A/S접수를 위해 선택하신 위치의 하자내용을 정확하게 입력해 주세요.', controller: claimController, focusNode: focusNode),
+                    TextFieldWidget(titleText: '내용', maxLines: 3, hintText: '신속한 A/S접수를 위해 선택하신 위치의 하자내용을 정확하게 입력해 주세요.', controller: claimController, focusNode: focusNode, readOnly: _defect.synced==1 ? true:false),
                     Gap(20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        PictureWidget(titleText: '하자사진', image: _pic1, function: getPic1),
+                        PictureWidget(titleText: '하자사진', image: _pic1, function: getPic1, readOnly: _defect.synced==1 ? true:false,),
 /*
                         Gap(22),
                         PictureWidget(titleText: '원경사진', image: _pic2, function: getPic2),

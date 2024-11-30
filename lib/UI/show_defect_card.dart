@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:coworker/UI/show_defect_detail_sent.dart';
 import 'package:coworker/UI/update_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +57,7 @@ class _DefectCardWidgetState extends State<DefectCardWidget> {
         children: [
           Container(
             decoration: BoxDecoration(
-                color: widget.defect.completed == 0 ? Colors.red : Colors.green,
+                color: widget.defect.completed == 0 ? Colors.green : Colors.blue.shade800,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(7),
                   bottomLeft: Radius.circular(7),
@@ -67,6 +68,11 @@ class _DefectCardWidgetState extends State<DefectCardWidget> {
           Gap(10),
           InkWell(
             onTap: () {
+              showModalBottomSheet(
+                isScrollControlled: true,
+                context: context,
+                builder: (context) => ShowServerDefect(defect: _defect),
+              );
             },
             child: Row(
               children: [

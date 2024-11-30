@@ -394,6 +394,10 @@ class _RequestPageState extends State<RequestPage> {
                           Fluttertoast.showToast(msg: '사전점검 기간이 아닙니다.', gravity: ToastGravity.CENTER);
                           return Future.value(false);
                         }
+                        if( item.synced == 1 )  {
+                          Fluttertoast.showToast(msg: '전송된 하자건은 삭제할 수 없습니다.', gravity: ToastGravity.CENTER);
+                          return Future.value(false);
+                        }
                         return showDialog(
                           context: context,
                           builder: (context) {

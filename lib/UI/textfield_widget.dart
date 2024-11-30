@@ -5,7 +5,7 @@ import 'app_style.dart';
 
 class TextFieldWidget extends StatelessWidget {
   const TextFieldWidget(
-      {Key? key, required this.titleText, required this.hintText, required this.maxLines, required this.controller, required this.focusNode})
+      {Key? key, required this.titleText, required this.hintText, required this.maxLines, required this.controller, required this.focusNode, required this.readOnly})
       : super(key: key);
 
   final String titleText;
@@ -13,6 +13,7 @@ class TextFieldWidget extends StatelessWidget {
   final int maxLines;
   final TextEditingController controller;
   final FocusNode focusNode;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +43,7 @@ class TextFieldWidget extends StatelessWidget {
                 hintText: hintText,
               ),
               maxLines: maxLines,
+              readOnly: readOnly,
             ),
           ),
         ],
