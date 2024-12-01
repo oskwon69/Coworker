@@ -144,6 +144,7 @@ class _LoginPageState extends State<LoginPage> {
       var result = await supabase.from('site').select().eq('site_code',_site_code);
       if( result.isNotEmpty )  {
         remoteDir = result[0]['image_folder'].toString();
+        globals.initAllow = result[0]['initallow'];
       }  else return;
 
       String _url = remoteDir + "/" + fileName;

@@ -512,10 +512,12 @@ class NavigationDrawer extends StatelessWidget {
             );
           },
         ),
-        ListTile(
+          ListTile(
           leading: Icon(CupertinoIcons.trash),
           title: Text('초기화'),
           onTap: () {
+            if( globals.initAllow == 0 ) return;
+
             showDialog(
               context: context,
               builder: (context) {
