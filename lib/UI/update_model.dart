@@ -46,7 +46,6 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
   String _pic1 = '';
   String _pic2 = '';
 
-  bool isEditValid = false;
   bool isImageChanged = false;
   final supabase = Supabase.instance.client;
 
@@ -93,20 +92,6 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
     });
   }
 
-  Future<void> checkEditValid() async {
-    String? localInfo = '';
-
-    localInfo = await storage.read(key:'isEditValid');
-    if (localInfo != null) {
-      String value = localInfo;
-      if( value == 'valid' )  {
-        isEditValid = true;
-      } else {
-        isEditValid = true;
-      }
-    }
-  }
-
   void initState() {
     super.initState();
 
@@ -123,10 +108,6 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
     _pic1 = _defect.pic1;
     _pic2 = _defect.pic2;
     claimController.text = _claim;
-
-    print(_defect);
-
-    checkEditValid();
   }
 
   @override
@@ -394,7 +375,7 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                               padding: EdgeInsets.symmetric(vertical: 14),
                             ),
                             onPressed: () async {
-                              if( isEditValid == false )  {
+                              if( globals.isEditValid == 0 )  {
                                 Fluttertoast.showToast(msg: '사전점검 기간이 아닙니다.');
                                 return;
                               }

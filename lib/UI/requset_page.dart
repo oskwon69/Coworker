@@ -34,7 +34,6 @@ class RequestPage extends StatefulWidget {
 class _RequestPageState extends State<RequestPage> {
   late UserInfo _user;
   List<Defect> defectList = [];
-  bool isEditValid = false;
   int maxDefects = 300;
 
   final supabase = Supabase.instance.client;
@@ -63,42 +62,11 @@ class _RequestPageState extends State<RequestPage> {
     });
   }
 
-  Future<void> checkEditValid() async {
-    String? localInfo = '';
-
-    localInfo = await storage.read(key:'isEditValid');
-    if (localInfo != null) {
-      String value = localInfo;
-      if( value == 'valid' )  {
-        isEditValid = true;
-      } else {
-        isEditValid = false;
-      }
-    }
-  }
-
   Future<int> _getDefectsCount() async {
     _total = await _databaseService.getTotalDefectsCount(_user.uid!, _user.site_code!, _user.building_no!, _user.house_no!);
     _sent = await _databaseService.getSentDefectsCount(_user.uid!, _user.site_code!, _user.building_no!, _user.house_no!);
     return 0;
   }
-
-/*
-  Future<List<Defect>> _getDefects() async {
-    try {
-      final defects = await _databaseService.getAllDefects(_user.uid!, _user.site_code!, _user.building_no!, _user.house_no!);
-      if (defectList.isNotEmpty) {
-        defectList.clear();
-      }
-      defectList.addAll(defects);
-
-      _sent = await _databaseService.getSentDefects(_user.uid!, _user.site_code!, _user.building_no!, _user.house_no!);
-    } catch(e) {
-      print(e.toString());
-    }
-    return defectList;
-  }
-*/
 
   Future<void> deleteAllDefect() async {
     try {
@@ -134,7 +102,6 @@ class _RequestPageState extends State<RequestPage> {
     super.initState();
 
     _user = widget.user;
-    checkEditValid();
 
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
@@ -195,7 +162,7 @@ class _RequestPageState extends State<RequestPage> {
               padding: EdgeInsets.symmetric(vertical: 5),
             ),
             onPressed: () {
-              if( isEditValid == false )  {
+              if( globals.isEditValid == 0 )  {
                 Fluttertoast.showToast(msg: '사전점검 기간이 아닙니다.', gravity: ToastGravity.CENTER);
                 return;
               }
@@ -272,7 +239,7 @@ class _RequestPageState extends State<RequestPage> {
           backgroundColor: Colors.blue.shade700,
           splashColor: Colors.white.withOpacity(0.25),
           onPressed: () {
-            if( isEditValid == false )  {
+            if( globals.isEditValid == 0 )  {
               Fluttertoast.showToast(msg: '사전점검 기간이 아닙니다.', gravity: ToastGravity.CENTER);
               return;
             }
@@ -390,7 +357,7 @@ class _RequestPageState extends State<RequestPage> {
                         });
                       },
                       confirmDismiss: (direction)  {
-                        if( isEditValid == false )  {
+                        if( globals.isEditValid == 0 )  {
                           Fluttertoast.showToast(msg: '사전점검 기간이 아닙니다.', gravity: ToastGravity.CENTER);
                           return Future.value(false);
                         }

@@ -137,7 +137,7 @@ class _PictureWidgetState extends State<PictureWidget> {
                                           }
                                       );
                                     },
-                                    child: Icon(CupertinoIcons.delete),
+                                    child: widget.readOnly == true ? null:Icon(CupertinoIcons.delete),
                                   ),
                               ),
                             ],

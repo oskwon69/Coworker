@@ -167,11 +167,10 @@ class _LoginPageState extends State<LoginPage> {
         DateTime today = DateTime.now();
 
         if( today.compareTo(startDate) >= 0 && today.compareTo(endDate) <= 0 )  {
-          await storage.write(key: "isEditValid", value: "valid");
+          globals.isEditValid = 1;
         }  else {
-          await storage.write(key: "isEditValid", value: "invalid");
+          globals.isEditValid = 0;
         }
-        await storage.write(key: "isEditValid", value: "valid");
       }
 
     } catch(e)  {
@@ -367,21 +366,6 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
 
-/*
-    subscriptionComm = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
-      isMobile = false;
-      isWifi = false;
-      isEthernet = false;
-      if (result.contains(ConnectivityResult.mobile)) {
-        isMobile = true;
-      } else if (result.contains(ConnectivityResult.wifi)) {
-        isWifi = true;
-      } else if (result.contains(ConnectivityResult.ethernet)) {
-        isEthernet = true;
-      }
-    });
-*/
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(Duration(seconds: 1), () => getLastLoginInfo());
     });
@@ -392,7 +376,6 @@ class _LoginPageState extends State<LoginPage> {
     nameController.dispose();
     phoneController.dispose();
     dateController.dispose();
-//    subscriptionComm.cancel();
     super.dispose();
   }
 
@@ -573,7 +556,7 @@ class _LoginPageState extends State<LoginPage> {
                                   print(e.toString());
                                 }
                               },
-                              child: Text('입주자 정보확인'),
+                              child: Text('로그인'),
                             ),
                           ),
                         ],
