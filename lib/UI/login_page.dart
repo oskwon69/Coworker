@@ -171,8 +171,12 @@ class _LoginPageState extends State<LoginPage> {
         }  else {
           globals.isEditValid = 0;
         }
-      }
 
+        if( result[0]['max_defect'] > 0 ) {
+          globals.maxDefects = result[0]['max_defect'];
+          print('max_defect= ${globals.maxDefects}');
+        }
+      }
     } catch(e)  {
       print(e.toString());
     }

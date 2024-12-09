@@ -34,7 +34,6 @@ class RequestPage extends StatefulWidget {
 class _RequestPageState extends State<RequestPage> {
   late UserInfo _user;
   List<Defect> defectList = [];
-  int maxDefects = 300;
 
   final supabase = Supabase.instance.client;
   static final storage = FlutterSecureStorage();
@@ -244,8 +243,8 @@ class _RequestPageState extends State<RequestPage> {
               return;
             }
 
-            if( _total >= maxDefects )  {
-              Fluttertoast.showToast(msg: '최대 저장 갯수($maxDefects건)를 초과하였습니다.', gravity: ToastGravity.CENTER);
+            if( _total >= globals.maxDefects )  {
+              Fluttertoast.showToast(msg: '최대 저장 갯수(${globals.maxDefects}건)를 초과하였습니다.', gravity: ToastGravity.CENTER);
               return;
             }
 
@@ -479,7 +478,8 @@ class NavigationDrawer extends StatelessWidget {
             );
           },
         ),
-          ListTile(
+        globals.initAllow==0 ? Container():
+        ListTile(
           leading: Icon(CupertinoIcons.trash),
           title: Text('초기화'),
           onTap: () {
