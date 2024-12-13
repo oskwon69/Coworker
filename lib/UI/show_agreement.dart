@@ -69,6 +69,9 @@ class _AgreementPageState extends State<AgreementPage> {
                         onChanged: (value) {
                           setState(() {
                             _isAbove14 = value!;
+                            if( _isAbove14 == true && _isTermsChecked == true && _isPrivacyChecked == true ) {
+                              _isAllChecked = true;
+                            }
                           });
                         },
                       ),
@@ -88,6 +91,9 @@ class _AgreementPageState extends State<AgreementPage> {
                         onChanged: (value) {
                           setState(() {
                             _isTermsChecked = value!;
+                            if( _isAbove14 == true && _isTermsChecked == true && _isPrivacyChecked == true ) {
+                              _isAllChecked = true;
+                            }
                           });
                         },
                       ),
@@ -122,6 +128,9 @@ class _AgreementPageState extends State<AgreementPage> {
                         onChanged: (value) {
                           setState(() {
                             _isPrivacyChecked = value!;
+                            if( _isAbove14 == true && _isTermsChecked == true && _isPrivacyChecked == true ) {
+                              _isAllChecked = true;
+                            }
                           });
                         },
                       ),

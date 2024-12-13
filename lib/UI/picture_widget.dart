@@ -61,12 +61,12 @@ class _PictureWidgetState extends State<PictureWidget> {
               ),
               child: InkWell(
                 onTap: () {
-                  if( widget.readOnly == true )  return;
+                  if( imagePath == '' && widget.readOnly == true ) return;
 
                   showModalBottomSheet(
                     isScrollControlled: true,
                     context: context,
-                    builder: (context) => PictureSelect(image: imagePath, function: getPicture),
+                    builder: (context) => PictureSelect(image: imagePath, function: getPicture, readOnly: widget.readOnly),
                   );
                 },
                 child: Container(
@@ -90,7 +90,7 @@ class _PictureWidgetState extends State<PictureWidget> {
                               Gap(10),
                               Icon(Icons.photo),
                               Gap(10),
-                              Text('카메라 또는 앨범 에서 사진 선택'),
+                              Text(widget.readOnly==true ? '촬영된 사진이 없습니다':'카메라 또는 앨범 에서 사진 선택'),
                             ],
                           ) :
                           Stack(

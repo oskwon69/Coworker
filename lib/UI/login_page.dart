@@ -331,6 +331,8 @@ class _LoginPageState extends State<LoginPage> {
         'birth_date': _birth_date});
       if (result.isNotEmpty) {
         _type = result[0]['type'].toString();
+        globals.layoutType  = _type;
+        print('global.layout=${globals.layoutType}');
       } else {
         Fluttertoast.showToast(msg: '입력하신 정보로 등록된 세대가 없습니다.', gravity: ToastGravity.CENTER);
         return false;
@@ -547,7 +549,8 @@ class _LoginPageState extends State<LoginPage> {
 
                                   result = await supabase.from('users').select().eq('id', _user.uid!);
                                   if( result.isNotEmpty )  {
-                                    if( result[0]['terms_agree'] == 0 && manager_mode == false )  {  // 아직 동의하지 않음.
+                                    print('terms_agree=|${result[0]['terms_agree']}|');
+                                    if( result[0]['terms_agree'] != 1 && manager_mode == false )  {  // 아직 동의하지 않음.
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => AgreementPage(user: _user)));
                                     }  else {  // 이미 동의함.
                                       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RequestPage(user: _user)));

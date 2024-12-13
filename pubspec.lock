@@ -841,10 +841,10 @@ packages:
     dependency: "direct main"
     description:
       name: sn_progress_dialog
-      sha256: "6ecd6ce8ac3cffc879fbbbe2259652b526d8769401e4726a67a5a5e2dac3d252"
+      sha256: bbb6bbe71c12afe937474932eefcb5c7d607238b1325f83206f12d3f7a850acf
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.4"
+    version: "1.2.0"
   source_span:
     dependency: transitive
     description:

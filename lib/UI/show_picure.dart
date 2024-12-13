@@ -11,10 +11,11 @@ import '../API/globals.dart' as globals;
 
 
 class PictureSelect extends StatefulWidget {
-  const PictureSelect({Key? key, required this.image, required this.function}) : super(key: key);
+  const PictureSelect({Key? key, required this.image, required this.function, required this.readOnly}) : super(key: key);
 
   final Function function;
   final String image;
+  final bool readOnly;
 
   @override
   State<PictureSelect> createState() => _PictureSelectState();
@@ -68,7 +69,7 @@ class _PictureSelectState extends State<PictureSelect> {
                 SizedBox(
                   width: double.infinity,
                   child: Text(
-                    '사진 선택',
+                    widget.readOnly == true ? '사진 보기':'사진 선택',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
                   ),
@@ -86,7 +87,7 @@ class _PictureSelectState extends State<PictureSelect> {
             ),
             Divider(thickness: 1.2, color: Colors.grey.shade200,),
             Gap(12),
-            Text('하자가 발생한 부위의 사진을 선택해 주세요.'),
+            Text(widget.readOnly == true ? '하자가 발생한 부위의 사진을 확인해 주세요.':'하자가 발생한 부위의 사진을 선택해 주세요.'),
             Gap(10),
             Expanded(
               child: Container(
@@ -116,6 +117,26 @@ class _PictureSelectState extends State<PictureSelect> {
               ),
             ),
             Gap(10),
+            widget.readOnly == true ?
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue.shade800,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: EdgeInsets.symmetric(vertical: 3),
+                    ),
+                    onPressed: () async {
+                      Navigator.pop(context);
+                    },
+                    child: Text('닫기'),
+                  ),
+                ),
+              ],
+            ):
             Row(
               children: [
                 Expanded(

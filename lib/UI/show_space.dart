@@ -5,6 +5,8 @@ import 'package:gap/gap.dart';
 
 import '../database/env_database.dart';
 import '../model/env.dart';
+import '../API/globals.dart' as globals;
+
 
 class SpaceSelect extends StatefulWidget {
   const SpaceSelect({Key? key, required this.site_code, required this.function}) : super(key: key);
@@ -55,8 +57,8 @@ class _SpaceSelectState extends State<SpaceSelect> {
                     ),
                   ),
                   Divider(thickness: 1.2, color: Colors.grey.shade200,),
-                  Gap(10),
-                  Row(
+                  globals.layoutType == '' ? Container() : Gap(10),
+                  globals.layoutType == '' ? Container() : Row(
                     children: [
                       Text('실명은 평면도를 참고해 주세요.'),
                       Gap(20),

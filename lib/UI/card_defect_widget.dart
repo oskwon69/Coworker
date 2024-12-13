@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:coworker/UI/view_defect.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -77,7 +78,8 @@ class _CardDefectListWidgetState extends State<CardDefectListWidget> {
               showModalBottomSheet(
                   isScrollControlled: true,
                   context: context,
-                  builder: (context) => UpdateDefectModel(defect: _defect, function: returnUpdate),
+                  builder: (context) => _defect.synced == 1 ?
+                    ViewDefectModel(defect: _defect):UpdateDefectModel(defect: _defect, function: returnUpdate),
               );
             },
             child: Row(

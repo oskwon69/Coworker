@@ -1,29 +1,38 @@
-import 'package:coworker/UI/show_defect_picture_sent.dart';
-import 'package:flutter/cupertino.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:coworker/UI/show_sort.dart';
+import 'package:coworker/UI/show_work.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gap/gap.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:coworker/UI/app_style.dart';
 import 'package:coworker/UI/picture_widget.dart';
+import 'package:coworker/UI/show_space.dart';
+import 'package:coworker/UI/show_area.dart';
 import 'package:coworker/UI/textfield_widget.dart';
+import 'package:coworker/model/defect.dart';
 import 'package:coworker/database/defect_database.dart';
+import 'package:coworker/API/globals.dart' as globals;
 
-import '../model/defect_server.dart';
+class ViewDefectModel extends StatefulWidget {
+  const ViewDefectModel({Key? key, required this.defect}) : super(key: key);
 
-class ShowServerDefect extends StatefulWidget {
-  const ShowServerDefect({Key? key, required this.defect}) : super(key: key);
-
-  final DefectEx defect;
+  final Defect defect;
 
   @override
-  State<ShowServerDefect> createState() => _ShowServerDefectState();
+  State<ViewDefectModel> createState() => _ViewDefectState();
 }
 
-class _ShowServerDefectState extends State<ShowServerDefect> {
-  late DefectEx _defect;
+class _ViewDefectState extends State<ViewDefectModel> {
+  late Defect _defect;
   String _did = '';
   int _site = 0;
   String _building = '';
@@ -36,7 +45,6 @@ class _ShowServerDefectState extends State<ShowServerDefect> {
   String _pic1 = '';
   String _pic2 = '';
 
-  bool isEditValid = false;
   bool isImageChanged = false;
   final supabase = Supabase.instance.client;
 
@@ -45,19 +53,59 @@ class _ShowServerDefectState extends State<ShowServerDefect> {
   final DefectDatabase _databaseService = DefectDatabase();
   static final storage = FlutterSecureStorage();
 
+  void getSpaceName(String str)  {
+    setState(() {
+      _space = str;
+    });
+  }
+
+  void getAreaName(String str)  {
+    setState(() {
+      _area = str;
+    });
+  }
+
+  void getWorkName(String str)  {
+    setState(() {
+      _work = str;
+    });
+  }
+
+  void getSortName(String str)  {
+    setState(() {
+      _sort = str;
+    });
+  }
+
+  void getPic1(String str)  {
+    setState(() {
+      _pic1 = str;
+      isImageChanged = true;
+    });
+  }
+
+  void getPic2(String str)  {
+    setState(() {
+      _pic2 = str;
+      isImageChanged = true;
+    });
+  }
+
   void initState() {
     super.initState();
 
     _defect = widget.defect;
-    _site = _defect.site_code;
-    _building = _defect.building_no;
-    _house = _defect.house_no;
-    _space = _defect.space_name;
-    _area = _defect.area_name;
-    _work = _defect.work_name;
-    _sort = _defect.sort_name;
+    _did = _defect.did;
+    _site = _defect.site;
+    _building = _defect.building;
+    _house = _defect.house;
+    _space = _defect.space;
+    _area = _defect.area;
+    _work = _defect.work;
+    _sort = _defect.sort;
     _claim = _defect.claim;
-    _pic1 = _defect.pic1!;
+    _pic1 = _defect.pic1;
+    _pic2 = _defect.pic2;
     claimController.text = _claim;
   }
 
@@ -67,9 +115,6 @@ class _ShowServerDefectState extends State<ShowServerDefect> {
     focusNode.dispose();
 
     super.dispose();
-  }
-
-  void getPic1(String str)  {
   }
 
   @override
@@ -127,7 +172,20 @@ class _ShowServerDefectState extends State<ShowServerDefect> {
                                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                               padding: EdgeInsets.symmetric(vertical: 13),
                                             ),
-                                            onPressed: () {},
+
+                                            onPressed: () {
+                                              if( _defect.synced == 1 )  {
+                                                Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
+                                                return;
+                                              }
+
+                                              showModalBottomSheet(
+                                                isScrollControlled: true,
+                                                context: context,
+                                                builder: (context) => SpaceSelect(site_code: _site, function: getSpaceName),
+                                              );
+                                              focusNode.unfocus();
+                                            },
                                             child: _space == '' ? Text('실명 선택') : Text(_space),
                                           ),
                                         )
@@ -158,7 +216,19 @@ class _ShowServerDefectState extends State<ShowServerDefect> {
                                               padding: EdgeInsets.symmetric(vertical: 13),
                                             ),
 
-                                            onPressed: () {    },
+                                            onPressed: () {
+                                              if( _defect.synced == 1 )  {
+                                                Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
+                                                return;
+                                              }
+
+                                              showModalBottomSheet(
+                                                isScrollControlled: true,
+                                                context: context,
+                                                builder: (context) => AreaSelect(site_code: _site, function: getAreaName),
+                                              );
+                                              focusNode.unfocus();
+                                            },
                                             child: _area == '' ? Text('위치 선택') : Text(_area),
                                           ),
                                         )
@@ -194,7 +264,19 @@ class _ShowServerDefectState extends State<ShowServerDefect> {
                                               padding: EdgeInsets.symmetric(vertical: 13),
                                             ),
 
-                                            onPressed: () { },
+                                            onPressed: () {
+                                              if( _defect.synced == 1 )  {
+                                                Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
+                                                return;
+                                              }
+
+                                              showModalBottomSheet(
+                                                isScrollControlled: true,
+                                                context: context,
+                                                builder: (context) => WorkSelect(site_code: _site, function: getWorkName),
+                                              );
+                                              focusNode.unfocus();
+                                            },
                                             child: _work == '' ? Text('부위 선택') : Text(_work),
                                           ),
                                         )
@@ -225,7 +307,19 @@ class _ShowServerDefectState extends State<ShowServerDefect> {
                                               padding: EdgeInsets.symmetric(vertical: 13),
                                             ),
 
-                                            onPressed: () { },
+                                            onPressed: () {
+                                              if( _defect.synced == 1 )  {
+                                                Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
+                                                return;
+                                              }
+
+                                              showModalBottomSheet(
+                                                isScrollControlled: true,
+                                                context: context,
+                                                builder: (context) => SortSelect(site_code: _site, function: getSortName),
+                                              );
+                                              focusNode.unfocus();
+                                            },
                                             child: _sort == '' ? Text('유형 선택') : Text(_sort),
                                           ),
                                         )
@@ -237,86 +331,18 @@ class _ShowServerDefectState extends State<ShowServerDefect> {
                           ]
                       ),
                       Gap(20),
-                      TextFieldWidget(titleText: '내용', maxLines: 3, hintText: '', controller: claimController, focusNode: focusNode, readOnly: true),
+                      TextFieldWidget(titleText: '내용', maxLines: 3, hintText: '신속한 A/S접수를 위해 선택하신 위치의 하자내용을 정확하게 입력해 주세요.', controller: claimController, focusNode: focusNode, readOnly: _defect.synced==1 ? true:false),
                       Gap(20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(child:
-                            Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '하자사진',
-                                style: AppStyle.headingOne,
-                              ),
-                              Gap(6),
-                              Material(
-                                child: Ink(
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade200,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () {
-                                      if( _pic1 == '' ) return;
-
-                                      showModalBottomSheet(
-                                        isScrollControlled: true,
-                                        context: context,
-                                        builder: (context) => PictureView(image: _pic1),
-                                      );
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 5,
-                                        vertical: 5,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey.shade200,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          SizedBox(
-                                              width: 250,
-                                              height: 80,
-                                              child: _pic1 == '' ? Icon(CupertinoIcons.photo_fill_on_rectangle_fill):
-                                                Image.network("https://drmfczqtnhslrpejkqst.supabase.co/storage/v1/object/public/photos/"+_pic1, width:150, height: 80),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              /* Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                    //width: MediaQuery.of(context).size.width*0.80,
-                                    height: 80,
-                                    decoration: BoxDecoration( borderRadius: BorderRadius.circular(8.0), color: Colors.grey.shade200),
-                                    child: _pic1 != '' ?
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      child: Image.network("https://drmfczqtnhslrpejkqst.supabase.co/storage/v1/object/public/photos/"+_pic1),
-                                    ):
-                                    Center(child: Icon(CupertinoIcons.photo_fill_on_rectangle_fill)),
-                                  ),
-                                  )
-                                ],
-                              ) */
-                            ],
-                          )
-                          ),
+                          PictureWidget(titleText: '하자사진', image: _pic1, function: getPic1, readOnly: _defect.synced==1 ? true:false,),
+/*
+                        Gap(22),
+                        PictureWidget(titleText: '원경사진', image: _pic2, function: getPic2),
+*/
                         ],
                       ),
-                      Gap(20),
-                      Text('현재상태 : ${widget.defect.completed==1 ? '완료':'진행중' }',
-                        style: AppStyle.headingOne,),
                       Gap(20),
                       Row(
                         children: [
@@ -337,7 +363,7 @@ class _ShowServerDefectState extends State<ShowServerDefect> {
                             ),
                           ),
                         ],
-                      ),
+                      )
                     ]
                 ),
               )
