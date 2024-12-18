@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -16,17 +15,16 @@ import '../model/defect.dart';
 import '../model/user.dart';
 import '../API/globals.dart' as globals;
 
-class SendData extends StatefulWidget {
-  const SendData({Key? key, required this.user , required this.function}) : super(key: key);
+class SendAllData extends StatefulWidget {
+  const SendAllData({Key? key, required this.user}) : super(key: key);
 
   final UserInfo user;
-  final Function? function;
 
   @override
-  State<SendData> createState() => _SendDataState();
+  State<SendAllData> createState() => _SendAllDataState();
 }
 
-class _SendDataState extends State<SendData> {
+class _SendAllDataState extends State<SendAllData> {
   List<Defect> defectList = [];
   List<Defect> defectSendList = [];
   List<Defect> defectDeledtedList = [];
@@ -58,7 +56,8 @@ class _SendDataState extends State<SendData> {
 
       setState(() {
         _total = defectList.length;
-        defectSendList = defectList.where((item) => item.synced == 0).toList();
+        defectSendList = defectList;
+        //defectSendList = defectList.where((item) => item.synced == 0).toList();
         _notSynced = defectSendList.length;
       });
     } catch(e) {
@@ -101,7 +100,7 @@ class _SendDataState extends State<SendData> {
           'pic2': '',
           'deleted': 1,
           'sent_date': ''}).
-          match({
+        match({
           'uid': defectDeledtedList[i].uid,
           'did': defectDeledtedList[i].did,
           'site_code': defectDeledtedList[i].site,
@@ -109,27 +108,6 @@ class _SendDataState extends State<SendData> {
           'house_no': defectDeledtedList[i].house,
           'local_id': defectDeledtedList[i].id!,
           'gentime': defectDeledtedList[i].gentime});
-/*
-        await supabase.rpc("defect_upsert", params: {
-          "local_id_arg": defectDeledtedList[i].id,
-          'uid_arg': defectDeledtedList[i].uid,
-          'did_arg': defectDeledtedList[i].did,
-          'site_code_arg': defectDeledtedList[i].site,
-          'building_no_arg': defectDeledtedList[i].building,
-          'house_no_arg': defectDeledtedList[i].house,
-          'reg_name_arg': defectDeledtedList[i].reg_name,
-          'reg_phone_arg': defectDeledtedList[i].reg_phone,
-          'space_name_arg': defectDeledtedList[i].space,
-          'area_name_arg': defectDeledtedList[i].area,
-          'work_name_arg': defectDeledtedList[i].work,
-          'sort_name_arg': defectDeledtedList[i].sort,
-          'claim_arg': defectDeledtedList[i].claim,
-          'pic1_arg': '',
-          'pic2_arg': '',
-          'deleted_arg': defectDeledtedList[i].deleted,
-          'sent_date_arg': sent_date,
-        });
-*/
       } catch (e) {
         print(e.toString());
         break;
@@ -156,14 +134,14 @@ class _SendDataState extends State<SendData> {
         }
 
         var result = await supabase.from('defects').select().match({
-            'uid': defectSendList[i].uid,
-            'did': defectSendList[i].did,
-            'site_code': defectSendList[i].site,
-            'building_no': defectSendList[i].building,
-            'house_no': defectSendList[i].house,
-            'local_id': defectSendList[i].id!,
-            'gentime': defectSendList[i].gentime
-          });
+          'uid': defectSendList[i].uid,
+          'did': defectSendList[i].did,
+          'site_code': defectSendList[i].site,
+          'building_no': defectSendList[i].building,
+          'house_no': defectSendList[i].house,
+          'local_id': defectSendList[i].id!,
+          'gentime': defectSendList[i].gentime
+        });
         if (result.isNotEmpty) {
           print("update");
           final data = await supabase.from('defects').update({
@@ -178,7 +156,7 @@ class _SendDataState extends State<SendData> {
             'pic2': '',
             'deleted': defectSendList[i].deleted,
             'sent_date': sent_date}).
-             match({
+          match({
             'uid': defectSendList[i].uid,
             'did': defectSendList[i].did,
             'site_code': defectSendList[i].site,
@@ -208,7 +186,7 @@ class _SendDataState extends State<SendData> {
             'deleted': defectSendList[i].deleted,
             'sent_date': sent_date});
         }
-        
+
 /*
         await supabase.rpc("defect_upsert", params: {
           "local_id_arg": defectSendList[i].id,
@@ -337,8 +315,6 @@ class _SendDataState extends State<SendData> {
                         Gap(10),
                         Text('총 하자 건수', style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold)),
                         Gap(10),
-                        Text('미전송 건수', style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold)),
-                        Gap(10),
                         Text('전송완료 건수', style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold)),
                       ],
                     )
@@ -352,8 +328,6 @@ class _SendDataState extends State<SendData> {
                         Gap(10),
                         Text(': $_total 건', style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold)),
                         Gap(10),
-                        Text(': ${_notSynced-_sent} 건', style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold)),
-                        Gap(10),
                         Text(': $_sent 건', style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold)),
                       ],
                     )
@@ -363,23 +337,23 @@ class _SendDataState extends State<SendData> {
             Gap(20),
             _sending == true ?
             Row(
-              children: [
-                Expanded(
-                  child: LinearProgressIndicator(
-                    value: percent,
-                    backgroundColor: Colors.grey.shade300,
-                    color: Colors.black45,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-                    minHeight: 10.0,
-                    semanticsLabel: 'semanticsLabel',
-                    semanticsValue: 'semanticsValue',
+                children: [
+                  Expanded(
+                    child: LinearProgressIndicator(
+                      value: percent,
+                      backgroundColor: Colors.grey.shade300,
+                      color: Colors.black45,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                      minHeight: 10.0,
+                      semanticsLabel: 'semanticsLabel',
+                      semanticsValue: 'semanticsValue',
+                    ),
                   ),
-                ),
-                Gap(10),
-                LoadingAnimationWidget.fourRotatingDots(
-                  color: Color(0xFF1A1A3F),
-                  size: 20,),
-              ]
+                  Gap(10),
+                  LoadingAnimationWidget.fourRotatingDots(
+                    color: Color(0xFF1A1A3F),
+                    size: 20,),
+                ]
             ) : Container(),
             Gap(30),
             Row(
@@ -396,7 +370,6 @@ class _SendDataState extends State<SendData> {
                       ),
                       onPressed: () {
                         Navigator.pop(context);
-                        if( widget.function != null ) widget.function!();
                       },
                       child: Text('닫기'),
                     )
@@ -454,8 +427,6 @@ class _SendDataState extends State<SendData> {
                           _buttonText = '전송';
                         });
                       }
-
-                      if( widget.function != null ) widget.function!();
                     },
                     child: Text(_buttonText),
                   ),

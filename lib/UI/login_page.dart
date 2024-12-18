@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:coworker/UI/dropdown_widget.dart';
 import 'package:coworker/UI/requset_page.dart';
+import 'package:coworker/UI/send_all_page.dart';
 import 'package:coworker/UI/send_page.dart';
 import 'package:coworker/UI/show_agreement.dart';
 import 'package:flutter/material.dart';
@@ -580,7 +581,8 @@ class _LoginPageState extends State<LoginPage> {
                               padding: EdgeInsets.symmetric(vertical: 14),
                             ),
                             onPressed: () async {
-                              await checkLoginStatus(true);
+                              if( await checkLoginStatus(manager_mode) == false )  return;
+                              //await checkLoginStatus(true);
 
                               var result = await supabase.from('users').select().match({
                                 'user_name': _owner_name,
@@ -603,6 +605,27 @@ class _LoginPageState extends State<LoginPage> {
                               _uid = result[0]['id'];
                               _did = await getDeviceUniqueId();
 
+                              try {
+                                var result = await supabase.from('site').select().eq('site_code',_site_code);
+                                if( result.isNotEmpty )  {
+                                  DateTime startDate = DateTime.parse(result[0]['check_startdate'].toString());
+                                  DateTime endDate = DateTime.parse(result[0]['check_enddate'].toString());
+                                  DateTime today = DateTime.now();
+
+                                  if(result[0]['status'] != 1 ) {
+                                    Fluttertoast.showToast(msg: "하자 점검 기간이 아닙니다.", gravity: ToastGravity.CENTER);
+                                    return;
+                                  }
+
+                                  if( today.compareTo(startDate) < 0 || today.compareTo(endDate) >= 0 )  {
+                                    Fluttertoast.showToast(msg: "하자 점검 기간이 아닙니다.", gravity: ToastGravity.CENTER);
+                                    return;
+                                  }
+                                }
+                              } catch(e)  {
+                                print(e.toString());
+                              }
+
                               _user = UserInfo(uid: _uid, did: _did, site_code: _site_code, site_name: _site_name, building_no: _building_no, house_no: _house_no, user_name: _owner_name, birth_date: _birth_date, user_phone: _owner_phone, type: _type);
                               print(_user);
 
@@ -612,7 +635,7 @@ class _LoginPageState extends State<LoginPage> {
                                 builder: (BuildContext context) =>
                                     AlertDialog(
                                       title: Text('알림'),
-                                      content: Text('저장된 데이터를 서버로 전송하시겠습니까?'),
+                                      content: Text('모든 데이터를 서버로 다시 전송하시겠습니까?'),
                                       actions: <Widget>[
                                         TextButton(
                                           onPressed: () => Navigator.pop(context),
@@ -626,7 +649,7 @@ class _LoginPageState extends State<LoginPage> {
                                               isDismissible: false,
                                               isScrollControlled: true,
                                               context: context,
-                                              builder: (context) => SendData(user: _user, function: null),
+                                              builder: (context) => SendAllData(user: _user),
                                             );
                                           },
                                           child: Text('전송'),
