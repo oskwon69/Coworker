@@ -1,26 +1,15 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:coworker/UI/show_sort.dart';
-import 'package:coworker/UI/show_work.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gap/gap.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:coworker/UI/app_style.dart';
 import 'package:coworker/UI/picture_widget.dart';
-import 'package:coworker/UI/show_space.dart';
-import 'package:coworker/UI/show_area.dart';
 import 'package:coworker/UI/textfield_widget.dart';
 import 'package:coworker/model/defect.dart';
 import 'package:coworker/database/defect_database.dart';
-import 'package:coworker/API/globals.dart' as globals;
+
 
 class ViewDefectModel extends StatefulWidget {
   const ViewDefectModel({Key? key, required this.defect}) : super(key: key);
@@ -174,17 +163,6 @@ class _ViewDefectState extends State<ViewDefectModel> {
                                             ),
 
                                             onPressed: () {
-                                              if( _defect.synced == 1 )  {
-                                                Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
-                                                return;
-                                              }
-
-                                              showModalBottomSheet(
-                                                isScrollControlled: true,
-                                                context: context,
-                                                builder: (context) => SpaceSelect(site_code: _site, function: getSpaceName),
-                                              );
-                                              focusNode.unfocus();
                                             },
                                             child: _space == '' ? Text('실명 선택') : Text(_space),
                                           ),
@@ -217,17 +195,6 @@ class _ViewDefectState extends State<ViewDefectModel> {
                                             ),
 
                                             onPressed: () {
-                                              if( _defect.synced == 1 )  {
-                                                Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
-                                                return;
-                                              }
-
-                                              showModalBottomSheet(
-                                                isScrollControlled: true,
-                                                context: context,
-                                                builder: (context) => AreaSelect(site_code: _site, function: getAreaName),
-                                              );
-                                              focusNode.unfocus();
                                             },
                                             child: _area == '' ? Text('위치 선택') : Text(_area),
                                           ),
@@ -265,17 +232,6 @@ class _ViewDefectState extends State<ViewDefectModel> {
                                             ),
 
                                             onPressed: () {
-                                              if( _defect.synced == 1 )  {
-                                                Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
-                                                return;
-                                              }
-
-                                              showModalBottomSheet(
-                                                isScrollControlled: true,
-                                                context: context,
-                                                builder: (context) => WorkSelect(site_code: _site, function: getWorkName),
-                                              );
-                                              focusNode.unfocus();
                                             },
                                             child: _work == '' ? Text('부위 선택') : Text(_work),
                                           ),
@@ -308,17 +264,6 @@ class _ViewDefectState extends State<ViewDefectModel> {
                                             ),
 
                                             onPressed: () {
-                                              if( _defect.synced == 1 )  {
-                                                Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
-                                                return;
-                                              }
-
-                                              showModalBottomSheet(
-                                                isScrollControlled: true,
-                                                context: context,
-                                                builder: (context) => SortSelect(site_code: _site, function: getSortName),
-                                              );
-                                              focusNode.unfocus();
                                             },
                                             child: _sort == '' ? Text('유형 선택') : Text(_sort),
                                           ),

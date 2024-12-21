@@ -57,8 +57,8 @@ class _SpaceSelectState extends State<SpaceSelect> {
                     ),
                   ),
                   Divider(thickness: 1.2, color: Colors.grey.shade200,),
-                  globals.layoutType == '' ? Container() : Gap(10),
-                  globals.layoutType == '' ? Container() : Row(
+                  globals.layoutType == "0" ? Container() : Gap(10),
+                  globals.layoutType == "0" ? Container() : Row(
                     children: [
                       Text('실명은 평면도를 참고해 주세요.'),
                       Gap(20),

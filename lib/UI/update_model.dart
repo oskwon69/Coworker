@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:coworker/UI/show_sort.dart';
@@ -10,7 +8,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gap/gap.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:coworker/UI/app_style.dart';
@@ -175,11 +172,6 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                                           ),
 
                                           onPressed: () {
-                                            if( _defect.synced == 1 )  {
-                                              Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
-                                              return;
-                                            }
-
                                             showModalBottomSheet(
                                               isScrollControlled: true,
                                               context: context,
@@ -218,11 +210,6 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                                           ),
 
                                           onPressed: () {
-                                            if( _defect.synced == 1 )  {
-                                              Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
-                                              return;
-                                            }
-
                                             showModalBottomSheet(
                                               isScrollControlled: true,
                                               context: context,
@@ -266,11 +253,6 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                                           ),
 
                                           onPressed: () {
-                                            if( _defect.synced == 1 )  {
-                                              Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
-                                              return;
-                                            }
-
                                             showModalBottomSheet(
                                               isScrollControlled: true,
                                               context: context,
@@ -309,11 +291,6 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                                           ),
 
                                           onPressed: () {
-                                            if( _defect.synced == 1 )  {
-                                              Fluttertoast.showToast(msg: '전송된 하자건은 수정할 수 없습니다.');
-                                              return;
-                                            }
-
                                             showModalBottomSheet(
                                               isScrollControlled: true,
                                               context: context,
@@ -332,16 +309,12 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                         ]
                     ),
                     Gap(20),
-                    TextFieldWidget(titleText: '내용', maxLines: 3, hintText: '신속한 A/S접수를 위해 선택하신 위치의 하자내용을 정확하게 입력해 주세요.', controller: claimController, focusNode: focusNode, readOnly: _defect.synced==1 ? true:false),
+                    TextFieldWidget(titleText: '내용', maxLines: 3, hintText: '신속한 A/S접수를 위해 선택하신 위치의 하자내용을 정확하게 입력해 주세요.', controller: claimController, focusNode: focusNode, readOnly: false),
                     Gap(20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        PictureWidget(titleText: '하자사진', image: _pic1, function: getPic1, readOnly: _defect.synced==1 ? true:false,),
-/*
-                        Gap(22),
-                        PictureWidget(titleText: '원경사진', image: _pic2, function: getPic2),
-*/
+                        PictureWidget(titleText: '하자사진', image: _pic1, function: getPic1, readOnly: false,),
                       ],
                     ),
                     Gap(20),

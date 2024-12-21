@@ -78,7 +78,7 @@ class _CardDefectListWidgetState extends State<CardDefectListWidget> {
               showModalBottomSheet(
                   isScrollControlled: true,
                   context: context,
-                  builder: (context) => _defect.synced == 1 ?
+                  builder: (context) => (_defect.synced==1 && globals.modyfyAllow==0) ?
                     ViewDefectModel(defect: _defect):UpdateDefectModel(defect: _defect, function: returnUpdate),
               );
             },

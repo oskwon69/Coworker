@@ -66,18 +66,20 @@ class _PictureViewState extends State<PictureView> {
                   color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: SizedBox(
-                  //width: 160,
-                  //height: 90,
-                    child: imagePath == '' ?
-                    Row(
-                      children: [
-                        Icon(Icons.photo),
-                        Gap(12),
-                        Text('사진이 선택되지 않았습니다.'),
-                      ],
-                    ) :
-                    Image.network("https://drmfczqtnhslrpejkqst.supabase.co/storage/v1/object/public/photos/"+imagePath),
+                child: InteractiveViewer(
+                  panEnabled: true, // Set it to false
+                  boundaryMargin: EdgeInsets.all(100),
+                  minScale: 1,
+                  maxScale: 5,
+                  child: imagePath == '' ?
+                  Row(
+                    children: [
+                      Icon(Icons.photo),
+                      Gap(12),
+                      Text('사진이 선택되지 않았습니다.'),
+                    ],
+                  ) :
+                  Image.network("https://drmfczqtnhslrpejkqst.supabase.co/storage/v1/object/public/photos/"+imagePath, width: 400, height: 300,),
                 ),
               ),
             ),

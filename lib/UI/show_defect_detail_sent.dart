@@ -7,10 +7,9 @@ import 'package:gap/gap.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:coworker/UI/app_style.dart';
-import 'package:coworker/UI/picture_widget.dart';
 import 'package:coworker/UI/textfield_widget.dart';
 import 'package:coworker/database/defect_database.dart';
-
+import 'package:coworker/API/globals.dart' as globals;
 import '../model/defect_server.dart';
 
 class ShowServerDefect extends StatefulWidget {
@@ -291,31 +290,13 @@ class _ShowServerDefectState extends State<ShowServerDefect> {
                                   ),
                                 ),
                               ),
-
-                              /* Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                    //width: MediaQuery.of(context).size.width*0.80,
-                                    height: 80,
-                                    decoration: BoxDecoration( borderRadius: BorderRadius.circular(8.0), color: Colors.grey.shade200),
-                                    child: _pic1 != '' ?
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      child: Image.network("https://drmfczqtnhslrpejkqst.supabase.co/storage/v1/object/public/photos/"+_pic1),
-                                    ):
-                                    Center(child: Icon(CupertinoIcons.photo_fill_on_rectangle_fill)),
-                                  ),
-                                  )
-                                ],
-                              ) */
                             ],
                           )
                           ),
                         ],
                       ),
                       Gap(20),
-                      Text('현재상태 : ${widget.defect.completed==1 ? '완료':'진행중' }',
+                      Text('현재상태 : ${(widget.defect.completed==0 || globals.viewResult==0) ? '접수':'완료' }',
                         style: AppStyle.headingOne,),
                       Gap(20),
                       Row(

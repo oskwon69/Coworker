@@ -1,15 +1,10 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:coworker/UI/show_defect_detail_sent.dart';
-import 'package:coworker/UI/update_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
-import 'package:coworker/model/defect.dart';
 import 'package:coworker/database/defect_database.dart';
-
+import 'package:coworker/API/globals.dart' as globals;
 import '../model/defect_server.dart';
 
 class DefectCardWidget extends StatefulWidget {
@@ -57,7 +52,7 @@ class _DefectCardWidgetState extends State<DefectCardWidget> {
         children: [
           Container(
             decoration: BoxDecoration(
-                color: widget.defect.completed == 0 ? Colors.green : Colors.blue.shade800,
+                color: (widget.defect.completed==0 || globals.viewResult==0 ) ? Colors.green : Colors.blue.shade800,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(7),
                   bottomLeft: Radius.circular(7),
@@ -110,7 +105,7 @@ class _DefectCardWidgetState extends State<DefectCardWidget> {
                         child: Divider(thickness: 1.5, color: Colors.grey.shade300,),
                       ),
 //                    Divider(thickness: 1.5, color: Colors.black, indent: 15, endIndent: 15,),
-                      Text('  상태:${widget.defect.completed == 0 ? "진행중":"완료"} | 전송 날짜:${widget.defect.sent_date!}', style: TextStyle(fontSize: 13)),
+                      Text('  상태:${(widget.defect.completed==0 || globals.viewResult==0) ? "접수":"완료"} | 전송날짜:${widget.defect.sent_date!}', style: TextStyle(fontSize: 13)),
                     ]
                 ),
               ],

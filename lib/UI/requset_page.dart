@@ -174,63 +174,6 @@ class _RequestPageState extends State<RequestPage> {
             },
             child: Text('전송'),
           ),
-/*
-          Gap(5),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue.shade700,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              padding: EdgeInsets.symmetric(vertical: 5),
-            ),
-            onPressed: () async {
-              String _building_no = _user.building_no!;
-              String _house_no = _user.house_no!;
-              String _pic1 = '';
-
-              try {
-                _pic1 = '/storage/emulated/0/Pictures/101_101_2024-06-03 11_07_31.331632_pic1.jpg';
-                if (_pic1 != '') {
-                  String fileName = "${_building_no}_${_house_no}_${DateTime
-                      .now()}_pic1.jpg";
-                  String filePath = "${globals.appDirectory}/$fileName";
-                  File file = File(filePath);
-                  Uint8List imageBytes = await File(_pic1).readAsBytesSync();
-                  file.writeAsBytes(imageBytes);
-                  _pic1 = fileName;
-                }
-              } catch(e) {
-                print(e.toString());
-              }
-
-              Defect defect = Defect(uid: _user.uid!,
-                  did: _user.did!,
-                  site: _user.site_code!,
-                  building: _user.building_no!,
-                  house: _user.house_no!,
-                  reg_name: _user.user_name!,
-                  reg_phone: _user.user_phone!,
-                  space: '실명이름',
-                  area: '부위이름',
-                  work: '공종이름',
-                  sort: '유형이름',
-                  claim: '하자가 없어야 하는데 많이 있네요. ^^',
-                  pic1: _pic1,
-                  pic2: "",
-                  synced: 0,
-                  deleted: 0,
-                  sent: '미전송');
-
-              var result = await _databaseService.addDefect(defect);
-              setState(() {
-                _pagingController.refresh();
-              });
-            },
-            child: Text('DB테스트'),
-          ),
-*/
           Gap(15),
         ],
       ),

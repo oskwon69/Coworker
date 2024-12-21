@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:coworker/UI/dropdown_widget.dart';
 import 'package:coworker/UI/requset_page.dart';
 import 'package:coworker/UI/send_all_page.dart';
-import 'package:coworker/UI/send_page.dart';
 import 'package:coworker/UI/show_agreement.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -145,7 +144,6 @@ class _LoginPageState extends State<LoginPage> {
       var result = await supabase.from('site').select().eq('site_code',_site_code);
       if( result.isNotEmpty )  {
         remoteDir = result[0]['image_folder'].toString();
-        globals.initAllow = result[0]['initallow'];
       }  else return;
 
       String _url = remoteDir + "/" + fileName;
@@ -298,6 +296,15 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
 
+    var result = await supabase.from('site').select().eq('site_code',_site_code);
+    if( result.isNotEmpty )  {
+      globals.initAllow = result[0]['init_allow'];
+      globals.modyfyAllow = result[0]['modify_allow'];
+      globals.viewResult = result[0]['view_result'];
+      globals.backupAllow = result[0]['backup_allow'];
+      manager_mode = result[0]['manager_mode']!=1 ? false:true;
+    }
+
     try {
       if(manager_mode == false ) {
         _owner_name = nameController.text.trim();
@@ -333,7 +340,6 @@ class _LoginPageState extends State<LoginPage> {
       if (result.isNotEmpty) {
         _type = result[0]['type'].toString();
         globals.layoutType  = _type;
-        print('global.layout=${globals.layoutType}');
       } else {
         Fluttertoast.showToast(msg: '입력하신 정보로 등록된 세대가 없습니다.', gravity: ToastGravity.CENTER);
         return false;
@@ -582,7 +588,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             onPressed: () async {
                               if( await checkLoginStatus(manager_mode) == false )  return;
-                              //await checkLoginStatus(true);
+                              if( globals.backupAllow != 1 )  return;
 
                               var result = await supabase.from('users').select().match({
                                 'user_name': _owner_name,
