@@ -378,6 +378,11 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                                 return;
                               }
 
+                              if( _pic1 == '' && globals.manager_mode == false )  {
+                                Fluttertoast.showToast(msg: '하자 사진을 찍어 주세요.', gravity: ToastGravity.CENTER);
+                                return;
+                              }
+
                               if( _space == _defect.space && _area == _defect.area && _work == _defect.work && _sort == _defect.sort && _claim == _defect.claim && isImageChanged == false )  {
                                 Fluttertoast.showToast(msg: '수정사항이 없습니다.');
                                 return;

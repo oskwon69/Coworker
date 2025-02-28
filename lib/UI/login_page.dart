@@ -51,6 +51,7 @@ class _LoginPageState extends State<LoginPage> {
   String _owner_phone = '';
   String _birth_date = '';
   String _type = '';
+  int _editable = 0;
 
   final supabase = Supabase.instance.client;
   final EnvDatabase _envdatabase = EnvDatabase();
@@ -61,8 +62,6 @@ class _LoginPageState extends State<LoginPage> {
   bool isWifi = false;
   bool isEthernet = false;
   late UserInfo _user;
-
-  bool manager_mode = false;
 
   Future<String?> getDeviceUniqueId() async {
     String? uniqueDeviceId;
@@ -146,9 +145,12 @@ class _LoginPageState extends State<LoginPage> {
         remoteDir = result[0]['image_folder'].toString();
       }  else return;
 
-      String _url = remoteDir + "/" + fileName;
+      String _url = remoteDir + "/Site" + _site_code.toString() + "/" + fileName;
+      print(_url);
+
       final http.Response response = await http.get(Uri.parse(_url));
       String filePath = fileDir.path + '/' + fileName;
+      print(filePath);
       final file = File(filePath);
       await file.writeAsBytes(response.bodyBytes);
       await storage.write(key: "typeImage", value: "path " + filePath + " " + "type " + _type);
@@ -168,7 +170,10 @@ class _LoginPageState extends State<LoginPage> {
         if( today.compareTo(startDate) >= 0 && today.compareTo(endDate) <= 0 )  {
           globals.isEditValid = 1;
         }  else {
-          globals.isEditValid = 0;
+          if( _editable == 1 )
+            globals.isEditValid = 1;
+          else
+            globals.isEditValid = 0;
         }
 
         if( result[0]['max_defect'] > 0 ) {
@@ -253,6 +258,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<bool> checkLoginStatus(bool manager_mode) async {
+    String _owner_name_db = "";
+    String _owner_phone_db = "";
+    String _birth_date_db = "";
+
     var commStatus = await checkCurrentCommState();
     if (commStatus == false) return false;
 
@@ -269,7 +278,7 @@ class _LoginPageState extends State<LoginPage> {
       return false;
     }
 
-    if( manager_mode == false ) {
+    if( globals.manager_mode == false ) {
       if (nameController.text == '') {
         Fluttertoast.showToast(msg: '이름을 입력해 주세요.', gravity: ToastGravity.CENTER);
         return false;
@@ -302,11 +311,14 @@ class _LoginPageState extends State<LoginPage> {
       globals.modyfyAllow = result[0]['modify_allow'];
       globals.viewResult = result[0]['view_result'];
       globals.backupAllow = result[0]['backup_allow'];
-      manager_mode = result[0]['manager_mode']!=1 ? false:true;
+      globals.manager_mode = result[0]['manager_mode']!=1 ? false:true;
+      globals.serverImagePath = result[0]['image_folder'];
     }
 
+    print(globals.serverImagePath);
+
     try {
-      if(manager_mode == false ) {
+      if(globals.manager_mode == false ) {
         _owner_name = nameController.text.trim();
         _owner_phone = phoneController.text;
         _birth_date = dateController.text.replaceAll('.', '');
@@ -333,17 +345,24 @@ class _LoginPageState extends State<LoginPage> {
       List<Map<String, dynamic>> result = await supabase.from('owner').select().match({
         'site_code': _site_code,
         'building_no': _building_no,
-        'house_no': _house_no,
-        'owner_name': _owner_name,
-        'owner_phone': _owner_phone,
-        'birth_date': _birth_date});
+        'house_no': _house_no});
       if (result.isNotEmpty) {
+        _owner_name_db = result[0]['owner_name'].toString().trim();
+        _owner_phone_db = result[0]['owner_phone'].toString().replaceAll('-', '');
+        _birth_date_db = result[0]['birth_date'].toString().replaceAll('.', '');
         _type = result[0]['type'].toString();
+        _editable = result[0]['editable'];
         globals.layoutType  = _type;
       } else {
-        Fluttertoast.showToast(msg: '입력하신 정보로 등록된 세대가 없습니다.', gravity: ToastGravity.CENTER);
+        Fluttertoast.showToast(msg: '입력하신 세대가 없습니다.', gravity: ToastGravity.CENTER);
         return false;
       }
+
+      if( _owner_name != _owner_name_db || _owner_phone.replaceAll('-','') != _owner_phone_db || _birth_date.replaceAll('.','') != _birth_date_db )  {
+        Fluttertoast.showToast(msg: '입력하신 정보와 일치하는 세대가 없습니다.', gravity: ToastGravity.CENTER);
+        return false;
+      }
+
     } catch (e) {
       print(e.toString());
     }
@@ -515,7 +534,7 @@ class _LoginPageState extends State<LoginPage> {
                                     vertical: 14),
                               ),
                               onPressed: () async {
-                                if( await checkLoginStatus(manager_mode) == false )  return;
+                                if( await checkLoginStatus(globals.manager_mode) == false )  return;
 
                                 ProgressDialog pd = ProgressDialog(context: context);
                                 pd.show(max: 100, msg: '데이터 다운로드 중 ...');
@@ -557,7 +576,7 @@ class _LoginPageState extends State<LoginPage> {
                                   result = await supabase.from('users').select().eq('id', _user.uid!);
                                   if( result.isNotEmpty )  {
                                     print('terms_agree=|${result[0]['terms_agree']}|');
-                                    if( result[0]['terms_agree'] != 1 && manager_mode == false )  {  // 아직 동의하지 않음.
+                                    if( result[0]['terms_agree'] != 1 && globals.manager_mode == false )  {  // 아직 동의하지 않음.
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => AgreementPage(user: _user)));
                                     }  else {  // 이미 동의함.
                                       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RequestPage(user: _user)));
@@ -587,7 +606,7 @@ class _LoginPageState extends State<LoginPage> {
                               padding: EdgeInsets.symmetric(vertical: 14),
                             ),
                             onPressed: () async {
-                              if( await checkLoginStatus(manager_mode) == false )  return;
+                              if( await checkLoginStatus(globals.manager_mode) == false )  return;
                               if( globals.backupAllow != 1 )  return;
 
                               var result = await supabase.from('users').select().match({

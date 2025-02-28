@@ -147,7 +147,7 @@ class _RequestPageState extends State<RequestPage> {
         foregroundColor: Colors.black,
         titleSpacing: -5,
         title: ListTile(
-          title: Text('${_user.user_name} 님', style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)),
+          title: Text('${_user.user_name}'+ (globals.manager_mode == true ? '*':'')+' 님', style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)),
           subtitle: Text('입주를 환영합니다!', style: TextStyle(fontSize: 13, color: Colors.grey)),
         ),
         actions: [

@@ -25,7 +25,7 @@ class _PictureSelectState extends State<PictureSelect> {
   String imagePath = '';
 
   Future getGalleryImage() async {
-    var image = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 50, maxHeight: 600, maxWidth: 900);
+    var image = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 70, maxHeight: 600, maxWidth: 900);
     if( image != null ) {
       imagePath = image.path;
     }
@@ -36,7 +36,7 @@ class _PictureSelectState extends State<PictureSelect> {
   }
 
   Future getCameraImage() async {
-    var image = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 50, maxHeight: 600, maxWidth: 900);
+    var image = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 70, maxHeight: 600, maxWidth: 900);
     if( image != null ) {
       imagePath = image.path;
     }
@@ -56,7 +56,7 @@ class _PictureSelectState extends State<PictureSelect> {
 
     return Container(
       padding: const EdgeInsets.all(30),
-      height: imagePath == '' ? MediaQuery.of(context).size.height*0.40 : MediaQuery.of(context).size.height*0.60,
+      height: imagePath == '' ? MediaQuery.of(context).size.height*0.40 : MediaQuery.of(context).size.height*0.80,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),

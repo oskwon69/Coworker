@@ -79,7 +79,8 @@ class _SendAllDataState extends State<SendAllData> {
   }
 
   Stream<int> sendDefects() async* {
-    String sent_date = '${DateFormat("yyyy/MM/dd").format(DateTime.now())}';
+    String serverStorage = globals.serverImagePath.split('/').last;
+    String sent_date = '${DateFormat("yyyy/MM/dd-HH:mm:ss").format(DateTime.now())}';
 
     print('send deleted');
 
@@ -128,9 +129,7 @@ class _SendAllDataState extends State<SendAllData> {
           String imagePath = "${globals.appDirectory}/${defectList[i].pic1}";
           Uint8List imageBytes = await File(imagePath).readAsBytesSync();
           filepath1 = 'Site${defectSendList[i].site}/${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].did}_${defectSendList[i].id}_1.jpg';
-          await supabase.storage.from('photos').uploadBinary(
-              filepath1, imageBytes, fileOptions: const FileOptions(
-              cacheControl: '3600', upsert: true));
+          await supabase.storage.from(serverStorage).uploadBinary(filepath1, imageBytes, fileOptions: const FileOptions(cacheControl: '3600', upsert: true));
         }
 
         var result = await supabase.from('defects').select().match({

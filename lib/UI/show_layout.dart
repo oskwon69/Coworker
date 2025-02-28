@@ -36,7 +36,15 @@ class _LayoutWidgetState extends State<LayoutWidget> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Center(child: _imagePath == '' ? Text('이미지가 없습니다.') : Image.file(File(_imagePath))),
+                Center(
+                  child: InteractiveViewer(
+                    panEnabled: true, // Set it to false
+                    boundaryMargin: EdgeInsets.all(100),
+                    minScale: 1,
+                    maxScale: 5,
+                    child: Image.file(File(_imagePath))
+                  ),
+                ),
                 SizedBox(
                   width: MediaQuery.of(context).size.width*0.8,
                   child: ElevatedButton(

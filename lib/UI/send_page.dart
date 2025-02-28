@@ -80,10 +80,13 @@ class _SendDataState extends State<SendData> {
   }
 
   Stream<int> sendDefects() async* {
-    String sent_date = '${DateFormat("yyyy/MM/dd").format(DateTime.now())}';
+    String serverStorage = "";
+    String sent_date = '${DateFormat("yyyy/MM/dd-HH:mm:ss").format(DateTime.now())}';
+
+    serverStorage = globals.serverImagePath.split('/').last;
+    print(serverStorage+'|');
 
     print('send deleted');
-
     // 우선 삭제된 항목을 서버DB와 동기화한다.
     print('deleted items : ${defectDeledtedList.length}');
     for(int i=0 ; i < defectDeledtedList.length ; i++) {
@@ -150,7 +153,9 @@ class _SendDataState extends State<SendData> {
           String imagePath = "${globals.appDirectory}/${defectList[i].pic1}";
           Uint8List imageBytes = await File(imagePath).readAsBytesSync();
           filepath1 = 'Site${defectSendList[i].site}/${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].did}_${defectSendList[i].id}_1.jpg';
-          await supabase.storage.from('photos').uploadBinary(
+          //filepath1 = '${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].did}_${defectSendList[i].id}_1.jpg';
+          print(filepath1);
+          await supabase.storage.from(serverStorage).uploadBinary(
               filepath1, imageBytes, fileOptions: const FileOptions(
               cacheControl: '3600', upsert: true));
         }

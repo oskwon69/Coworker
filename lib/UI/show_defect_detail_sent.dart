@@ -282,7 +282,7 @@ class _ShowServerDefectState extends State<ShowServerDefect> {
                                               width: 250,
                                               height: 80,
                                               child: _pic1 == '' ? Icon(CupertinoIcons.photo_fill_on_rectangle_fill):
-                                                Image.network("https://drmfczqtnhslrpejkqst.supabase.co/storage/v1/object/public/photos/"+_pic1, width:150, height: 80),
+                                                Image.network(globals.serverImagePath+'/'+_pic1, width:150, height: 80),
                                           ),
                                         ],
                                       ),

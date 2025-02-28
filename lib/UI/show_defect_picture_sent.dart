@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
+import 'package:coworker/API/globals.dart' as globals;
 
 class PictureView extends StatefulWidget {
   const PictureView({Key? key, required this.image}) : super(key: key);
@@ -24,7 +25,7 @@ class _PictureViewState extends State<PictureView> {
   Widget build(BuildContext context)  {
     return Container(
       padding: const EdgeInsets.all(30),
-      height: imagePath == '' ? MediaQuery.of(context).size.height*0.40 : MediaQuery.of(context).size.height*0.60,
+      height: imagePath == '' ? MediaQuery.of(context).size.height*0.40 : MediaQuery.of(context).size.height*0.80,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -79,7 +80,7 @@ class _PictureViewState extends State<PictureView> {
                       Text('사진이 선택되지 않았습니다.'),
                     ],
                   ) :
-                  Image.network("https://drmfczqtnhslrpejkqst.supabase.co/storage/v1/object/public/photos/"+imagePath, width: 400, height: 300,),
+                  Image.network(globals.serverImagePath+'/'+imagePath, width: 400, height: 600,),
                 ),
               ),
             ),

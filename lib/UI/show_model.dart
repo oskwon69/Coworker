@@ -371,6 +371,11 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
                                 return;
                               }
 
+                              if( _pic1 == '' && globals.manager_mode == false )  {
+                                Fluttertoast.showToast(msg: '하자 사진을 찍어 주세요.', gravity: ToastGravity.CENTER);
+                                return;
+                              }
+
                               try {
                                 if( _pic1 != '' ) {
                                   print(_pic1);
