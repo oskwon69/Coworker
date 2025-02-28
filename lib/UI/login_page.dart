@@ -278,6 +278,16 @@ class _LoginPageState extends State<LoginPage> {
       return false;
     }
 
+    var result = await supabase.from('site').select().eq('site_code',_site_code);
+    if( result.isNotEmpty )  {
+      globals.initAllow = result[0]['init_allow'];
+      globals.modyfyAllow = result[0]['modify_allow'];
+      globals.viewResult = result[0]['view_result'];
+      globals.backupAllow = result[0]['backup_allow'];
+      globals.manager_mode = result[0]['manager_mode']==1 ? true:false;
+      globals.serverImagePath = result[0]['image_folder'];
+    }
+
     if( globals.manager_mode == false ) {
       if (nameController.text == '') {
         Fluttertoast.showToast(msg: '이름을 입력해 주세요.', gravity: ToastGravity.CENTER);
@@ -305,32 +315,32 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
 
-    var result = await supabase.from('site').select().eq('site_code',_site_code);
-    if( result.isNotEmpty )  {
-      globals.initAllow = result[0]['init_allow'];
-      globals.modyfyAllow = result[0]['modify_allow'];
-      globals.viewResult = result[0]['view_result'];
-      globals.backupAllow = result[0]['backup_allow'];
-      globals.manager_mode = result[0]['manager_mode']!=1 ? false:true;
-      globals.serverImagePath = result[0]['image_folder'];
-    }
-
-    print(globals.serverImagePath);
-
     try {
       if(globals.manager_mode == false ) {
         _owner_name = nameController.text.trim();
-        _owner_phone = phoneController.text;
-        _birth_date = dateController.text.replaceAll('.', '');
+        _owner_phone = phoneController.text.trim();
+        _birth_date = dateController.text.trim();
       } else {
+        print('Manager Mode!');
         List<Map<String, dynamic>> result = await supabase.from('owner').select().match({
           'site_code': _site_code,
           'building_no': _building_no,
           'house_no': _house_no});
         if (result.isNotEmpty) {
-          _owner_name = result[0]['owner_name'].toString();
-          _owner_phone = result[0]['owner_phone'].toString();
-          _birth_date = result[0]['birth_date'].toString().replaceAll('.', '');
+          _owner_name = result[0]['owner_name'].toString().trim();
+
+          _owner_phone = result[0]['owner_phone'].toString().trim();
+          print('owner_phone,length:'+_owner_phone+','+_owner_phone.length.toString());
+          if( _owner_phone.length == 10 )
+            _owner_phone = _owner_phone.substring(0,3)+'-'+_owner_phone.substring(3,6)+'-'+_owner_phone.substring(7,10);
+          else if( _owner_phone.length == 11 )
+            _owner_phone = _owner_phone.substring(0,3)+'-'+_owner_phone.substring(3,7)+'-'+_owner_phone.substring(7,11);
+          print('owner_phone:'+_owner_phone);
+
+          _birth_date = result[0]['birth_date'].toString().trim();
+          if( _birth_date.length == 6 )
+            _birth_date = _birth_date.substring(0,2)+'.'+_birth_date.substring(2,4)+'.'+_birth_date.substring(4,6);
+          print('birth_date:'+_birth_date);
         }
       }
 
@@ -348,17 +358,18 @@ class _LoginPageState extends State<LoginPage> {
         'house_no': _house_no});
       if (result.isNotEmpty) {
         _owner_name_db = result[0]['owner_name'].toString().trim();
-        _owner_phone_db = result[0]['owner_phone'].toString().replaceAll('-', '');
-        _birth_date_db = result[0]['birth_date'].toString().replaceAll('.', '');
+        _owner_phone_db = result[0]['owner_phone'].toString().trim();
+        _birth_date_db = result[0]['birth_date'].toString().trim();
         _type = result[0]['type'].toString();
         _editable = result[0]['editable'];
+        globals.photo_lock = result[0]['photo_lock']==1 ? true:false;
         globals.layoutType  = _type;
       } else {
         Fluttertoast.showToast(msg: '입력하신 세대가 없습니다.', gravity: ToastGravity.CENTER);
         return false;
       }
 
-      if( _owner_name != _owner_name_db || _owner_phone.replaceAll('-','') != _owner_phone_db || _birth_date.replaceAll('.','') != _birth_date_db )  {
+      if( _owner_name != _owner_name_db || _owner_phone.replaceAll('-','') != _owner_phone_db.replaceAll('-','') || _birth_date.replaceAll('.', '') != _birth_date_db.replaceAll('.', '') )  {
         Fluttertoast.showToast(msg: '입력하신 정보와 일치하는 세대가 없습니다.', gravity: ToastGravity.CENTER);
         return false;
       }
@@ -540,10 +551,13 @@ class _LoginPageState extends State<LoginPage> {
                                 pd.show(max: 100, msg: '데이터 다운로드 중 ...');
 
                                 try {
+                                  print('user_name:'+_owner_name);
+                                  print('phone_number:'+_owner_phone);
+                                  print('birth_date:'+_birth_date);
                                   var result = await supabase.from('users').select().match({
                                     'user_name': _owner_name,
                                     'phone_number': _owner_phone,
-                                    'birth_date': _birth_date});
+                                    'birth_date': _birth_date.replaceAll('.','')});
                                   if (result.isNotEmpty) {
                                     await supabase.from('users').update({
                                       'last_login': '${DateFormat("yy-MM-dd hh:mm a").format(DateTime.now())}'
@@ -571,7 +585,9 @@ class _LoginPageState extends State<LoginPage> {
                                   print(_user);
 
                                   await storage.write(key: "loginInfo", value: "site_code "+_site_code.toString()+" site_name "+_site_name.replaceAll(" ","_")+" building_no "+_building_no+" house_no "+_house_no+
-                                      " owner_name "+_owner_name+" owner_phone "+_owner_phone+" birth_date "+_birth_date.substring(0,2)+"."+_birth_date.substring(2,4)+"."+_birth_date.substring(4,6));
+                                      " owner_name "+_owner_name+" owner_phone "+_owner_phone+" birth_date "+_birth_date);
+                                  //await storage.write(key: "loginInfo", value: "site_code "+_site_code.toString()+" site_name "+_site_name.replaceAll(" ","_")+" building_no "+_building_no+" house_no "+_house_no+
+                                  //    " owner_name "+_owner_name+" owner_phone "+_owner_phone+" birth_date "+_birth_date.substring(0,2)+"."+_birth_date.substring(2,4)+"."+_birth_date.substring(4,6));
 
                                   result = await supabase.from('users').select().eq('id', _user.uid!);
                                   if( result.isNotEmpty )  {

@@ -10,3 +10,4 @@ int modyfyAllow = 0;
 int viewResult = 0;
 int backupAllow = 0;
 bool manager_mode = false;
+bool photo_lock = true;

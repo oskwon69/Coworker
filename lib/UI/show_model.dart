@@ -371,7 +371,9 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
                                 return;
                               }
 
-                              if( _pic1 == '' && globals.manager_mode == false )  {
+                              print('globals.photo_lock='+globals.photo_lock.toString());
+                              print('globals.manager_mode='+globals.manager_mode.toString());
+                              if( _pic1 == '' && globals.photo_lock == true && globals.manager_mode == false )  {
                                 Fluttertoast.showToast(msg: '하자 사진을 찍어 주세요.', gravity: ToastGravity.CENTER);
                                 return;
                               }
