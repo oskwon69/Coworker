@@ -15,19 +15,19 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  final permissionCamera = Permission.camera;
-  if (await permissionCamera.isDenied) {
-    await permissionCamera.request();
+  final statusCamera = await Permission.camera.status;
+  if( statusCamera.isDenied )  {
+    await Permission.camera.request();
   }
 
-  final permissionStorage = Permission.storage;
-  if (await permissionStorage.isDenied) {
-    await permissionStorage.request();
+  final statusStorage = await Permission.storage.status;
+  if( statusStorage.isDenied )  {
+    await Permission.storage.request();
   }
 
-  final permissionPhotos = Permission.photos;
-  if (await permissionPhotos.isDenied) {
-    await permissionPhotos.request();
+  final statusPhotos = await Permission.photos.status;
+  if( statusPhotos.isDenied )  {
+    await Permission.photos.request();
   }
 
   await Supabase.initialize(
