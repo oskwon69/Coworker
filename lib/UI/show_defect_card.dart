@@ -106,7 +106,7 @@ class _DefectCardWidgetState extends State<DefectCardWidget> {
                         child: Divider(thickness: 1.5, color: Colors.grey.shade300,),
                       ),
 //                    Divider(thickness: 1.5, color: Colors.black, indent: 15, endIndent: 15,),
-                      Text('  상태:${(widget.defect.completed==0 || globals.viewResult==0) ? "접수":"완료"} | 전송날짜:${widget.defect.sent_date!}', style: TextStyle(fontSize: 13)),
+                      Text('  상태 : ${(widget.defect.completed==0 || globals.viewResult==0) ? "접수":"완료"} | 전송날짜 : ${widget.defect.sent_date!.split('-').first}', style: TextStyle(fontSize: 13)),
                     ]
                 ),
               ],

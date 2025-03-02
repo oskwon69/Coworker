@@ -118,7 +118,7 @@ class _CardDefectListWidgetState extends State<CardDefectListWidget> {
                       child: Divider(thickness: 1.5, color: Colors.grey.shade300,),
                     ),
 //                    Divider(thickness: 1.5, color: Colors.black, indent: 15, endIndent: 15,),
-                    Text('  전송 날짜 : ${widget.defect.sent!}', style: TextStyle(fontSize: 13)),
+                    Text('  전송 날짜 : ${widget.defect.sent!.split('-').first}', style: TextStyle(fontSize: 13)),
                   ]
                 ),
               ],
