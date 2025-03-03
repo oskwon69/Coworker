@@ -1,11 +1,11 @@
 // This is a generated file; do not edit or check into version control.
-FLUTTER_ROOT=C:\flutter
+FLUTTER_ROOT=c:\flutter
 FLUTTER_APPLICATION_PATH=C:\Users\focus\StudioProjects\Coworker
 COCOAPODS_PARALLEL_CODE_SIGN=true
 FLUTTER_TARGET=lib\main.dart
 FLUTTER_BUILD_DIR=build
-FLUTTER_BUILD_NAME=1.0.6
-FLUTTER_BUILD_NUMBER=30
+FLUTTER_BUILD_NAME=1.0.7
+FLUTTER_BUILD_NUMBER=32
 EXCLUDED_ARCHS[sdk=iphonesimulator*]=i386
 EXCLUDED_ARCHS[sdk=iphoneos*]=armv7
 DART_OBFUSCATION=false

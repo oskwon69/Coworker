@@ -20,17 +20,18 @@ if (keystorePropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '31'
+    flutterVersionCode = '32'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
-    flutterVersionName = '1.0.6'
+    flutterVersionName = '1.0.7'
 }
 
 android {
     namespace "focus.coworker.coworker"
-    compileSdk flutter.compileSdkVersion
+    compileSdk 34
+    //compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -51,7 +52,7 @@ android {
         applicationId "coworker.focus_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 34
 //      targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()

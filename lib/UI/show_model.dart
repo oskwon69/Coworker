@@ -387,7 +387,7 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
                                   File file = File(filePath);
                                   Uint8List imageBytes = await File(_pic1).readAsBytesSync();
                                   file.writeAsBytes(imageBytes);
-                                  ImageGallerySaver.saveImage(imageBytes, name: fileName);
+                                  await ImageGallerySaver.saveImage(imageBytes, name: fileName);
                                   _pic1 = fileName;
                                 }
 
