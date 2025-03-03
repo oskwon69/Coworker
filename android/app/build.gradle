@@ -20,7 +20,7 @@ if (keystorePropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '32'
+    flutterVersionCode = '33'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
@@ -52,7 +52,7 @@ android {
         applicationId "coworker.focus_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 23
+        minSdkVersion 21
         targetSdkVersion 34
 //      targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()

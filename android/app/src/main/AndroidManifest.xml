@@ -7,10 +7,13 @@
 
     <!-- for below android 13-->
     <!-- <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" /> -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"  />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <!-- for above android 13-->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <!-- targetSDK 34 이면서 Android OS 14 인 경우 -->
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
 
     <application
         android:label="Coworker"
