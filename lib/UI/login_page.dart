@@ -551,7 +551,7 @@ class _LoginPageState extends State<LoginPage> {
                                 pd.show(max: 100, msg: '데이터 다운로드 중 ...');
 
                                 try {
-                                  print('user_name:'+_owner_name);
+                                  print('** user_name:'+_owner_name);
                                   print('phone_number:'+_owner_phone);
                                   print('birth_date:'+_birth_date);
                                   var result = await supabase.from('users').select().match({
@@ -564,12 +564,12 @@ class _LoginPageState extends State<LoginPage> {
                                     }).match({
                                       'user_name': _owner_name,
                                       'phone_number': _owner_phone,
-                                      'birth_date': _birth_date});
+                                      'birth_date': _birth_date.replaceAll('.','')});
                                   } else {
                                     result =  await supabase.from('users').insert({
                                       'user_name': _owner_name,
                                       'phone_number': _owner_phone,
-                                      'birth_date': _birth_date,
+                                      'birth_date': _birth_date.replaceAll('.',''),
                                       'last_login': '${DateFormat("yy-MM-dd hh:mm a").format(DateTime.now())}'}).select();
                                   }
                                   _uid = result[0]['id'];

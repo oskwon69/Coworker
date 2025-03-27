@@ -380,7 +380,7 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
 
                               try {
                                 if( _pic1 != '' ) {
-                                  print(_pic1);
+                                  //String fileName = "${_building_no}_${_house_no}_${_did}_${DateTime.now()}_pic1.jpg";
                                   String fileName = "${_building_no}_${_house_no}_${DateTime.now()}_pic1.jpg";
                                   String filePath = "${globals.appDirectory}/$fileName";
                                   print(filePath);
