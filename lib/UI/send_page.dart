@@ -81,7 +81,6 @@ class _SendDataState extends State<SendData> {
 
   Stream<int> sendDefects() async* {
     String serverStorage = "";
-    String sent_date = '${DateFormat("yyyy/MM/dd-HH:mm:ss").format(DateTime.now())}';
 
     serverStorage = globals.serverImagePath.split('/').last;
     print(serverStorage+'|');
@@ -141,6 +140,7 @@ class _SendDataState extends State<SendData> {
 
     // 아직 보내지 않았거나 수정된 항목을 서버DB와 동기화한다.
     for(int i=0 ; i < defectSendList.length ; i++) {
+      String sent_date = '${DateFormat("yyyy/MM/dd-HH:mm:ss").format(DateTime.now())}';
       String filepath1 = '';
 
       if( _break == true ) break;
@@ -150,7 +150,7 @@ class _SendDataState extends State<SendData> {
       try {
         if( defectSendList[i].pic1 != '' ) {
           print('pic1: ${defectSendList[i].pic1}');
-          String imagePath = "${globals.appDirectory}/${defectList[i].pic1}";
+          String imagePath = "${globals.appDirectory}/${defectSendList[i].pic1}";
           Uint8List imageBytes = await File(imagePath).readAsBytesSync();
           filepath1 = 'Site${defectSendList[i].site}/${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].did}_${defectSendList[i].id}_1.jpg';
           //filepath1 = '${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].did}_${defectSendList[i].id}_1.jpg';
