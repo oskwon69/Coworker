@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -79,9 +80,19 @@ class _SendAllDataState extends State<SendAllData> {
   }
 
   Stream<int> sendDefects() async* {
-    String serverStorage = globals.serverImagePath.split('/').last;
-    String sent_date = '${DateFormat("yyyy/MM/dd-HH:mm:ss").format(DateTime.now())}';
+    String serverStorage ='';
 
+    var result = await supabase.from('site').select().eq('site_code',widget.user.site_code!);
+    if( result.isNotEmpty )  {
+      globals.serverImagePath = result[0]['image_folder'];
+    }
+
+    Directory fileDir = await getApplicationDocumentsDirectory();
+    globals.appDirectory = fileDir.path;
+    serverStorage = globals.serverImagePath.split('/').last;
+
+    print('appDirectory : '+globals.appDirectory);
+    print('serverStorage : '+serverStorage);
     print('send deleted');
 
     // 우선 삭제된 항목을 서버DB와 동기화한다.
@@ -117,7 +128,9 @@ class _SendAllDataState extends State<SendAllData> {
 
     // 아직 보내지 않았거나 수정된 항목을 서버DB와 동기화한다.
     for(int i=0 ; i < defectSendList.length ; i++) {
+      String sent_date = '${DateFormat("yyyy/MM/dd-HH:mm:ss").format(DateTime.now())}';
       String filepath1 = '';
+      String lWork = '';
 
       if( _break == true ) break;
 
@@ -130,6 +143,16 @@ class _SendAllDataState extends State<SendAllData> {
           Uint8List imageBytes = await File(imagePath).readAsBytesSync();
           filepath1 = 'Site${defectSendList[i].site}/${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].did}_${defectSendList[i].id}_1.jpg';
           await supabase.storage.from(serverStorage).uploadBinary(filepath1, imageBytes, fileOptions: const FileOptions(cacheControl: '3600', upsert: true));
+        }
+
+        print('site:'+defectSendList[i].site.toString());
+        print('work:'+defectSendList[i].work.toString());
+        var lw_result = await supabase.from('work').select().match({
+          'site_code': defectSendList[i].site,
+          'work_name': defectSendList[i].work
+        });
+        if (lw_result.isNotEmpty) {
+          lWork = lw_result[0]['lwork_name'];
         }
 
         var result = await supabase.from('defects').select().match({
@@ -149,6 +172,7 @@ class _SendAllDataState extends State<SendAllData> {
             'space_name': defectSendList[i].space,
             'area_name': defectSendList[i].area,
             'work_name': defectSendList[i].work,
+            'lwork_name': lWork,
             'sort_name': defectSendList[i].sort,
             'claim': defectSendList[i].claim,
             'pic1': filepath1,
@@ -177,6 +201,7 @@ class _SendAllDataState extends State<SendAllData> {
             'space_name': defectSendList[i].space,
             'area_name': defectSendList[i].area,
             'work_name': defectSendList[i].work,
+            'lwork_name': lWork,
             'sort_name': defectSendList[i].sort,
             'claim': defectSendList[i].claim,
             'pic1': filepath1,
@@ -186,27 +211,6 @@ class _SendAllDataState extends State<SendAllData> {
             'sent_date': sent_date});
         }
 
-/*
-        await supabase.rpc("defect_upsert", params: {
-          "local_id_arg": defectSendList[i].id,
-          'uid_arg': defectSendList[i].uid,
-          'did_arg': defectSendList[i].did,
-          'site_code_arg': defectSendList[i].site,
-          'building_no_arg': defectSendList[i].building,
-          'house_no_arg': defectSendList[i].house,
-          'reg_name_arg': defectSendList[i].reg_name,
-          'reg_phone_arg': defectSendList[i].reg_phone,
-          'space_name_arg': defectSendList[i].space,
-          'area_name_arg': defectSendList[i].area,
-          'work_name_arg': defectSendList[i].work,
-          'sort_name_arg': defectSendList[i].sort,
-          'claim_arg': defectSendList[i].claim,
-          'pic1_arg': filepath1,
-          'pic2_arg': '',
-          'deleted_arg': defectSendList[i].deleted,
-          'sent_date_arg': sent_date,
-        });
-*/
         print('DB');
 
         Defect defect = defectSendList[i];

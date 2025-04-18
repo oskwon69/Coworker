@@ -41,6 +41,8 @@
    	<string>We need add only access to save medias</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>앨범에 저장된 하자사진을 등록하기 위해 앨범 권한이 필요합니다.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<key>NSMicrophoneUsageDescription</key>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIFileSharingEnabled</key>

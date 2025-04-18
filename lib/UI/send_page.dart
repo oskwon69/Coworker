@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -80,9 +81,7 @@ class _SendDataState extends State<SendData> {
   }
 
   Stream<int> sendDefects() async* {
-    String serverStorage = "";
-
-    serverStorage = globals.serverImagePath.split('/').last;
+    String serverStorage = globals.serverImagePath.split('/').last;
     print(serverStorage+'|');
 
     print('send deleted');
@@ -111,27 +110,6 @@ class _SendDataState extends State<SendData> {
           'house_no': defectDeledtedList[i].house,
           'local_id': defectDeledtedList[i].id!,
           'gentime': defectDeledtedList[i].gentime});
-/*
-        await supabase.rpc("defect_upsert", params: {
-          "local_id_arg": defectDeledtedList[i].id,
-          'uid_arg': defectDeledtedList[i].uid,
-          'did_arg': defectDeledtedList[i].did,
-          'site_code_arg': defectDeledtedList[i].site,
-          'building_no_arg': defectDeledtedList[i].building,
-          'house_no_arg': defectDeledtedList[i].house,
-          'reg_name_arg': defectDeledtedList[i].reg_name,
-          'reg_phone_arg': defectDeledtedList[i].reg_phone,
-          'space_name_arg': defectDeledtedList[i].space,
-          'area_name_arg': defectDeledtedList[i].area,
-          'work_name_arg': defectDeledtedList[i].work,
-          'sort_name_arg': defectDeledtedList[i].sort,
-          'claim_arg': defectDeledtedList[i].claim,
-          'pic1_arg': '',
-          'pic2_arg': '',
-          'deleted_arg': defectDeledtedList[i].deleted,
-          'sent_date_arg': sent_date,
-        });
-*/
       } catch (e) {
         print(e.toString());
         break;
@@ -142,6 +120,7 @@ class _SendDataState extends State<SendData> {
     for(int i=0 ; i < defectSendList.length ; i++) {
       String sent_date = '${DateFormat("yyyy/MM/dd-HH:mm:ss").format(DateTime.now())}';
       String filepath1 = '';
+      String lWork = '';
 
       if( _break == true ) break;
 
@@ -158,6 +137,14 @@ class _SendDataState extends State<SendData> {
           await supabase.storage.from(serverStorage).uploadBinary(
               filepath1, imageBytes, fileOptions: const FileOptions(
               cacheControl: '3600', upsert: true));
+        }
+
+        var lw_result = await supabase.from('work').select().match({
+          'site_code': defectSendList[i].site,
+          'work_name': defectSendList[i].work
+        });
+        if (lw_result.isNotEmpty) {
+          lWork = lw_result[0]['lwork_name'];
         }
 
         var result = await supabase.from('defects').select().match({
@@ -177,6 +164,7 @@ class _SendDataState extends State<SendData> {
             'space_name': defectSendList[i].space,
             'area_name': defectSendList[i].area,
             'work_name': defectSendList[i].work,
+            'lwork_name': lWork,
             'sort_name': defectSendList[i].sort,
             'claim': defectSendList[i].claim,
             'pic1': filepath1,
@@ -205,6 +193,7 @@ class _SendDataState extends State<SendData> {
             'space_name': defectSendList[i].space,
             'area_name': defectSendList[i].area,
             'work_name': defectSendList[i].work,
+            'lwork_name': lWork,
             'sort_name': defectSendList[i].sort,
             'claim': defectSendList[i].claim,
             'pic1': filepath1,
@@ -214,27 +203,6 @@ class _SendDataState extends State<SendData> {
             'sent_date': sent_date});
         }
         
-/*
-        await supabase.rpc("defect_upsert", params: {
-          "local_id_arg": defectSendList[i].id,
-          'uid_arg': defectSendList[i].uid,
-          'did_arg': defectSendList[i].did,
-          'site_code_arg': defectSendList[i].site,
-          'building_no_arg': defectSendList[i].building,
-          'house_no_arg': defectSendList[i].house,
-          'reg_name_arg': defectSendList[i].reg_name,
-          'reg_phone_arg': defectSendList[i].reg_phone,
-          'space_name_arg': defectSendList[i].space,
-          'area_name_arg': defectSendList[i].area,
-          'work_name_arg': defectSendList[i].work,
-          'sort_name_arg': defectSendList[i].sort,
-          'claim_arg': defectSendList[i].claim,
-          'pic1_arg': filepath1,
-          'pic2_arg': '',
-          'deleted_arg': defectSendList[i].deleted,
-          'sent_date_arg': sent_date,
-        });
-*/
         print('DB');
 
         Defect defect = defectSendList[i];

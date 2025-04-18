@@ -18,6 +18,9 @@ import 'package:coworker/UI/textfield_widget.dart';
 import 'package:coworker/model/defect.dart';
 import 'package:coworker/database/defect_database.dart';
 import 'package:coworker/API/globals.dart' as globals;
+import 'package:speech_to_text/speech_recognition_error.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 class AddNewDefectModel extends StatefulWidget {
   const AddNewDefectModel({Key? key, required this.user, required this.function}) : super(key: key);
@@ -52,6 +55,12 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
 
   final DefectDatabase _databaseService = DefectDatabase();
 
+  SpeechToText _speechToText = SpeechToText();
+  bool _speechEnabled = false;
+  String _lastWords = '';
+  String _floatingText = '하자내용 음성인식 시작하기';
+  double level = 0.0;
+
   @override
   void initState() {
     super.initState();
@@ -63,6 +72,8 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
     _house_no = widget.user.house_no!;
     _reg_name = widget.user.user_name!;
     _reg_phone = widget.user.user_phone!;
+
+    _initSpeech();
   }
 
   @override
@@ -109,8 +120,50 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
     });
   }
 
+  void _initSpeech() async {
+    _speechEnabled = await _speechToText.initialize();
+    setState(() {});
+  }
+
+  void _startListening() async {
+    await _speechToText.listen(
+        onResult: _onSpeechResult,
+        listenFor: Duration(seconds: 30),
+        pauseFor: Duration(seconds: 5),
+        localeId: 'ko_KR'
+    );
+    setState(() {
+      _floatingText = "음성인식 중단하기";
+    });
+  }
+
+  void _stopListening() async {
+    await _speechToText.stop();
+    setState(() {
+      _floatingText = "하자내용 음성인식 시작하기";
+      level = 0.0;
+    });
+  }
+
+  void cancelListening() async {
+    await _speechToText.cancel();
+    setState(() {
+      level = 0.0;
+    });
+  }
+
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      _lastWords = result.recognizedWords;
+      claimController.text = _lastWords;
+
+      _floatingText = _speechToText.isNotListening ? "하자내용 음성인식 시작하기":"음성인식 중단하기";
+    });
+  }
+
   @override
   Widget build(BuildContext context)  {
+    final bool showFab = MediaQuery.of(context).viewInsets.bottom==0.0;
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -380,14 +433,13 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
 
                               try {
                                 if( _pic1 != '' ) {
-                                  //String fileName = "${_building_no}_${_house_no}_${_did}_${DateTime.now()}_pic1.jpg";
                                   String fileName = "${_building_no}_${_house_no}_${DateTime.now()}_pic1.jpg";
                                   String filePath = "${globals.appDirectory}/$fileName";
                                   print(filePath);
                                   File file = File(filePath);
                                   Uint8List imageBytes = await File(_pic1).readAsBytesSync();
                                   file.writeAsBytes(imageBytes);
-                                  await ImageGallerySaver.saveImage(imageBytes, name: fileName);
+                                  //await ImageGallerySaver.saveImage(imageBytes, name: fileName);
                                   _pic1 = fileName;
                                 }
 
@@ -409,12 +461,24 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
                           ),
                         ),
                       ],
-                    )
+                    ),
                   ]
               ),
             ),
           ),
         ),
+        floatingActionButton: showFab ?
+          FloatingActionButton.extended(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.green.shade700,
+            splashColor: Colors.white,
+            onPressed: () {
+              _speechToText.isNotListening ? _startListening():_stopListening();
+            },
+            icon: Icon(Icons.mic),
+            label: Text(_floatingText),
+          ):null,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
   }

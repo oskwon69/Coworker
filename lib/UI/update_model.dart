@@ -389,6 +389,7 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                               }
 
                               try {
+
                                 if( isImageChanged )  {
                                   if( _pic1 != '' ) {
                                     String fileName = "${_building}_${_house}_${DateTime.now()}_pic1.jpg";
@@ -396,7 +397,7 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
                                     File file = File(filePath);
                                     Uint8List imageBytes = await File(_pic1).readAsBytesSync();
                                     file.writeAsBytes(imageBytes);
-                                    await ImageGallerySaver.saveImage(imageBytes, name: fileName);
+                                    //await ImageGallerySaver.saveImage(imageBytes, name: fileName);
                                     _pic1 = fileName;
                                   }
                                 }
