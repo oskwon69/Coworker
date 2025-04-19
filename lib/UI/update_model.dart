@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:avatar_glow/avatar_glow.dart';
 import 'package:coworker/UI/show_sort.dart';
 import 'package:coworker/UI/show_work.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gap/gap.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:coworker/UI/app_style.dart';
@@ -50,6 +53,21 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
   var claimController = TextEditingController();
   final DefectDatabase _databaseService = DefectDatabase();
   static final storage = FlutterSecureStorage();
+
+  SpeechToText _speechToText = SpeechToText();
+  bool _speechEnabled = false;
+  String _lastWords = '';
+  String _floatingText = '하자내용 음성인식 시작하기';
+  double level = 0.0;
+  final options = SpeechListenOptions(
+      onDevice: true,
+      listenMode: ListenMode.confirmation,
+      cancelOnError: true,
+      partialResults: true,
+      autoPunctuation: true,
+      enableHapticFeedback: true
+  );
+
 
   void getSpaceName(String str)  {
     setState(() {
@@ -105,6 +123,8 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
     _pic1 = _defect.pic1;
     _pic2 = _defect.pic2;
     claimController.text = _claim;
+
+    _initSpeech();
   }
 
   @override
@@ -114,9 +134,61 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
 
     super.dispose();
   }
+  void _initSpeech() async {
+    _speechEnabled = await _speechToText.initialize(
+      onStatus: statusListener,
+    );
+    setState(() {});
+  }
+
+  void _startListening() async {
+    await _speechToText.listen(
+        onResult: _onSpeechResult,
+        listenFor: Duration(seconds: 30),
+        pauseFor: Duration(seconds: 10),
+        localeId: 'ko_KR',
+        listenOptions: options
+    );
+    setState(() {
+      _floatingText = "음성인식 중단하기";
+    });
+  }
+
+  void _stopListening() async {
+    await _speechToText.stop();
+    setState(() {
+      _floatingText = "하자내용 음성인식 시작하기";
+      level = 0.0;
+    });
+  }
+
+  void cancelListening() async {
+    await _speechToText.cancel();
+    setState(() {
+      level = 0.0;
+    });
+  }
+
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      _lastWords = result.recognizedWords;
+      claimController.text = _lastWords;
+
+      _floatingText = _speechToText.isNotListening ? "하자내용 음성인식 시작하기":"음성인식 중단하기";
+    });
+  }
+
+  void statusListener(String status) {
+    print('Listen Status : '+ status.toString());
+    setState(() {
+      _floatingText = _speechToText.isNotListening ? "하자내용 음성인식 시작하기":"음성인식 중단하기";
+    });
+  }
+
 
   @override
   Widget build(BuildContext context)  {
+    final bool showFab = MediaQuery.of(context).viewInsets.bottom==0.0;
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -429,6 +501,25 @@ class _UpdateDefectState extends State<UpdateDefectModel> {
             )
           ),
         ),
+/*
+        floatingActionButton: showFab ? AvatarGlow(
+          animate: _speechToText.isListening,
+          glowColor: Colors.green.shade700,
+          duration: const Duration(milliseconds: 2000),
+          repeat: true,
+          child: FloatingActionButton.extended(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.green.shade700,
+            splashColor: Colors.white,
+            onPressed: () {
+              _speechToText.isNotListening ? _startListening():_stopListening();
+            },
+            icon: Icon(Icons.mic),
+            label: Text(_floatingText),
+          ),
+        ) : null,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+*/
       ),
     );
   }

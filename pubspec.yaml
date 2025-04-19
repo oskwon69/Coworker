@@ -62,6 +62,7 @@ dependencies:
   infinite_scroll_pagination: ^4.0.0
   loading_animation_widget: ^1.2.1
   speech_to_text: ^7.0.0
+  avatar_glow: ^3.0.1
 
 dev_dependencies:
   flutter_test:
