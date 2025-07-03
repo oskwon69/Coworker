@@ -40,6 +40,7 @@ class _LoginPageState extends State<LoginPage> {
   var nameController = TextEditingController();
   var phoneController = TextEditingController();
   var dateController = TextEditingController();
+  var tokenController = TextEditingController();
 
   String _uid = '';
   String? _did;
@@ -206,6 +207,7 @@ class _LoginPageState extends State<LoginPage> {
     _site_code = site;
     _site_name = name;
     _building_no = '동 선택';
+    globals.manager_mode = false;
     await _buildingKey.currentState?.refreshList(_site_code);
     await _houseKey.currentState?.refreshList(_site_code, _building_no);
     setState(() { });
@@ -261,6 +263,7 @@ class _LoginPageState extends State<LoginPage> {
     String _owner_name_db = "";
     String _owner_phone_db = "";
     String _birth_date_db = "";
+    String _pass_token = "";
 
     var commStatus = await checkCurrentCommState();
     if (commStatus == false) return false;
@@ -284,8 +287,63 @@ class _LoginPageState extends State<LoginPage> {
       globals.modyfyAllow = result[0]['modify_allow'];
       globals.viewResult = result[0]['view_result'];
       globals.backupAllow = result[0]['backup_allow'];
-      globals.manager_mode = result[0]['manager_mode']==1 ? true:false;
+      //globals.manager_mode = result[0]['manager_mode']==1 ? true:false;
+      _pass_token = result[0]['pass_token'];
       globals.serverImagePath = result[0]['image_folder'];
+    }
+
+    if( _pass_token != "" )  {
+      if( globals.manager_mode == false ) {
+        tokenController.text = "";
+        await showDialog(
+            context: context,
+            builder: (context) {
+              return Dialog(
+                child: Container(
+                  width: MediaQuery.of(context).size.width*0.7,
+                  height: 200,
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 40),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(8),),
+                          child: TextFormField(
+                              keyboardType: TextInputType.text,
+                              controller: tokenController,
+                              decoration: InputDecoration(enabledBorder: InputBorder.none, focusedBorder: InputBorder.none, hintText: '토큰을 입력해 주세요.',),
+                              textInputAction: TextInputAction.next
+                          ),
+                        ),
+                        Gap(10),
+                        ElevatedButton(
+                          onPressed: () {
+                            if( _pass_token == tokenController.text )  {
+                              globals.manager_mode = true;
+                              Navigator.pop(context);
+                            } else {
+                              globals.manager_mode = false;
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: Text('입력'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+        );
+      }
+    }
+
+    if( _pass_token != "" && globals.manager_mode == false )  {
+      Fluttertoast.showToast(msg: '입력된 토큰이 일치하지 않습니다.', gravity: ToastGravity.CENTER);
+      return false;
     }
 
     if( globals.manager_mode == false ) {

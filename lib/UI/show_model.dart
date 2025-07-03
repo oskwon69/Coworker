@@ -141,7 +141,7 @@ class _AddNewDefectState extends State<AddNewDefectModel> {
     await _speechToText.listen(
         onResult: _onSpeechResult,
         listenFor: Duration(seconds: 30),
-        pauseFor: Duration(seconds: 10),
+        pauseFor: Duration(seconds: 5),
         localeId: 'ko_KR',
         listenOptions: options
     );
