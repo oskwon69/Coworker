@@ -4,6 +4,7 @@ class DefectEx {
   final int? id;
   int? local_id;
   String uid;
+  String did;
   int site_code;
   String building_no;
   String house_no;
@@ -23,11 +24,19 @@ class DefectEx {
   String? close_date;
   int? completed;
   int deleted;
+  int work_status;
+  String? work_pic;
+  String? server_work_pic;
+  String? work_date;
+  String? worker_name;
+  String? worker_comment;
+  String? owner_sign;
 
   DefectEx({
     this.id,
     required this.local_id,
     required this.uid,
+    required this.did,
     required this.site_code,
     required this.building_no,
     required this.house_no,
@@ -46,7 +55,14 @@ class DefectEx {
     required this.sent_date,
     this.close_date,
     this.completed,
-    required this.deleted
+    required this.deleted,
+    required this.work_status,
+    this.work_pic,
+    this.server_work_pic,
+    this.work_date,
+    this.worker_name,
+    this.worker_comment,
+    this.owner_sign
   });
 
   Map<String, dynamic> toMap() {
@@ -54,6 +70,7 @@ class DefectEx {
       'id' : id,
       'local_id' : local_id,
       'uid' : uid,
+      'did' : did,
       'site_code' : site_code,
       'building_no' : building_no,
       'house_no' : house_no,
@@ -73,6 +90,13 @@ class DefectEx {
       'close_date' : close_date,
       'completed' : completed,
       'deleted' : deleted,
+      'work_status' : work_status,
+      'work_pic' : work_pic,
+      'server_work_pic' : server_work_pic,
+      'work_date' : work_date,
+      'worker_name' : worker_name,
+      'worker_comment' : worker_comment,
+      'owner_sign' : owner_sign
     };
   }
 
@@ -81,6 +105,7 @@ class DefectEx {
       id: map['id']?.toInt() ?? 0,
       local_id: map['local_id'] ?? '',
       uid: map['uid'] ?? '',
+      did: map['did'] ?? '',
       site_code: map['site_code']?.toInt() ?? '',
       building_no: map['building_no'] ?? '',
       house_no: map['house_no'] ?? '',
@@ -100,6 +125,13 @@ class DefectEx {
       close_date: map['close_date'] ?? '',
       completed: map['completed']?.toInt() ?? 0,
       deleted: map['deleted'].toInt() ?? 0,
+      work_status: map['work_status']?.toInt() ?? 0,
+      work_pic: map['work_pic'] ?? '',
+      server_work_pic: map['server_work_pic'] ?? '',
+      work_date: map['work_date'] ?? '',
+      worker_name: map['worker_name'] ?? '',
+      worker_comment: map['worker_comment'] ?? '',
+      owner_sign: map['owner_sign'] ?? '',
     );
   }
 
@@ -109,6 +141,6 @@ class DefectEx {
 
   @override
   String toString() {
-    return 'DefectEx(id: $id, local_id:$local_id, uid: $uid, site: $site_code, building: $building_no, house: $house_no, reg_name: $reg_name, reg_phone: $reg_phone, space: $space_name, area: $area_name, work: $work_name, sort: $sort_name, claim: $claim, pic1: $pic1, pic2: $pic2, gentime: $gentime, sent: $sent_date, close: $close_date, completed: $completed, deleted: $deleted)';
+    return 'DefectEx(id: $id, local_id:$local_id, uid: $uid, did: $did, site: $site_code, building: $building_no, house: $house_no, reg_name: $reg_name, reg_phone: $reg_phone, space: $space_name, area: $area_name, work: $work_name, sort: $sort_name, claim: $claim, pic1: $pic1, pic2: $pic2, gentime: $gentime, sent: $sent_date, close: $close_date, completed: $completed, deleted: $deleted, work_status: $work_status, work_pic: $work_pic, server_work_pic: $server_work_pic, work_date: $work_date, worker_name: $worker_name, worker_comment: $worker_comment, owner_sign: $owner_sign)';
   }
 }

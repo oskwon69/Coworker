@@ -4,6 +4,8 @@ import 'package:coworker/UI/dropdown_widget.dart';
 import 'package:coworker/UI/requset_page.dart';
 import 'package:coworker/UI/send_all_page.dart';
 import 'package:coworker/UI/show_agreement.dart';
+import 'package:coworker/UI/worker_page.dart';
+import 'package:coworker/model/worker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -54,6 +56,9 @@ class _LoginPageState extends State<LoginPage> {
   String _type = '';
   int _editable = 0;
 
+  int _worker_id = 0;
+  int _level = 10;
+
   final supabase = Supabase.instance.client;
   final EnvDatabase _envdatabase = EnvDatabase();
 
@@ -63,6 +68,7 @@ class _LoginPageState extends State<LoginPage> {
   bool isWifi = false;
   bool isEthernet = false;
   late UserInfo _user;
+  late WorkerInfo _worker;
 
   Future<String?> getDeviceUniqueId() async {
     String? uniqueDeviceId;
@@ -439,6 +445,81 @@ class _LoginPageState extends State<LoginPage> {
     return true;
   }
 
+  Future<bool> checkWorkerLogin() async {
+    var commStatus = await checkCurrentCommState();
+    if (commStatus == false) return false;
+
+    if( _site_code >= 999 )  {
+      Fluttertoast.showToast(msg: '단지를 선택해 주세요.', gravity: ToastGravity.CENTER);
+      return false;
+    }
+
+    var result = await supabase.from('site').select().eq('site_code',_site_code);
+    if( result.isNotEmpty )  {
+      globals.initAllow = result[0]['init_allow'];
+      globals.modyfyAllow = result[0]['modify_allow'];
+      globals.viewResult = result[0]['view_result'];
+      globals.backupAllow = result[0]['backup_allow'];
+      globals.serverImagePath = result[0]['image_folder'];
+    }
+
+    if (nameController.text == '') {
+      Fluttertoast.showToast(msg: '이름을 입력해 주세요.', gravity: ToastGravity.CENTER);
+      return false;
+    }
+
+    if (phoneController.text == '') {
+      Fluttertoast.showToast(msg: '휴대전화번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
+      return false;
+    }
+
+    if (phoneController.text.trim().length < 12 || phoneController.text.trim().length > 13) {
+      Fluttertoast.showToast(msg: '유효한 휴대전화 번호를 입력해 주세요.', gravity: ToastGravity.CENTER);
+      return false;
+    }
+
+    if (dateController.text == '') {
+      Fluttertoast.showToast(msg: '생년월일(6자리)를 입력해 주세요.', gravity: ToastGravity.CENTER);
+      return false;
+    }
+
+    if (dateController.text.trim().length != 8) {
+      Fluttertoast.showToast(msg: '유효한 생년월일(YY.MM.DD)을 입력해 주세요.', gravity: ToastGravity.CENTER);
+      return false;
+    }
+
+    try {
+      _owner_name = nameController.text.trim();
+      _owner_phone = phoneController.text.trim();
+      _birth_date = dateController.text.trim();
+
+      print({
+        'site_code': _site_code,
+        'worker_name': _owner_name,
+        'phone_no': _owner_phone,
+        'birth_date': _birth_date});
+
+      List<Map<String, dynamic>> result = await supabase.from('web_users').select().match({
+        'site_code': _site_code,
+        'user_name': _owner_name,
+        'phone_no': _owner_phone,
+        'birth_date': _birth_date});
+      if (result.isNotEmpty) {
+        _owner_name = _owner_name;
+        _owner_phone = _owner_phone;
+        _birth_date = _birth_date;
+      } else {
+        Fluttertoast.showToast(msg: '입력하신 작업자가 해당 현장DB에 없습니다.', gravity: ToastGravity.CENTER);
+        return false;
+      }
+
+    } catch (e) {
+      print(e.toString());
+    }
+
+    return true;
+  }
+
   Future<void> getLastLoginInfo() async {
     await Future.delayed(Duration.zero);
 
@@ -453,6 +534,8 @@ class _LoginPageState extends State<LoginPage> {
       nameController.text = localInfo.split(' ')[9];
       phoneController.text = localInfo.split(' ')[11];
       dateController.text = localInfo.split(' ')[13];
+
+      print('getLastLoginInfo-building:$_building_no, house:$_house_no');
 
       _siteKey.currentState?.setList(_site_code);
       await _buildingKey.currentState?.refreshList(_site_code);
@@ -663,101 +746,170 @@ class _LoginPageState extends State<LoginPage> {
                                   print(e.toString());
                                 }
                               },
-                              child: Text('로그인'),
+                              child: Text('계약자 로그인'),
                             ),
                           ),
                         ],
                       ),
-                      Gap(10),
+                      Gap(20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          TextButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.blue.shade800,
-                              elevation: 0,
-                              padding: EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            onPressed: () async {
-                              if( await checkLoginStatus(globals.manager_mode) == false )  return;
-                              if( globals.backupAllow != 1 )  return;
+                          Expanded(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.blue.shade800,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        8)),
+                                side: BorderSide(
+                                    color: Colors.blue.shade800),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 14),
+                              ),
+                              onPressed: () async {
+                                if( await checkWorkerLogin() == false )  return;
 
-                              var result = await supabase.from('users').select().match({
-                                'user_name': _owner_name,
-                                'phone_number': _owner_phone,
-                                'birth_date': _birth_date});
-                              if (result.isNotEmpty) {
-                                await supabase.from('users').update({
-                                  'last_login': '${DateFormat("yy-MM-dd hh:mm a").format(DateTime.now())}'
-                                }).match({
+                                Directory fileDir = await getApplicationDocumentsDirectory();
+                                globals.appDirectory = fileDir.path;
+                                print('appDirectory:${globals.appDirectory}');
+
+                                try {
+                                  print('** user_name:'+_owner_name);
+                                  print('phone_number:'+_owner_phone);
+                                  print('birth_date:'+_birth_date);
+                                  var result = await supabase.from('web_users').select().match({
+                                    'site_code': _site_code,
+                                    'user_name': _owner_name,
+                                    'phone_no': _owner_phone,
+                                    'birth_date': _birth_date});
+                                  if (result.isNotEmpty) {
+                                    _worker_id = result[0]['id'];
+                                    _level = result[0]['level'];
+                                  } else {
+                                    Fluttertoast.showToast(msg: "작업자를 DB에서 찾을수 없습니다.");
+                                    return;
+                                  }
+
+                                  String _work_name="";
+                                  final List<Map<String, dynamic>> data = await supabase.from('worker_works').select().match({'worker_id': _worker_id});
+                                  if (data.length > 0)
+                                    _work_name = data[0]['work_name'].toString();
+                                  else
+                                    _work_name = "";
+
+                                  _worker = WorkerInfo(worker_id: _worker_id, site_code: _site_code, site_name: _site_name, worker_name: _owner_name, birth_date: _birth_date, phone_no: _owner_phone, work_name: _work_name, level: _level);
+                                  print(_worker);
+
+                                  await storage.write(key: "loginInfo", value: "site_code "+_site_code.toString()+" site_name "+_site_name.replaceAll(" ","_")+" building_no "+_building_no+" house_no "+_house_no+
+                                      " owner_name "+_owner_name+" owner_phone "+_owner_phone+" birth_date "+_birth_date);
+
+                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WorkerPage(worker: _worker)));
+                                } catch(e) {
+                                  Fluttertoast.showToast(msg: e.toString());
+                                  print(e.toString());
+                                }
+                              },
+                              child: Text('작업자 로그인'),
+                            ),
+                          ),
+                          Gap(10),
+                          Expanded(
+                            child: TextButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.blue.shade800,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        8)),
+                                side: BorderSide(
+                                    color: Colors.blue.shade800),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 14),
+                              ),
+                              onPressed: () async {
+                                if( await checkLoginStatus(globals.manager_mode) == false )  return;
+                                if( globals.backupAllow != 1 )  return;
+
+                                var result = await supabase.from('users').select().match({
                                   'user_name': _owner_name,
                                   'phone_number': _owner_phone,
                                   'birth_date': _birth_date});
-                              } else {
-                                result =  await supabase.from('users').insert({
-                                  'user_name': _owner_name,
-                                  'phone_number': _owner_phone,
-                                  'birth_date': _birth_date,
-                                  'last_login': '${DateFormat("yy-MM-dd hh:mm a").format(DateTime.now())}'}).select();
-                              }
-                              _uid = result[0]['id'];
-                              _did = await getDeviceUniqueId();
-
-                              try {
-                                var result = await supabase.from('site').select().eq('site_code',_site_code);
-                                if( result.isNotEmpty )  {
-                                  DateTime startDate = DateTime.parse(result[0]['check_startdate'].toString());
-                                  DateTime endDate = DateTime.parse(result[0]['check_enddate'].toString());
-                                  DateTime today = DateTime.now();
-
-                                  if(result[0]['status'] != 1 ) {
-                                    Fluttertoast.showToast(msg: "하자 점검 기간이 아닙니다.", gravity: ToastGravity.CENTER);
-                                    return;
-                                  }
-
-                                  if( today.compareTo(startDate) < 0 || today.compareTo(endDate) >= 0 )  {
-                                    Fluttertoast.showToast(msg: "하자 점검 기간이 아닙니다.", gravity: ToastGravity.CENTER);
-                                    return;
-                                  }
+                                if (result.isNotEmpty) {
+                                  await supabase.from('users').update({
+                                    'last_login': '${DateFormat("yy-MM-dd hh:mm a").format(DateTime.now())}'
+                                  }).match({
+                                    'user_name': _owner_name,
+                                    'phone_number': _owner_phone,
+                                    'birth_date': _birth_date});
+                                } else {
+                                  result =  await supabase.from('users').insert({
+                                    'user_name': _owner_name,
+                                    'phone_number': _owner_phone,
+                                    'birth_date': _birth_date,
+                                    'last_login': '${DateFormat("yy-MM-dd hh:mm a").format(DateTime.now())}'}).select();
                                 }
-                              } catch(e)  {
-                                print(e.toString());
-                              }
+                                _uid = result[0]['id'];
+                                _did = await getDeviceUniqueId();
 
-                              _user = UserInfo(uid: _uid, did: _did, site_code: _site_code, site_name: _site_name, building_no: _building_no, house_no: _house_no, user_name: _owner_name, birth_date: _birth_date, user_phone: _owner_phone, type: _type);
-                              print(_user);
+                                try {
+                                  var result = await supabase.from('site').select().eq('site_code',_site_code);
+                                  if( result.isNotEmpty )  {
+                                    DateTime startDate = DateTime.parse(result[0]['check_startdate'].toString());
+                                    DateTime endDate = DateTime.parse(result[0]['check_enddate'].toString());
+                                    DateTime today = DateTime.now();
 
-                              await showDialog<String>(
-                                barrierDismissible: false,
-                                context: context,
-                                builder: (BuildContext context) =>
-                                    AlertDialog(
-                                      title: Text('알림'),
-                                      content: Text('모든 데이터를 서버로 다시 전송하시겠습니까?'),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context),
-                                          child: const Text('닫기'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
+                                    if(result[0]['status'] != 1 ) {
+                                      Fluttertoast.showToast(msg: "하자 점검 기간이 아닙니다.", gravity: ToastGravity.CENTER);
+                                      return;
+                                    }
 
-                                            showModalBottomSheet(
-                                              isDismissible: false,
-                                              isScrollControlled: true,
-                                              context: context,
-                                              builder: (context) => SendAllData(user: _user),
-                                            );
-                                          },
-                                          child: Text('전송'),
-                                        ),
-                                      ],
-                                    ),
-                              );
-                            },
-                            child: Text('백업 전송하기'),
+                                    if( today.compareTo(startDate) < 0 || today.compareTo(endDate) >= 0 )  {
+                                      Fluttertoast.showToast(msg: "하자 점검 기간이 아닙니다.", gravity: ToastGravity.CENTER);
+                                      return;
+                                    }
+                                  }
+                                } catch(e)  {
+                                  print(e.toString());
+                                }
+
+                                _user = UserInfo(uid: _uid, did: _did, site_code: _site_code, site_name: _site_name, building_no: _building_no, house_no: _house_no, user_name: _owner_name, birth_date: _birth_date, user_phone: _owner_phone, type: _type);
+                                print(_user);
+
+                                await showDialog<String>(
+                                  barrierDismissible: false,
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      AlertDialog(
+                                        title: Text('알림'),
+                                        content: Text('모든 데이터를 서버로 다시 전송하시겠습니까?'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context),
+                                            child: const Text('닫기'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+
+                                              showModalBottomSheet(
+                                                isDismissible: false,
+                                                isScrollControlled: true,
+                                                context: context,
+                                                builder: (context) => SendAllData(user: _user),
+                                              );
+                                            },
+                                            child: Text('전송'),
+                                          ),
+                                        ],
+                                      ),
+                                );
+                              },
+                              child: Text('백업 전송하기'),
+                            ),
                           )
                         ],
                       ),

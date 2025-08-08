@@ -111,7 +111,11 @@ class BuildingWidgetState extends State<BuildingWidget> {
   }
 
   void setList(String building)  {
-    _building_no = building;
+    bool hasItem = buildingList.any((map) => map['building_no'] == building);
+    if( hasItem )
+      _building_no = building;
+    else
+      _building_no = "동 선택";
     setState(() {});
   }
 
@@ -184,7 +188,11 @@ class HouseWidgetState extends State<HouseWidget> {
   }
 
   void setList(String house)  {
-    _house_no = house;
+    bool hasItem = houseList.any((map) => map['house_no'] == house);
+    if( hasItem )
+      _house_no = house;
+    else
+      _house_no = "호 선택";
     setState(() {});
   }
 
