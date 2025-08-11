@@ -302,6 +302,7 @@ class NavigationWorkerDrawer extends StatelessWidget {
         ),
         Gap(10),
         Text('${worker.worker_name!} 님', style: TextStyle(fontSize: 25, color: Colors.white),),
+        Text('${worker.site_name!}', style: TextStyle(fontSize: 16, color: Colors.white),),
         Gap(10),
       ],
     ),

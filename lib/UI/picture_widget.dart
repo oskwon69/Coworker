@@ -96,8 +96,7 @@ class _PictureWidgetState extends State<PictureWidget> {
                           Stack(
                             alignment: Alignment.center,
                             children: [
-                              Image.file(File(imagePath), width:150, height: 80),
-                              //Text(File(imagePath).lengthSync().toString()),
+                              imagePath.contains('Site') ? Image.network(globals.serverImagePath+'/'+imagePath) :Image.file(File(imagePath), width:150, height: 80),
                               Positioned(
                                 top: -10,
                                 right: 10,
@@ -116,7 +115,7 @@ class _PictureWidgetState extends State<PictureWidget> {
                                           context: context,
                                           builder: (context) {
                                             return AlertDialog(
-                                              title: Text('하자 사진을 삭제하시겠습니까?', style: TextStyle(fontSize: 15)),
+                                              title: Text('사진을 삭제하시겠습니까?', style: TextStyle(fontSize: 15)),
                                               actions: [
                                                 TextButton(
                                                     onPressed: () {

@@ -461,6 +461,8 @@ class _LoginPageState extends State<LoginPage> {
       globals.viewResult = result[0]['view_result'];
       globals.backupAllow = result[0]['backup_allow'];
       globals.serverImagePath = result[0]['image_folder'];
+      globals.contactAllow = result[0]['contact_allow'];
+      globals.worker_mode = result[0]['worker_mode']==1 ? true:false;
     }
 
     if (nameController.text == '') {
@@ -534,8 +536,6 @@ class _LoginPageState extends State<LoginPage> {
       nameController.text = localInfo.split(' ')[9];
       phoneController.text = localInfo.split(' ')[11];
       dateController.text = localInfo.split(' ')[13];
-
-      print('getLastLoginInfo-building:$_building_no, house:$_house_no');
 
       _siteKey.currentState?.setList(_site_code);
       await _buildingKey.currentState?.refreshList(_site_code);

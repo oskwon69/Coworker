@@ -92,7 +92,8 @@ class _PictureSelectState extends State<PictureSelect> {
             ),
             Divider(thickness: 1.2, color: Colors.grey.shade200,),
             Gap(12),
-            Text(widget.readOnly == true ? '하자가 발생한 부위의 사진을 확인해 주세요.':'하자가 발생한 부위의 사진을 선택해 주세요.'),
+            Text(imagePath.contains('Site') ? "작업을 완료한 사진을 촬영해 주세요.":
+                 widget.readOnly == true ? '하자가 발생한 부위의 사진을 확인해 주세요.':'하자가 발생한 부위의 사진을 선택해 주세요.'),
             Gap(10),
             Expanded(
               child: Container(
@@ -116,7 +117,7 @@ class _PictureSelectState extends State<PictureSelect> {
                         Text('사진이 선택되지 않았습니다.'),
                       ],
                     ) :
-                    Image.file(File(imagePath))
+                    imagePath.contains('Site') ? Image.network(globals.serverImagePath+'/'+imagePath):Image.file(File(imagePath))
                   //CircleAvatar(backgroundImage: FileImage(File(_image!.path)),radius: 100)
                 ),
               ),

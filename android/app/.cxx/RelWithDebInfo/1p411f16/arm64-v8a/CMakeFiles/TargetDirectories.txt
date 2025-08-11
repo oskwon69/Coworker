@@ -1,0 +1,2 @@
+C:/Users/focus/StudioProjects/Coworker/android/app/.cxx/RelWithDebInfo/1p411f16/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/focus/StudioProjects/Coworker/android/app/.cxx/RelWithDebInfo/1p411f16/arm64-v8a/CMakeFiles/rebuild_cache.dir

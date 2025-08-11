@@ -26,7 +26,6 @@ class DefectEx {
   int deleted;
   int work_status;
   String? work_pic;
-  String? server_work_pic;
   String? work_date;
   String? worker_name;
   String? worker_comment;
@@ -58,7 +57,6 @@ class DefectEx {
     required this.deleted,
     required this.work_status,
     this.work_pic,
-    this.server_work_pic,
     this.work_date,
     this.worker_name,
     this.worker_comment,
@@ -92,7 +90,6 @@ class DefectEx {
       'deleted' : deleted,
       'work_status' : work_status,
       'work_pic' : work_pic,
-      'server_work_pic' : server_work_pic,
       'work_date' : work_date,
       'worker_name' : worker_name,
       'worker_comment' : worker_comment,
@@ -127,7 +124,6 @@ class DefectEx {
       deleted: map['deleted'].toInt() ?? 0,
       work_status: map['work_status']?.toInt() ?? 0,
       work_pic: map['work_pic'] ?? '',
-      server_work_pic: map['server_work_pic'] ?? '',
       work_date: map['work_date'] ?? '',
       worker_name: map['worker_name'] ?? '',
       worker_comment: map['worker_comment'] ?? '',
@@ -141,6 +137,6 @@ class DefectEx {
 
   @override
   String toString() {
-    return 'DefectEx(id: $id, local_id:$local_id, uid: $uid, did: $did, site: $site_code, building: $building_no, house: $house_no, reg_name: $reg_name, reg_phone: $reg_phone, space: $space_name, area: $area_name, work: $work_name, sort: $sort_name, claim: $claim, pic1: $pic1, pic2: $pic2, gentime: $gentime, sent: $sent_date, close: $close_date, completed: $completed, deleted: $deleted, work_status: $work_status, work_pic: $work_pic, server_work_pic: $server_work_pic, work_date: $work_date, worker_name: $worker_name, worker_comment: $worker_comment, owner_sign: $owner_sign)';
+    return 'DefectEx(id: $id, local_id:$local_id, uid: $uid, did: $did, site: $site_code, building: $building_no, house: $house_no, reg_name: $reg_name, reg_phone: $reg_phone, space: $space_name, area: $area_name, work: $work_name, sort: $sort_name, claim: $claim, pic1: $pic1, pic2: $pic2, gentime: $gentime, sent: $sent_date, close: $close_date, completed: $completed, deleted: $deleted, work_status: $work_status, work_pic: $work_pic, work_date: $work_date, worker_name: $worker_name, worker_comment: $worker_comment, owner_sign: $owner_sign)';
   }
 }

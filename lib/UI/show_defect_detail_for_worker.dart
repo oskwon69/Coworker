@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:coworker/UI/signature_widget.dart';
 import 'package:coworker/model/worker.dart';
 import 'package:coworker/UI/picture_widget.dart';
 import 'package:coworker/UI/show_defect_picture_sent.dart';
@@ -10,6 +11,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:coworker/UI/app_style.dart';
 import 'package:coworker/UI/textfield_widget.dart';
@@ -56,6 +58,7 @@ class _ShowWorkerDefectState extends State<ShowWorkerDefect> {
   final supabase = Supabase.instance.client;
 
   FocusNode focusNode = FocusNode();
+  FocusNode focusNode2 = FocusNode();
   var claimController = TextEditingController();
   var commentController = TextEditingController();
   final DefectDatabase _databaseService = DefectDatabase();
@@ -80,7 +83,6 @@ class _ShowWorkerDefectState extends State<ShowWorkerDefect> {
 
     _work_status = _defect.work_status;
     _work_pic = _defect.work_pic!;
-    _server_work_pic = _defect.server_work_pic!;
     _work_date = _defect.work_date!;
     _worker_name = _worker.worker_name!;
     _worker_comment = _defect.worker_comment!;
@@ -92,6 +94,7 @@ class _ShowWorkerDefectState extends State<ShowWorkerDefect> {
   void dispose() {
     claimController.dispose();
     focusNode.dispose();
+    focusNode2.dispose();
 
     super.dispose();
   }
@@ -99,6 +102,12 @@ class _ShowWorkerDefectState extends State<ShowWorkerDefect> {
   void getWorkPic(String str)  {
     setState(() {
       _work_pic = str;
+    });
+  }
+
+  void getSignature(String str)  {
+    setState(() {
+      _owner_sign = str;
     });
   }
 
@@ -133,6 +142,38 @@ class _ShowWorkerDefectState extends State<ShowWorkerDefect> {
                   ),
                   Divider(thickness: 1.2, color: Colors.grey.shade200,),
                   Gap(10),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '동호수 : $_building동 $_house호',
+                          style: AppStyle.headingOne,
+                        ),
+                        globals.contactAllow==1 ?
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.blue.shade800,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            side: BorderSide(color: Colors.blue.shade800),
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                          ),
+                            onPressed: () async {
+                              String _phone_no = '';
+                              var result = await supabase.from('owner').select().match({'site_code': _site, 'building_no': _building, 'house_no':_house});
+                              if( result.isNotEmpty )  {
+                                _phone_no = result[0]['contact']!='' ? result[0]['contact']:widget.defect.reg_phone;
+                              }
+
+                              final Uri launchUri = Uri(scheme: 'tel',path: _phone_no);
+                              await launchUrl(launchUri);
+                            },
+                            child: Text('  입주자 전화하기  '),
+                          ) : Container(),
+                      ]
+                  ),
+                  Gap(20),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -266,7 +307,7 @@ class _ShowWorkerDefectState extends State<ShowWorkerDefect> {
                       ]
                   ),
                   Gap(20),
-                  TextFieldWidget(titleText: '하자내용', maxLines: 3, hintText: '', controller: claimController, focusNode: focusNode, readOnly: true),
+                  TextFieldWidget(titleText: '하자내용', maxLines: 2, hintText: '', controller: claimController, focusNode: focusNode2, readOnly: true),
                   Gap(20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -328,12 +369,19 @@ class _ShowWorkerDefectState extends State<ShowWorkerDefect> {
                   Gap(10),
                   Divider(thickness: 1.2, color: Colors.grey.shade200,),
                   Gap(10),
-                  TextFieldWidget(titleText: '작업내용', maxLines: 3, hintText: '작업내용을 입력해 주세요.', controller: commentController, focusNode: focusNode, readOnly: false),
+                  TextFieldWidget(titleText: '작업내용', maxLines: 2, hintText: '작업내용을 입력해 주세요.', controller: commentController, focusNode: focusNode, readOnly: false),
                   Gap(20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       PictureWidget(titleText: '작업완료사진', image: _work_pic, function: getWorkPic, readOnly: false,),
+                    ],
+                  ),
+                  Gap(20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SignatureWidget(titleText: '입주자 확인 서명', image: _owner_sign, function: getSignature, readOnly: _owner_sign=='' ? false:true),
                     ],
                   ),
                   Row(
@@ -397,7 +445,7 @@ class _ShowWorkerDefectState extends State<ShowWorkerDefect> {
                           ),
                           onPressed: () async {
                             if( _work_pic == '' )  {
-                              Fluttertoast.showToast(msg: '하자 사진을 찍어 주세요.', gravity: ToastGravity.CENTER);
+                              Fluttertoast.showToast(msg: '작업완료 사진을 찍어 주세요.', gravity: ToastGravity.CENTER);
                               return;
                             }
 
@@ -408,25 +456,24 @@ class _ShowWorkerDefectState extends State<ShowWorkerDefect> {
                             _worker_comment = commentController.text.trim();
 
                             try {
-                              print('*********work_pic:'+_work_pic);
-                              if (_work_pic != '' && _work_pic.contains('cache') ) {
-                                String fileName = "work_${_site}_${_building}_${_house}_${widget.defect.id}_${DateTime.now()}.jpg";
-                                String filePath = "${globals.appDirectory}/$fileName";
-                                File file = File(filePath);
+                              if (_work_pic != '' && !_work_pic.contains('Site') ) {
                                 Uint8List imageBytes = await File(_work_pic).readAsBytesSync();
-                                file.writeAsBytes(imageBytes);
-                                _work_pic = filePath;
-                                print('++++++++if work_pic:'+_work_pic);
-
-                                filepath = 'Site${_site}/${_building}_${_house}/${_building}_${_house}_${widget.worker.worker_id}_${widget.defect.id}_w.jpg';
+                                filepath =
+                                'Site${_site}/${_building}_${_house}/${_building}_${_house}_${widget.worker.worker_id}_${widget.defect.id}_work.jpg';
                                 await supabase.storage.from(serverStorage).uploadBinary(filepath, imageBytes,fileOptions: const FileOptions(cacheControl: '3600', upsert: true));
-                                _server_work_pic = filepath;
+                                _work_pic = filepath;
+                              }
+
+                              if (_owner_sign != '' && !_owner_sign.contains('sign') ) {
+                                Uint8List signImageBytes = await File(_owner_sign).readAsBytesSync();
+                                filepath = 'Site${_site}/${_building}_${_house}/${_building}_${_house}_${widget.worker.worker_id}_${widget.defect.id}_sign.jpg';
+                                await supabase.storage.from(serverStorage).uploadBinary(filepath, signImageBytes,fileOptions: const FileOptions(cacheControl: '3600', upsert: true));
+                                _owner_sign = filepath;
                               }
 
                               final data = await supabase.from('defects').update({
                                 'work_status': _work_status,
                                 'work_pic': _work_pic,
-                                'server_work_pic': _server_work_pic,
                                 'work_date': _work_date,
                                 'worker_name': _worker_name,
                                 'worker_comment': _worker_comment,
