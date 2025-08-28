@@ -1,12 +1,13 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=c:\flutter"
+export "FLUTTER_ROOT=C:\flutter"
 export "FLUTTER_APPLICATION_PATH=C:\Users\focus\StudioProjects\Coworker"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_TARGET=lib\main.dart"
 export "FLUTTER_BUILD_DIR=build"
-export "FLUTTER_BUILD_NAME=1.0.7"
-export "FLUTTER_BUILD_NUMBER=33"
+export "FLUTTER_BUILD_NAME=1.0.13"
+export "FLUTTER_BUILD_NUMBER=39"
+export "FLUTTER_CLI_BUILD_MODE=debug"
 export "DART_OBFUSCATION=false"
 export "TRACK_WIDGET_CREATION=true"
 export "TREE_SHAKE_ICONS=false"
