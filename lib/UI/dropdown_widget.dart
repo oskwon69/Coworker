@@ -22,7 +22,7 @@ class SiteWidgetState extends State<SiteWidget> {
   Future<void> _getSites() async {
     siteList.clear();
     siteList.add({'site_code': 999, 'site_name': '단지 선택'});
-    var sites = await supabase.from('site').select().match({'status' : 1}).order('site_name');
+    var sites = await supabase.from('site').select().match({'status' : 1}).order('site_name', ascending: true);
     if (sites.isNotEmpty) {
       siteList.addAll(sites.toList());
     }

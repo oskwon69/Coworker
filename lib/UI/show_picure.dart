@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 
 import '../API/globals.dart' as globals;
 
@@ -43,7 +43,7 @@ class _PictureSelectState extends State<PictureSelect> {
 
       String fileName = imagePath.split('/').last;
       Uint8List imageBytes = await File(imagePath).readAsBytesSync();
-      await ImageGallerySaver.saveImage(imageBytes, name: fileName);
+      await ImageGallerySaverPlus.saveImage(imageBytes, name: fileName);
     }
     setState(() {});
   }
