@@ -131,7 +131,7 @@ class _SendDataState extends State<SendData> {
           print('pic1: ${defectSendList[i].pic1}');
           String imagePath = "${globals.appDirectory}/${defectSendList[i].pic1}";
           Uint8List imageBytes = await File(imagePath).readAsBytesSync();
-          filepath1 = 'Site${defectSendList[i].site}/${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].did}_${defectSendList[i].id}_1.jpg';
+          filepath1 = 'Site${defectSendList[i].site}/${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].did}_${defectSendList[i].gentime.replaceAll('/','')}_${defectSendList[i].id}_1.jpg';
           //filepath1 = '${defectSendList[i].building}_${defectSendList[i].house}/${defectSendList[i].building}_${defectSendList[i].house}_${defectSendList[i].did}_${defectSendList[i].id}_1.jpg';
           print(filepath1);
           await supabase.storage.from(serverStorage).uploadBinary(
